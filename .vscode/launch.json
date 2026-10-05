@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SigtauApplication<sigtau>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "edu.ues.sigtau.SigtauApplication",
+            "projectName": "sigtau",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
