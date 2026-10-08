@@ -48,6 +48,22 @@ export function resolverSolicitud(idSesion: number, aprobar: boolean, justificac
   return apiFetch<Sesion>(`/sesiones/${idSesion}/resolver?${params.toString()}`, { method: "PATCH" });
 }
 
+/** Reprogramar una sesión existente. */
+export function reprogramarSesion(
+  idSesion: number,
+  payload: {
+    idHorario: number;
+    fecha: string;
+    horaInicio: string;
+    horaFin: string;
+  }
+): Promise<Sesion> {
+  return apiFetch<Sesion>(`/sesiones/${idSesion}/reprogramar`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
 /** Cancelar sesión (PENDIENTE o APROBADA) */
 export function cancelarSesion(idSesion: number): Promise<Sesion> {
   return apiFetch<Sesion>(`/sesiones/${idSesion}/cancelar`, { method: "PATCH" });
