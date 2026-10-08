@@ -30,7 +30,7 @@ server:
 
 sigtau:
   jwt:
-    secret: ${JWT_SECRET:dev-only-sigtau-jwt-secret-change-before-production-2026}
+    secret: ${JWT_SECRET}
     access-token-minutes: 30
     refresh-token-days: 7
   cors:
@@ -54,6 +54,10 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+sigtau:
+  jwt:
+    secret: dev-only-sigtau-jwt-secret-change-before-production-2026
   jpa:
     hibernate:
       ddl-auto: create-drop   # en dev, Hibernate crea el esquema en memoria a partir de las entidades
