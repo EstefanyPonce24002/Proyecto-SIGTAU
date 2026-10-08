@@ -219,6 +219,19 @@ public class SesionService {
                         throw new IllegalStateException("Solo se puede registrar seguimiento de una sesión APROBADA");
                 }
 
+                if (asistencia == null) {
+                        throw new IllegalArgumentException("La asistencia es obligatoria");
+                }
+
+                if (calificacion == null || calificacion.compareTo(java.math.BigDecimal.ZERO) < 0
+                                || calificacion.compareTo(java.math.BigDecimal.TEN) > 0) {
+                        throw new IllegalArgumentException("La calificación debe estar entre 0 y 10");
+                }
+
+                if (observaciones != null && observaciones.length() > 1000) {
+                        throw new IllegalArgumentException("Las observaciones no pueden superar 1000 caracteres");
+                }
+
                 sesion.setAsistencia(asistencia);
                 sesion.setObservacionesTutor(observaciones);
                 sesion.setCalificacionProgreso(calificacion);
