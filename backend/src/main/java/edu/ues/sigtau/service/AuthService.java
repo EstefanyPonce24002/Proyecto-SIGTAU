@@ -32,6 +32,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
+    private final EmailService emailService;
     // Inyectar aquí un EmailService real (SMTP/SendGrid) cuando esté disponible.
 
     private static final long RESET_TOKEN_EXPIRY_MINUTES = 30;
@@ -117,8 +118,7 @@ public class AuthService {
 
         resetTokenRepository.save(resetToken);
 
-        // TODO: enviar `token` por correo dentro de un enlace,
-        // p.ej. https://sigtau.app/reset-password?token=...
+        emailService.enviarRecuperacion(usuario.getCorreo(), usuario.getNombres(), token);
     }
 
     /** RF-03: Recuperar Contraseña -- paso 2 */
