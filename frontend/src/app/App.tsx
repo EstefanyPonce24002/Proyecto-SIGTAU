@@ -27,6 +27,7 @@ import { logout as logoutApi } from "./lib/auth";
 // Importación de todos los componentes de las pantallas/vistas
 import { LoginScreen } from "./components/LoginScreen";
 import { RecuperarContrasena } from "./components/RecuperarContrasena";
+import { RestablecerContrasena } from "./components/RestablecerContrasena";
 import { Inicio } from "./components/Inicio";
 import { Ajustes } from "./components/Ajustes";
 import { SolicitudTutoria } from "./components/SolicitudTutoria";
@@ -48,7 +49,7 @@ import { VoiceSearchInput } from "./components/VoiceSearchInput";
 
 // TIPOS Y CONSTANTES GLOBALES
 type Rol = "estudiante" | "tutor" | "coordinador";
-type Screen = "login" | "recuperar" | "app";
+type Screen = "login" | "recuperar" | "restablecer" | "app";
 type Tab = string;
 
 interface NavItem {
@@ -261,9 +262,11 @@ export default function App() {
   const screen: Screen =
     pathname === "/recuperar"
       ? "recuperar"
-      : isAppPath || isHomePath
-        ? "app"
-        : "login";
+      : pathname === "/restablecer"
+        ? "restablecer"
+        : isAppPath || isHomePath
+          ? "app"
+          : "login";
 
   // --- SECCIÓN 4: MANEJADORES DE SESIÓN ---
   const handleLogin = (rol: Rol, nombre: string, idUsuario: number) => {
@@ -311,6 +314,15 @@ export default function App() {
           onLogin={handleLogin}
           onForgot={() => navigate("/recuperar")}
         />
+      </div>
+    );
+  }
+
+  /* ── Pantalla de Restablecer Contraseña ── */
+  if (screen === "restablecer") {
+    return (
+      <div className={theme === "dark" ? "dark" : ""}>
+        <RestablecerContrasena onBack={() => navigate("/login")} />
       </div>
     );
   }
