@@ -183,10 +183,6 @@ public class SesionService {
 
                 sesion = sesionRepository.save(sesion);
 
-                Integer usuarioDestino = sesion.getEstudiante().getUsuario().getId().equals(actorId)
-                                ? sesion.getTutor().getUsuario().getId()
-                                : sesion.getEstudiante().getUsuario().getId();
-
                 String actorNombre = sesion.getEstudiante().getUsuario().getId().equals(actorId)
                                 ? sesion.getEstudiante().getUsuario().getNombres()
                                 : sesion.getTutor().getUsuario().getNombres();
