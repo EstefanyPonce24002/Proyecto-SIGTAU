@@ -63,6 +63,10 @@ public class AuthService {
     /** RF-01: Registrar Usuario */
     @Transactional
     public UsuarioAdminResponse registrar(RegistroRequest request) {
+        if (request.rol() == RolUsuario.COORDINADOR) {
+            throw new IllegalArgumentException("El rol COORDINADOR no puede registrarse desde el endpoint público");
+        }
+
         if (usuarioRepository.existsByCorreo(request.correo())) {
             throw new IllegalArgumentException("El correo ya está registrado");
         }
