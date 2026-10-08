@@ -79,7 +79,7 @@ public class SecurityConfig {
                         // Flujo de tutorías.
                         .requestMatchers(HttpMethod.POST, "/api/sesiones")
                         .hasRole("ESTUDIANTE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver", "/api/sesiones/*/seguimiento")
+                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver", "/api/sesiones/*/seguimiento", "/api/sesiones/*/reprogramar")
                         .hasAnyRole("TUTOR", "COORDINADOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/cancelar")
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
@@ -89,6 +89,14 @@ public class SecurityConfig {
                                 .hasRole("COORDINADOR")
                         .requestMatchers(HttpMethod.GET, "/api/sesiones/tutor/*", "/api/sesiones/tutor/*/pendientes")
                         .hasAnyRole("TUTOR", "COORDINADOR")
+
+                        .requestMatchers(HttpMethod.POST, "/api/sesiones/*/adjuntos")
+                        .hasAnyRole("ESTUDIANTE", "COORDINADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/sesiones/*/adjuntos", "/api/sesiones/adjuntos/*/descarga")
+                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+
+                        .requestMatchers("/api/mensajes/**")
+                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
                         .requestMatchers("/api/notificaciones/**")
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")

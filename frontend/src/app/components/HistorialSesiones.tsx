@@ -17,10 +17,12 @@ import {
 // Funciones y tipos de la capa de datos (API)
 import {
   historialTutor,
+  reprogramarSesion,
   type Sesion,
   type EstadoSesion,
 } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
+import { listarHorariosDelTutor, DIA_LABEL, formatHora as formatCatalogoHora, type HorarioOption } from "../lib/catalogo";
 import { VoiceSearchInput } from "./VoiceSearchInput";
 
 // TIPOS Y CONSTANTES
@@ -87,9 +89,11 @@ function EstadoBadge({ estado }: { estado: EstadoSesion }) {
 function DetalleModal({
   sesion,
   onClose,
+  onReprogramar,
 }: {
   sesion: Sesion;
   onClose: () => void;
+  onReprogramar: (sesion: Sesion) => void;
 }) {
   const calificacion = sesion.calificacionProgreso;
   return (
@@ -253,6 +257,16 @@ function DetalleModal({
 
         {/* Pie del modal */}
         <div className="px-6 pb-5">
+          {(sesion.estado === "PENDIENTE" || sesion.estado === "APROBADA") && (
+            <button
+              onClick={() => onReprogramar(sesion)}
+              className="w-full rounded-xl py-2.5 mb-2 text-sm font-medium text-white transition-all hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #0F766E, #14B8A6)" }}
+            >
+              Reprogramar tutoría
+            </button>
+          )}
+
           <button
             onClick={onClose}
             className="w-full rounded-xl py-2.5 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md active:scale-[0.98]"
@@ -262,6 +276,118 @@ function DetalleModal({
             }}
           >
             Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function ReprogramarModal({
+  sesion,
+  onClose,
+  onSaved,
+}: {
+  sesion: Sesion;
+  onClose: () => void;
+  onSaved: (sesion: Sesion) => void;
+}) {
+  const [fecha, setFecha] = useState(sesion.fechaSesion);
+  const [horarios, setHorarios] = useState<HorarioOption[]>([]);
+  const [idHorario, setIdHorario] = useState(String(sesion.idHorario ?? ""));
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    listarHorariosDelTutor(sesion.idTutor)
+      .then(setHorarios)
+      .catch((err) => setError(err instanceof ApiError ? err.message : "No se pudieron cargar los horarios."))
+      .finally(() => setCargando(false));
+  }, [sesion.idTutor]);
+
+  const dia = (() => {
+    if (!fecha) return null;
+    const day = new Date(`${fecha}T12:00:00`).getDay();
+    return ["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"][day];
+  })();
+
+  const opciones = horarios.filter((h) =>
+    h.diaSemana === dia && (h.disponible || h.id === sesion.idHorario)
+  );
+  const seleccionado = opciones.find((h) => String(h.id) === idHorario);
+
+  async function guardar() {
+    if (!seleccionado) {
+      setError("Selecciona un horario disponible para la nueva fecha.");
+      return;
+    }
+    setGuardando(true);
+    setError(null);
+    try {
+      const actualizada = await reprogramarSesion(sesion.id, {
+        idHorario: seleccionado.id,
+        fecha,
+        horaInicio: seleccionado.horaInicio,
+        horaFin: seleccionado.horaFin,
+      });
+      onSaved(actualizada);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se pudo reprogramar la sesión.");
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-card-foreground font-semibold">Reprogramar tutoría #{sesion.id}</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-muted-foreground mb-1.5">Nueva fecha</label>
+            <input
+              type="date"
+              value={fecha}
+              min={new Date().toISOString().slice(0, 10)}
+              onChange={(e) => { setFecha(e.target.value); setIdHorario(""); }}
+              className="w-full rounded-xl border border-border bg-card text-foreground px-3 py-2.5"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-muted-foreground mb-1.5">Nuevo horario</label>
+            <select
+              value={idHorario}
+              onChange={(e) => setIdHorario(e.target.value)}
+              disabled={cargando || opciones.length === 0}
+              className="w-full rounded-xl border border-border bg-card text-foreground px-3 py-2.5"
+            >
+              <option value="">
+                {cargando ? "Cargando horarios..." : opciones.length ? "Selecciona un horario" : "No hay horarios para ese día"}
+              </option>
+              {opciones.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {DIA_LABEL[h.diaSemana]} · {formatCatalogoHora(h.horaInicio)} - {formatCatalogoHora(h.horaFin)}
+                </option>
+              ))}
+            </select>
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} className="flex-1 rounded-xl border border-border py-2.5 text-sm">Cancelar</button>
+          <button
+            onClick={guardar}
+            disabled={guardando || !seleccionado}
+            className="flex-1 rounded-xl py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, #1E3A8A, #3B82F6)" }}
+          >
+            {guardando ? "Guardando..." : "Reprogramar"}
           </button>
         </div>
       </div>
@@ -279,6 +405,7 @@ export function HistorialSesiones({ idTutor }: Props) {
   const [filtroEstado, setFiltroEstado] = useState("Todos");
   const [filtroAsig, setFiltroAsig] = useState("Todas");
   const [detalle, setDetalle] = useState<Sesion | null>(null);
+  const [reprogramar, setReprogramar] = useState<Sesion | null>(null);
 
   // --- SECCIÓN 2: CARGA DE DATOS ---
   const cargar = useCallback(() => {
@@ -589,7 +716,21 @@ export function HistorialSesiones({ idTutor }: Props) {
 
       {/* ── Modal de Detalle ── */}
       {detalle && (
-        <DetalleModal sesion={detalle} onClose={() => setDetalle(null)} />
+        <DetalleModal
+          sesion={detalle}
+          onClose={() => setDetalle(null)}
+          onReprogramar={(sesion) => { setDetalle(null); setReprogramar(sesion); }}
+        />
+      )}
+      {reprogramar && (
+        <ReprogramarModal
+          sesion={reprogramar}
+          onClose={() => setReprogramar(null)}
+          onSaved={(sesionActualizada) => {
+            setSesiones((prev) => prev.map((s) => s.id === sesionActualizada.id ? sesionActualizada : s));
+            setReprogramar(null);
+          }}
+        />
       )}
     </div>
   );

@@ -4,5 +4,6 @@ public enum TipoReporte {
     ASISTENCIA,
     RENDIMIENTO,
     ESTADISTICAS,
-    POR_TUTOR
+    POR_TUTOR,
+    DEMANDA
 }

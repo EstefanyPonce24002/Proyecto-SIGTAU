@@ -19,6 +19,7 @@ SIGTAU/
 - Inicio de sesión y cierre de sesión.
 - Consulta de asignaturas, tutores y horarios disponibles.
 - Solicitud de tutoría con validación de tutor, asignatura, horario, fecha y disponibilidad.
+- Descripción de dificultades y carga de documentos de apoyo (PDF/DOC/DOCX/XLS/XLSX).
 - Historial y detalle de tutorías.
 - Cancelación de sesiones.
 - Notificaciones.
@@ -33,7 +34,9 @@ SIGTAU/
 - Validación de propiedad, disponibilidad y solapamientos.
 - Registro de asistencia, observaciones y calificación de progreso.
 - Historial de tutorías.
-- Notificaciones de cambios relevantes.
+- Reprogramación de sesiones y notificación de cambio de horario.
+- Calendario mensual de sesiones.
+- Notificaciones, recordatorios automáticos y mensajería.
 
 ### Coordinador
 - Gestión de usuarios.
@@ -43,6 +46,8 @@ SIGTAU/
 - Supervisión global de sesiones con filtros.
 - Generación de reportes.
 - Cancelación administrativa de sesiones.
+- Mensajería con estudiantes y tutores.
+- Reporte de tutorías más solicitadas por asignatura.
 
 ## Base de datos
 
@@ -57,6 +62,7 @@ Incluye:
 - notificaciones;
 - reportes;
 - tokens de recuperación de contraseña;
+- documentos adjuntos y mensajes;
 - índices y restricciones de integridad.
 
 `database/seed.sql` contiene datos de desarrollo con contraseñas de prueba `password123` mediante BCrypt y fechas compatibles con los horarios definidos.
@@ -83,6 +89,7 @@ Las variables sensibles de producción deben configurarse mediante entorno, entr
 - `CORS_ALLOWED_ORIGINS`
 - `FRONTEND_URL`
 - `MAIL_FROM`
+- `SIGTAU_UPLOAD_DIR`
 - variables SMTP cuando se utilice recuperación por correo.
 
 Las instrucciones específicas de frontend y backend se mantienen en sus respectivos directorios.
@@ -100,3 +107,12 @@ Consultar los documentos del proyecto relacionados con:
 - matriz de trazabilidad;
 - diccionario de datos;
 - correcciones técnicas del informe de avance.
+
+
+## Respaldo de datos
+
+Los scripts de database/backup.sh, database/restore.sh y database/backup.ps1 permiten crear y restaurar respaldos PostgreSQL en formato custom. Requieren las variables de conexión y DB_PASSWORD; la contraseña no se almacena en el repositorio.
+
+## Nota sobre validación final
+
+La revisión de código y trazabilidad de requisitos se realizó de forma estática. La compilación, ejecución de pruebas automatizadas, validación de PostgreSQL/H2 y pruebas manuales de frontend quedan para la etapa final de validación local.

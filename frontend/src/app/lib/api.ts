@@ -42,8 +42,9 @@ interface ApiFetchOptions extends RequestInit {
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const { auth = true, headers, ...rest } = options;
 
+  const isFormData = typeof FormData !== "undefined" && rest.body instanceof FormData;
   const finalHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(headers as Record<string, string> | undefined),
   };
 

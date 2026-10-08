@@ -1,5 +1,6 @@
 package edu.ues.sigtau.controller;
 
+import edu.ues.sigtau.dto.ReprogramarSesionRequest;
 import edu.ues.sigtau.dto.SesionResponse;
 import edu.ues.sigtau.dto.SolicitarSesionRequest;
 import edu.ues.sigtau.service.SesionService;
@@ -45,6 +46,19 @@ public class SesionController {
             @RequestParam(required = false) String justificacion,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(sesionService.resolverSolicitud(id, aprobar, justificacion,
+                authenticatedUserService.resolve(userDetails).getId(),
+                authenticatedUserService.isCoordinator(userDetails)));
+    }
+
+    /** Reprogramar una tutoría existente. */
+    @PatchMapping("/{id}/reprogramar")
+    public ResponseEntity<SesionResponse> reprogramar(
+            @PathVariable Integer id,
+            @Valid @RequestBody ReprogramarSesionRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(sesionService.reprogramar(
+                id,
+                request,
                 authenticatedUserService.resolve(userDetails).getId(),
                 authenticatedUserService.isCoordinator(userDetails)));
     }

@@ -15,6 +15,7 @@ const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
   { valor: "RENDIMIENTO",  label: "Rendimiento Académico",  info: "Promedios de calificaciones por asignatura." },
   { valor: "ESTADISTICAS", label: "Estadísticas Generales", info: "Totales del período: sesiones, estudiantes, tutores, asistencia." },
   { valor: "POR_TUTOR",    label: "Por Tutor",              info: "Desempeño individual: sesiones, aprobación y evaluación." },
+  { valor: "DEMANDA",     label: "Tutorías más solicitadas", info: "Demanda de tutorías agrupada por asignatura." },
 ];
 
 const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
