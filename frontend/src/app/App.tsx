@@ -48,6 +48,7 @@ import { Notificaciones } from "./components/Notificaciones";
 import { ProximosEventos } from "./components/ProximosEventos";
 import { VoiceSearchInput } from "./components/VoiceSearchInput";
 import { Mensajes } from "./components/Mensajes";
+import { CalendarioTutor } from "./components/CalendarioTutor";
 
 // TIPOS Y CONSTANTES GLOBALES
 type Rol = "estudiante" | "tutor" | "coordinador";
@@ -111,6 +112,13 @@ const NAV_ITEMS: NavItem[] = [
     id: "horarios",
     path: "horarios",
     label: "Mis Horarios",
+    icon: Calendar,
+    roles: ["tutor"],
+  },
+  {
+    id: "calendario-tutor",
+    path: "calendario",
+    label: "Calendario",
     icon: Calendar,
     roles: ["tutor"],
   },
@@ -699,6 +707,7 @@ export default function App() {
             {activeTab === "horarios" && (
               <GestionHorarios idTutor={idUsuario} />
             )}
+            {activeTab === "calendario-tutor" && <CalendarioTutor idTutor={idUsuario} />}
             {activeTab === "historial-sesiones" && (
               <HistorialSesiones idTutor={idUsuario} />
             )}
