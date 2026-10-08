@@ -2,9 +2,6 @@ spring:
   application:
     name: sigtau
 
-  profiles:
-    active: dev
-
   jpa:
     hibernate:
       ddl-auto: validate   # el esquema lo crea database/schema.sql, no Hibernate
@@ -30,7 +27,7 @@ server:
 
 sigtau:
   jwt:
-    secret: "CAMBIAR_ESTE_SECRETO_POR_UNO_SEGURO_DE_AL_MENOS_256_BITS"
+    secret: ${JWT_SECRET}
     access-token-minutes: 30
     refresh-token-days: 7
   cors:
@@ -54,6 +51,10 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+sigtau:
+  jwt:
+    secret: dev-only-sigtau-jwt-secret-change-before-production-2026
   jpa:
     hibernate:
       ddl-auto: create-drop   # en dev, Hibernate crea el esquema en memoria a partir de las entidades
@@ -66,5 +67,5 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/sigtau
     username: ${DB_USER:sigtau_user}
-    password: ${DB_PASSWORD:changeme}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver

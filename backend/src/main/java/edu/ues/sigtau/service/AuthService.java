@@ -108,6 +108,8 @@ public class AuthService {
         // Por seguridad, no revelamos si el correo existe o no.
         if (usuario == null) return;
 
+        resetTokenRepository.deleteByUsuario_IdAndUsadoFalse(usuario.getId());
+
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .usuario(usuario)
