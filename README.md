@@ -2,32 +2,101 @@
 
 Universidad de El Salvador · Facultad Multidisciplinaria de Occidente · Equipo 6
 
-Este repositorio contiene la aplicación completa organizada en tres módulos independientes:
+SIGTAU es una aplicación web para gestionar tutorías académicas, solicitudes de estudiantes, aprobación y seguimiento por tutores y supervisión/administración por coordinadores.
+
+## Estructura
 
 ```
 SIGTAU/
-├── frontend/    Vite 6 + React 18 + Tailwind 4 + shadcn/ui (prototipo visual, con correcciones aplicadas)
-├── backend/     Spring Boot 3 + Spring Security + JWT (API REST)
-└── database/    Script SQL de PostgreSQL (esquema + datos de prueba)
+├── frontend/    React + Vite
+├── backend/     Spring Boot + Spring Security + JWT
+└── database/    PostgreSQL: esquema y datos de desarrollo
 ```
 
-## Orden recomendado para levantar el proyecto localmente
+## Funcionalidades implementadas
 
-1. **Base de datos** (`database/`) — crea el esquema en PostgreSQL, o usa el perfil `dev` del backend (H2 en memoria) para no instalar nada todavía.
-2. **Backend** (`backend/`) — API REST en `http://localhost:8080`.
-3. **Frontend** (`frontend/`) — interfaz en `http://localhost:5173`, ya configurada para consumir el backend.
+### Estudiante
+- Inicio de sesión y cierre de sesión.
+- Consulta de asignaturas, tutores y horarios disponibles.
+- Solicitud de tutoría con validación de tutor, asignatura, horario, fecha y disponibilidad.
+- Historial y detalle de tutorías.
+- Cancelación de sesiones.
+- Notificaciones.
+- Perfil y cambio de contraseña.
+- Recuperación y restablecimiento de contraseña mediante token de un solo uso y correo configurable.
 
-Cada carpeta tiene su propio `README.md` con instrucciones detalladas.
+### Tutor
+- Consulta de solicitudes pendientes.
+- Aprobación o rechazo de solicitudes.
+- Visualización de las dificultades declaradas por el estudiante.
+- Gestión de horarios propios.
+- Validación de propiedad, disponibilidad y solapamientos.
+- Registro de asistencia, observaciones y calificación de progreso.
+- Historial de tutorías.
+- Notificaciones de cambios relevantes.
 
-## Estado del proyecto
+### Coordinador
+- Gestión de usuarios.
+- Gestión y activación/desactivación de asignaturas.
+- Asignación de tutores a asignaturas.
+- Dashboard con indicadores y actividad real del sistema.
+- Supervisión global de sesiones con filtros.
+- Generación de reportes.
+- Cancelación administrativa de sesiones.
 
-- **Frontend**: 17 pantallas del prototipo Figma Make, con la corrección del estado `EN_CURSO` ya aplicada en `Supervision.tsx` para que coincida con el modelo de datos. Todavía usa datos de prueba en memoria (mock) — no está conectado al backend.
-- **Backend**: estructura completa (entidades JPA para las 10 tablas, repositorios, seguridad JWT) con dos módulos de negocio ya implementados como ejemplo: autenticación (RF-01, RF-02, RF-03) y sesiones de tutoría (RF-04, RF-07, RF-09, cancelación). Los demás módulos (horarios, asignaturas, reportes, notificaciones, administración de usuarios) siguen el mismo patrón y quedan por implementar.
-- **Base de datos**: esquema v2 corregido, con las 2 tablas nuevas (`tutor_asignatura`, `password_reset_tokens`) y los índices de rendimiento ya incluidos.
+## Base de datos
 
-## Documentos de referencia
+El esquema PostgreSQL se encuentra en `database/schema.sql`.
 
-Ver también, en la carpeta de entregables del proyecto:
-- Correcciones técnicas al informe de avance
-- Diccionario de datos v2 + script SQL
-- Matriz de trazabilidad RF ↔ Pantalla ↔ Base de datos
+Incluye:
+- usuarios y roles;
+- perfiles de estudiantes y tutores;
+- asignaturas y relación tutor–asignatura;
+- horarios;
+- sesiones y seguimiento;
+- notificaciones;
+- reportes;
+- tokens de recuperación de contraseña;
+- índices y restricciones de integridad.
+
+`database/seed.sql` contiene datos de desarrollo con contraseñas de prueba `password123` mediante BCrypt y fechas compatibles con los horarios definidos.
+
+## Seguridad
+
+- Autenticación mediante JWT.
+- Contraseñas almacenadas con BCrypt.
+- Autorización por rol.
+- Validación de propiedad de recursos en servicios.
+- Tokens de recuperación temporales y de un solo uso.
+- JWT inválidos o malformados no se convierten en errores internos.
+- Configuración de secretos productivos mediante variables de entorno.
+- CORS configurable.
+
+## Ejecución local
+
+El backend dispone de un perfil `dev` con H2 en memoria y un perfil `prod` para PostgreSQL.
+
+Las variables sensibles de producción deben configurarse mediante entorno, entre ellas:
+- `JWT_SECRET`
+- `DB_USER`
+- `DB_PASSWORD`
+- `CORS_ALLOWED_ORIGINS`
+- `FRONTEND_URL`
+- `MAIL_FROM`
+- variables SMTP cuando se utilice recuperación por correo.
+
+Las instrucciones específicas de frontend y backend se mantienen en sus respectivos directorios.
+
+## Estado de pruebas
+
+Las pruebas automatizadas existentes y las nuevas pruebas de servicios están incorporadas al repositorio.
+
+**La ejecución local de Maven/Vite no se realizó en esta revisión porque el entorno de ejecución disponible no tiene acceso de red para clonar/obtener el proyecto y sus dependencias.** Por tanto, no se declara aquí una compilación o suite de pruebas exitosa.
+
+## Documentación de referencia
+
+Consultar los documentos del proyecto relacionados con:
+- requisitos funcionales;
+- matriz de trazabilidad;
+- diccionario de datos;
+- correcciones técnicas del informe de avance.
