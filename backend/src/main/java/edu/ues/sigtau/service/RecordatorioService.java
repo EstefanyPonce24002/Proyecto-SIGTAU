@@ -35,8 +35,8 @@ public class RecordatorioService {
     @Transactional
     public void generarRecordatorios() {
         LocalDateTime ahora = LocalDateTime.now();
-        LocalDateTime limiteInferior = ahora.plusHours(23).plusMinutes(50);
-        LocalDateTime limiteSuperior = ahora.plusHours(24).plusMinutes(10);
+        LocalDateTime limiteInferior = ahora.plusHours(23);
+        LocalDateTime limiteSuperior = ahora.plusHours(25);
 
         List<Sesion> sesiones = sesionRepository.findByFechaSesionBetween(
                 limiteInferior.toLocalDate(),
