@@ -140,6 +140,10 @@ public class SesionService {
 
                 sesion.setEstado(aprobar ? EstadoSesion.APROBADA : EstadoSesion.RECHAZADA);
 
+                if (!aprobar) {
+                        notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
+                }
+
                 if (!aprobar && sesion.getHorario() != null) {
                         Horario horario = sesion.getHorario();
                         horario.setDisponible(true);
@@ -212,6 +216,7 @@ public class SesionService {
                 }
 
                 Horario horarioAnterior = sesion.getHorario();
+                notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
                 boolean mismoHorario = horarioAnterior != null
                                 && horarioAnterior.getId().equals(nuevoHorario.getId());
 
@@ -264,6 +269,7 @@ public class SesionService {
                 }
 
                 sesion.setEstado(EstadoSesion.CANCELADA);
+                notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
 
                 if (sesion.getHorario() != null) {
                         Horario horario = sesion.getHorario();
