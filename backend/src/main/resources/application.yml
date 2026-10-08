@@ -10,6 +10,11 @@ spring:
       hibernate:
         format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 130MB
+
   mail:
     host: ${SMTP_HOST:localhost}
     port: ${SMTP_PORT:1025}
@@ -35,6 +40,8 @@ sigtau:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   mail:
     from: ${MAIL_FROM:no-reply@sigtau.local}
+  storage:
+    upload-dir: ${SIGTAU_UPLOAD_DIR:./uploads}
 
 
 ---
