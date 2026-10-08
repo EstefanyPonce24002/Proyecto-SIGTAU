@@ -365,7 +365,6 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   );
   const [perfilSaved, setPerfilSaved] = useState(false);
   const [perfilError, setPerfilError] = useState("");
-  const [perfilLoading, setPerfilLoading] = useState(rol === "estudiante");
   const [emailActual, setEmailActual] = useState(email);
   const [editOpen, setEditOpen] = useState(false);
   const [securityOnly, setSecurityOnly] = useState(false);
@@ -395,9 +394,6 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       .catch(() => {
         if (activo) setPerfilError("No se pudo cargar la información actual del perfil.");
       })
-      .finally(() => {
-        if (activo) setPerfilLoading(false);
-      });
 
     return () => {
       activo = false;
