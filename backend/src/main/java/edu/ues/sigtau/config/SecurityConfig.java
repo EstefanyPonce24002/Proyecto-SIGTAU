@@ -79,7 +79,7 @@ public class SecurityConfig {
                         // Flujo de tutorías.
                         .requestMatchers(HttpMethod.POST, "/api/sesiones")
                         .hasRole("ESTUDIANTE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver", "/api/sesiones/*/seguimiento")
+                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver", "/api/sesiones/*/seguimiento", "/api/sesiones/*/reprogramar")
                         .hasAnyRole("TUTOR", "COORDINADOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/cancelar")
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
