@@ -76,15 +76,15 @@ INSERT INTO sesiones (
 	hora_inicio, hora_fin, estado, descripcion_dificultades,
 	observaciones_tutor, calificacion_progreso, asistencia
 ) VALUES
-(4, 2, 3, 1, '2026-10-20', '14:00', '15:00', 'APROBADA',
+(4, 2, 3, 1, '2026-10-19', '14:00', '15:00', 'APROBADA',
  'Dificultad con ciclos y funciones.', NULL, NULL, NULL),
-(5, 7, 2, 3, '2026-10-21', '08:00', '09:00', 'COMPLETADA',
+(5, 7, 2, 3, '2026-10-20', '08:00', '09:00', 'COMPLETADA',
  'Necesita practicar operaciones con matrices.', 'Resolvió correctamente los ejercicios asignados.', 8.5, true),
-(6, 8, 4, 5, '2026-10-22', '09:00', '10:00', 'RECHAZADA',
+(6, 8, 4, 5, '2026-10-21', '09:00', '10:00', 'RECHAZADA',
  'Quiere repasar consultas SQL.', 'El horario solicitado ya no estaba disponible.', NULL, NULL),
 (1, 7, 2, 4, '2026-10-23', '13:00', '14:00', 'PENDIENTE',
  'Preparación para el examen de álgebra.', NULL, NULL, NULL),
-(4, 8, 4, 6, '2026-10-26', '15:00', '16:00', 'CANCELADA',
+(4, 8, 4, 6, '2026-10-22', '15:00', '16:00', 'CANCELADA',
  'Revisión de normalización de bases de datos.', 'La sesión fue cancelada por el estudiante.', NULL, false),
 (5, 2, 1, 2, '2026-10-27', '10:00', '11:00', 'APROBADA',
  'Repaso de derivadas y aplicaciones.', NULL, NULL, NULL);
