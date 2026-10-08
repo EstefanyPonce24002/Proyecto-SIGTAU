@@ -13,4 +13,6 @@ public interface SesionRepository extends JpaRepository<Sesion, Integer> {
     List<Sesion> findByTutor_IdAndEstado(Integer idTutor, EstadoSesion estado);
     List<Sesion> findByEstado(EstadoSesion estado);
     List<Sesion> findByFechaSesionBetween(LocalDate inicio, LocalDate fin);
+    List<Sesion> findTop20ByOrderByFechaSolicitudDesc();
+    long countByEstado(EstadoSesion estado);
 }
