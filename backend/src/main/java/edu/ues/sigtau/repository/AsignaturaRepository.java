@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AsignaturaRepository extends JpaRepository<Asignatura, Integer> {
     List<Asignatura> findByActivaTrue();
+    long countByActivaTrue();
 }
