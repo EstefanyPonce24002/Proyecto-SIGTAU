@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { User, BookOpen, Calendar, Clock, MessageSquare, Check, X, CheckCircle2,
   ChevronDown, ChevronUp, AlertCircle, Lock, Loader2 } from "lucide-react";
-import { historialTutor, resolverSolicitud, type Sesion } from "../lib/sesiones";
+import { pendientesTutor, resolverSolicitud, type Sesion } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
 import { VoiceSearchInput } from "./VoiceSearchInput";
 
@@ -95,7 +95,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
   const cargar = useCallback(() => {
     setCargando(true);
     setLoadError(null);
-    historialTutor(idTutor)
+    pendientesTutor(idTutor)
       .then(setSesiones)
       .catch((err) => setLoadError(err instanceof ApiError ? err.message : "No se pudieron cargar las solicitudes."))
       .finally(() => setCargando(false));
@@ -279,6 +279,15 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                       <span className="text-muted-foreground" style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>Estudiante</span>
                     </div>
                     <p className="text-foreground" style={{ fontSize: "0.875rem", lineHeight: 1.6 }}>{s.estudianteNombre}</p>
+                  </div>
+                  <div className="rounded-xl bg-secondary p-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <MessageSquare size={12} className="text-muted-foreground" />
+                      <span className="text-muted-foreground" style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>Dificultades declaradas</span>
+                    </div>
+                    <p className="text-foreground" style={{ fontSize: "0.875rem", lineHeight: 1.6 }}>
+                      {s.descripcionDificultades?.trim() || "El estudiante no indicó dificultades específicas."}
+                    </p>
                   </div>
 
                   <div className="flex gap-3">

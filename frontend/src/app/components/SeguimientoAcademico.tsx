@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { CheckCircle2, Circle, User, BookOpen, TrendingUp, Clock, Info, Loader2, AlertCircle } from "lucide-react";
-import { historialTutor, registrarSeguimiento, type Sesion } from "../lib/sesiones";
+import { pendientesTutor, registrarSeguimiento, type Sesion } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
 
 interface Props {
@@ -33,7 +33,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   const cargar = useCallback(() => {
     setCargando(true);
     setLoadError(null);
-    historialTutor(idTutor)
+    pendientesTutor(idTutor)
       .then((data) => {
         setSesiones(data);
         const elegibles = data.filter((s) => s.estado === "APROBADA");

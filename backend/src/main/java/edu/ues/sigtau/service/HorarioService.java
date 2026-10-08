@@ -83,5 +83,13 @@ public class HorarioService {
         if (!coordinator && !idTutor.equals(actorId)) {
             throw new IllegalStateException("El horario no pertenece al tutor autenticado");
         }
+
+        if (!coordinator) {
+            Tutor tutor = tutorRepository.findById(idTutor)
+                    .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
+            if (tutor.getUsuario() == null || !Boolean.TRUE.equals(tutor.getUsuario().getActivo())) {
+                throw new IllegalStateException("El tutor no está activo");
+            }
+        }
     }
 }

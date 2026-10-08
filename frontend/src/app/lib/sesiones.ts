@@ -14,6 +14,7 @@ export interface Sesion {
   fechaSesion: string;   // "YYYY-MM-DD"
   horaInicio: string;    // "HH:mm:ss"
   horaFin: string;
+  descripcionDificultades: string | null;
   estado: EstadoSesion;
   observacionesTutor: string | null;
   calificacionProgreso: number | null;
@@ -29,6 +30,7 @@ export interface SolicitarSesionPayload {
   fecha: string;       // "YYYY-MM-DD"
   horaInicio: string;  // "HH:mm:ss" o "HH:mm"
   horaFin: string;
+  descripcionDificultades?: string;
 }
 
 /** RF-04 */
