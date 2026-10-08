@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Mail, CheckCircle2, Loader2 } from "lucide-react";
+import { solicitarRecuperacion } from "../lib/auth";
 
 interface Props {
   onBack: () => void;
@@ -11,18 +12,25 @@ export function RecuperarContrasena({ onBack }: Props) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!email.trim() || !email.includes("@")) {
       setError("Ingresa un correo electrónico válido");
       return;
     }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await solicitarRecuperacion(email.trim());
       setSent(true);
-    }, 1000);
+    } catch {
+      // El backend responde de forma genérica por seguridad.
+      setError("No se pudo procesar la solicitud. Inténtalo nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
