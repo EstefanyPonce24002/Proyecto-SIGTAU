@@ -29,6 +29,7 @@ export interface SolicitarSesionPayload {
   fecha: string;       // "YYYY-MM-DD"
   horaInicio: string;  // "HH:mm:ss" o "HH:mm"
   horaFin: string;
+  descripcionDificultades?: string;
 }
 
 /** RF-04 */
