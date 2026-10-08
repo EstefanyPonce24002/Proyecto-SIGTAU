@@ -366,6 +366,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   const [perfilSaved, setPerfilSaved] = useState(false);
   const [perfilError, setPerfilError] = useState("");
   const [perfilLoading, setPerfilLoading] = useState(rol === "estudiante");
+  const [emailActual, setEmailActual] = useState(email);
   const [editOpen, setEditOpen] = useState(false);
   const [securityOnly, setSecurityOnly] = useState(false);
   const [sobreMiExpandido, setSobreMiExpandido] = useState(false);
@@ -388,6 +389,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         if (!activo) return;
         setNombres(data.nombres);
         setApellidos(data.apellidos);
+        setEmailActual(data.correo);
         if (data.carrera) setCategoria(data.carrera);
       })
       .catch(() => {
@@ -452,7 +454,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
     }
   };
 
-  const handlePwdSave = (e: React.FormEvent) => {
+  const handlePwdSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwdError("");
     if (!currentPwd) {
@@ -602,7 +604,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   className="text-white truncate"
                   style={{ fontSize: "0.76rem" }}
                 >
-                  {email}
+                  {emailActual}
                 </p>
               </div>
             </div>
@@ -1071,7 +1073,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     />
                   </div>
                 </div>
-                <Field label="Correo electrónico" value={email} disabled />
+                <Field label="Correo electrónico" value={emailActual} disabled />
                 <p
                   className="text-muted-foreground"
                   style={{ fontSize: "0.63rem", marginTop: "-8px" }}
