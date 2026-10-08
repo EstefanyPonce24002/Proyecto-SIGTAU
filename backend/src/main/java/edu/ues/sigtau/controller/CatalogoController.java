@@ -58,6 +58,13 @@ public class CatalogoController {
         Tutor tutor = tutorRepository.findById(idTutor)
                 .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
 
+        if (!Boolean.TRUE.equals(asignatura.getActiva())) {
+            throw new IllegalStateException("No se puede asignar un tutor a una asignatura inactiva");
+        }
+        if (tutor.getUsuario() == null || !Boolean.TRUE.equals(tutor.getUsuario().getActivo())) {
+            throw new IllegalStateException("No se puede asignar un tutor inactivo");
+        }
+
         boolean yaAsignado = tutorAsignaturaRepository.findByTutor_Id(idTutor).stream()
                 .anyMatch(ta -> ta.getAsignatura().getId().equals(idAsignatura));
         if (yaAsignado) {
