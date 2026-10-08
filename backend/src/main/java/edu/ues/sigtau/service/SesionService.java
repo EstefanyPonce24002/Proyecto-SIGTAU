@@ -52,8 +52,42 @@ public class SesionService {
                         throw new IllegalStateException("El tutor no está habilitado para esta asignatura");
                 }
 
+                if (!Boolean.TRUE.equals(tutor.getUsuario().getActivo())) {
+                        throw new IllegalStateException("El tutor no está activo");
+                }
+
+                if (!Boolean.TRUE.equals(asignatura.getActiva())) {
+                        throw new IllegalStateException("La asignatura no está activa");
+                }
+
+                if (!horario.getTutor().getId().equals(tutor.getId())) {
+                        throw new IllegalStateException("El horario seleccionado no pertenece al tutor");
+                }
+
                 if (!Boolean.TRUE.equals(horario.getDisponible())) {
                         throw new IllegalStateException("El bloque de horario ya no está disponible");
+                }
+
+                if (request.fecha().isBefore(java.time.LocalDate.now())) {
+                        throw new IllegalStateException("La fecha de la tutoría no puede estar en el pasado");
+                }
+
+                DiaSemana diaSolicitado = switch (request.fecha().getDayOfWeek()) {
+                        case MONDAY -> DiaSemana.LUNES;
+                        case TUESDAY -> DiaSemana.MARTES;
+                        case WEDNESDAY -> DiaSemana.MIERCOLES;
+                        case THURSDAY -> DiaSemana.JUEVES;
+                        case FRIDAY -> DiaSemana.VIERNES;
+                        default -> null;
+                };
+
+                if (diaSolicitado == null || horario.getDiaSemana() != diaSolicitado) {
+                        throw new IllegalStateException("La fecha no corresponde al día del horario seleccionado");
+                }
+
+                if (!request.horaInicio().equals(horario.getHoraInicio())
+                                || !request.horaFin().equals(horario.getHoraFin())) {
+                        throw new IllegalStateException("La hora no corresponde al bloque de horario seleccionado");
                 }
 
                 Sesion sesion = Sesion.builder()
@@ -64,6 +98,7 @@ public class SesionService {
                                 .fechaSesion(request.fecha())
                                 .horaInicio(request.horaInicio())
                                 .horaFin(request.horaFin())
+                                .descripcionDificultades(request.descripcionDificultades())
                                 .estado(EstadoSesion.PENDIENTE)
                                 .build();
 
