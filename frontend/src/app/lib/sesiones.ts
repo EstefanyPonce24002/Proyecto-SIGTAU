@@ -41,6 +41,16 @@ export function solicitarTutoria(payload: SolicitarSesionPayload): Promise<Sesio
   });
 }
 
+/** Adjuntar un documento a una sesión ya creada. */
+export function subirAdjunto(idSesion: number, file: File): Promise<unknown> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch<unknown>(`/sesiones/${idSesion}/adjuntos`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
 /** RF-07 */
 export function resolverSolicitud(idSesion: number, aprobar: boolean, justificacion?: string): Promise<Sesion> {
   const params = new URLSearchParams({ aprobar: String(aprobar) });
