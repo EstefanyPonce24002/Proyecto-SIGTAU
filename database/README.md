@@ -4,7 +4,7 @@ PostgreSQL 14+
 
 ## Archivos
 
-- `schema.sql` — crea las 10 tablas, los 5 tipos ENUM y los índices de rendimiento. Es la versión corregida (v2) del diccionario de datos original.
+- `schema.sql` — crea las 12 tablas, los tipos ENUM y los índices de rendimiento. Es la versión corregida (v2) del diccionario de datos original.
 - `seed.sql` — datos de prueba mínimos (3 usuarios, 1 estudiante, 1 tutor, asignaturas, horario y una sesión de ejemplo) para desarrollo local. Ejecutar **después** de `schema.sql`.
 
 ## Crear la base de datos desde cero
