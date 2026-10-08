@@ -2,9 +2,6 @@ spring:
   application:
     name: sigtau
 
-  profiles:
-    default: dev
-
   jpa:
     hibernate:
       ddl-auto: validate   # el esquema lo crea database/schema.sql, no Hibernate
