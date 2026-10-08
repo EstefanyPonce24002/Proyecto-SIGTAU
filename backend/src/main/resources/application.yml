@@ -3,7 +3,7 @@ spring:
     name: sigtau
 
   profiles:
-    active: dev
+    default: dev
 
   jpa:
     hibernate:
@@ -30,7 +30,7 @@ server:
 
 sigtau:
   jwt:
-    secret: "CAMBIAR_ESTE_SECRETO_POR_UNO_SEGURO_DE_AL_MENOS_256_BITS"
+    secret: ${JWT_SECRET:dev-only-sigtau-jwt-secret-change-before-production-2026}
     access-token-minutes: 30
     refresh-token-days: 7
   cors:
@@ -66,5 +66,5 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/sigtau
     username: ${DB_USER:sigtau_user}
-    password: ${DB_PASSWORD:changeme}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
