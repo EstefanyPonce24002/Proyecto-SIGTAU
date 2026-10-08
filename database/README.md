@@ -34,3 +34,14 @@ Si solo quieres levantar el **backend** para programar sin instalar PostgreSQL, 
 - Se agregaron los índices de rendimiento.
 
 Detalle completo en el documento "Diccionario de Datos v2 + Script SQL" entregado junto con este proyecto.
+
+
+## Respaldo y restauración
+
+Para PostgreSQL se incluyen scripts reproducibles:
+
+- Linux/macOS: `./backup.sh` crea un archivo `custom dump` en `./backups`.
+- Linux/macOS: `./restore.sh backups/sigtau_YYYYMMDD_HHMMSS.dump` restaura un respaldo.
+- Windows PowerShell: `./backup.ps1`.
+
+Los scripts usan `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD`. No se guarda la contraseña en el repositorio.
