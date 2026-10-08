@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Lock,
   CheckCircle2,
@@ -26,6 +26,7 @@ import {
   UserRound,
   Settings,
 } from "lucide-react";
+import { obtenerPerfil, actualizarPerfil, cambiarContrasena } from "../lib/perfil";
 import {
   Dialog,
   DialogContent,
@@ -363,6 +364,8 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         : CARRERAS_EST[0],
   );
   const [perfilSaved, setPerfilSaved] = useState(false);
+  const [perfilError, setPerfilError] = useState("");
+  const [perfilLoading, setPerfilLoading] = useState(rol === "estudiante");
   const [editOpen, setEditOpen] = useState(false);
   const [securityOnly, setSecurityOnly] = useState(false);
   const [sobreMiExpandido, setSobreMiExpandido] = useState(false);
@@ -376,6 +379,29 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   const [activeTab, setActiveTab] = useState<PerfilTab>("personal");
 
   const strength = strengthOf(newPwd);
+  useEffect(() => {
+    if (rol !== "estudiante") return;
+
+    let activo = true;
+    obtenerPerfil()
+      .then((data) => {
+        if (!activo) return;
+        setNombres(data.nombres);
+        setApellidos(data.apellidos);
+        if (data.carrera) setCategoria(data.carrera);
+      })
+      .catch(() => {
+        if (activo) setPerfilError("No se pudo cargar la información actual del perfil.");
+      })
+      .finally(() => {
+        if (activo) setPerfilLoading(false);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [rol]);
+
 
   const initials = nombre
     .replace("Prof. ", "")
@@ -398,11 +424,32 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         ? ESPECIALIDADES
         : CARRERAS_EST;
 
-  const handlePerfilSave = (e: React.FormEvent) => {
+  const handlePerfilSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPerfilSaved(true);
-    setEditOpen(false);
-    setTimeout(() => setPerfilSaved(false), 3000);
+    setPerfilError("");
+
+    if (rol !== "estudiante") {
+      setPerfilSaved(true);
+      setEditOpen(false);
+      setTimeout(() => setPerfilSaved(false), 3000);
+      return;
+    }
+
+    try {
+      const data = await actualizarPerfil({
+        nombres,
+        apellidos,
+        carrera: categoria,
+      });
+      setNombres(data.nombres);
+      setApellidos(data.apellidos);
+      if (data.carrera) setCategoria(data.carrera);
+      setPerfilSaved(true);
+      setEditOpen(false);
+      setTimeout(() => setPerfilSaved(false), 3000);
+    } catch (err) {
+      setPerfilError(err instanceof Error ? err.message : "No se pudieron guardar los cambios.");
+    }
   };
 
   const handlePwdSave = (e: React.FormEvent) => {
@@ -420,11 +467,16 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       setPwdError("Las contraseñas no coinciden");
       return;
     }
-    setPwdSaved(true);
-    setCurrentPwd("");
-    setNewPwd("");
-    setConfirmPwd("");
-    setTimeout(() => setPwdSaved(false), 3000);
+    try {
+      await cambiarContrasena(currentPwd, newPwd);
+      setPwdSaved(true);
+      setCurrentPwd("");
+      setNewPwd("");
+      setConfirmPwd("");
+      setTimeout(() => setPwdSaved(false), 3000);
+    } catch (err) {
+      setPwdError(err instanceof Error ? err.message : "No se pudo cambiar la contraseña.");
+    }
   };
 
   const changeTab = (tab: PerfilTab) => setActiveTab(tab);
