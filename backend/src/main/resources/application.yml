@@ -39,18 +39,6 @@ sigtau:
   mail:
     from: ${MAIL_FROM:no-reply@sigtau.local}
 
-spring:
-  mail:
-    host: ${SMTP_HOST:localhost}
-    port: ${SMTP_PORT:1025}
-    username: ${SMTP_USERNAME:}
-    password: ${SMTP_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: ${SMTP_AUTH:false}
-          starttls:
-            enable: ${SMTP_STARTTLS:false}
 
 ---
 spring:
