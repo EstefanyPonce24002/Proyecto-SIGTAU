@@ -133,6 +133,10 @@ public class SesionService {
                         throw new IllegalStateException("Solo se pueden resolver solicitudes PENDIENTES");
                 }
 
+                if (aprobar && sesion.getFechaSesion().isBefore(java.time.LocalDate.now())) {
+                        throw new IllegalStateException("No se puede aprobar una solicitud cuya fecha ya pasó");
+                }
+
                 sesion.setEstado(aprobar ? EstadoSesion.APROBADA : EstadoSesion.RECHAZADA);
 
                 if (!aprobar && sesion.getHorario() != null) {
@@ -217,6 +221,12 @@ public class SesionService {
 
                 if (sesion.getEstado() != EstadoSesion.APROBADA) {
                         throw new IllegalStateException("Solo se puede registrar seguimiento de una sesión APROBADA");
+                }
+
+                java.time.LocalDateTime finSesion = java.time.LocalDateTime.of(
+                                sesion.getFechaSesion(), sesion.getHoraFin());
+                if (java.time.LocalDateTime.now().isBefore(finSesion)) {
+                        throw new IllegalStateException("El seguimiento solo puede registrarse después de finalizar la sesión");
                 }
 
                 if (asistencia == null) {
