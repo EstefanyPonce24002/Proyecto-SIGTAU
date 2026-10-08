@@ -57,6 +57,49 @@ class SesionServiceAuthorizationTest {
     }
 
     @Test
+    void rechazaSolicitudCuandoFechaNoCoincideConHorario() {
+        var usuarioTutor = edu.ues.sigtau.model.Usuario.builder()
+                .id(20)
+                .activo(true)
+                .build();
+        var tutor = Tutor.builder().id(20).usuario(usuarioTutor).build();
+        var estudiante = edu.ues.sigtau.model.Estudiante.builder().id(10).build();
+        var asignatura = edu.ues.sigtau.model.Asignatura.builder()
+                .id(30)
+                .activa(true)
+                .build();
+        var horario = edu.ues.sigtau.model.Horario.builder()
+                .id(40)
+                .tutor(tutor)
+                .diaSemana(edu.ues.sigtau.model.DiaSemana.LUNES)
+                .horaInicio(java.time.LocalTime.of(8, 0))
+                .horaFin(java.time.LocalTime.of(9, 0))
+                .disponible(true)
+                .build();
+
+        when(estudianteRepository.findById(10)).thenReturn(Optional.of(estudiante));
+        when(tutorRepository.findById(20)).thenReturn(Optional.of(tutor));
+        when(asignaturaRepository.findById(30)).thenReturn(Optional.of(asignatura));
+        when(horarioRepository.findById(40)).thenReturn(Optional.of(horario));
+        when(tutorAsignaturaRepository.findByTutor_Id(20)).thenReturn(List.of(
+                edu.ues.sigtau.model.TutorAsignatura.builder()
+                        .tutor(tutor)
+                        .asignatura(asignatura)
+                        .build()));
+
+        var request = new edu.ues.sigtau.dto.SolicitarSesionRequest(
+                10, 20, 30, 40,
+                java.time.LocalDate.of(2026, 10, 7),
+                java.time.LocalTime.of(8, 0),
+                java.time.LocalTime.of(9, 0),
+                "Necesito apoyo");
+
+        assertThrows(IllegalStateException.class, () -> sesionService.solicitar(request, 10));
+        verify(sesionRepository, never()).save(any());
+        verify(notificacionRepository, never()).save(any());
+    }
+
+    @Test
     void rechazaHistorialDeOtroEstudiante() {
         assertThrows(IllegalStateException.class,
                 () -> sesionService.historialEstudiante(10, 99, false));

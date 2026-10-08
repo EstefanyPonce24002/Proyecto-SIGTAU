@@ -5,6 +5,7 @@ import { ApiError } from "../lib/api";
 
 const TIPO_CONFIG: Record<TipoNotificacion, { icon: React.ElementType; color: string; bg: string }> = {
   APROBACION:     { icon: CheckCircle2, color: "#10B981", bg: "rgba(16,185,129,0.1)" },
+  CANCELACION:    { icon: AlertCircle,  color: "#EF4444", bg: "rgba(239,68,68,0.1)"  },
   RECHAZO:        { icon: AlertCircle,  color: "#EF4444", bg: "rgba(239,68,68,0.1)"  },
   CAMBIO_HORARIO: { icon: Clock,        color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
   RECORDATORIO:   { icon: Clock,        color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
