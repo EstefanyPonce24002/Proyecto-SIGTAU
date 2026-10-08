@@ -280,6 +280,15 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                     </div>
                     <p className="text-foreground" style={{ fontSize: "0.875rem", lineHeight: 1.6 }}>{s.estudianteNombre}</p>
                   </div>
+                  <div className="rounded-xl bg-secondary p-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <MessageSquare size={12} className="text-muted-foreground" />
+                      <span className="text-muted-foreground" style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>Dificultades declaradas</span>
+                    </div>
+                    <p className="text-foreground" style={{ fontSize: "0.875rem", lineHeight: 1.6 }}>
+                      {s.descripcionDificultades?.trim() || "El estudiante no indicó dificultades específicas."}
+                    </p>
+                  </div>
 
                   <div className="flex gap-3">
                     <button onClick={() => aprobar(s.id)} disabled={isProcesando}
