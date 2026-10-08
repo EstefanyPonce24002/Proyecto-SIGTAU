@@ -181,7 +181,27 @@ public class SesionService {
                         horarioRepository.save(horario);
                 }
 
-                return SesionResponse.from(sesionRepository.save(sesion));
+                sesion = sesionRepository.save(sesion);
+
+                Integer usuarioDestino = sesion.getEstudiante().getUsuario().getId().equals(actorId)
+                                ? sesion.getTutor().getUsuario().getId()
+                                : sesion.getEstudiante().getUsuario().getId();
+
+                String actorNombre = sesion.getEstudiante().getUsuario().getId().equals(actorId)
+                                ? sesion.getEstudiante().getUsuario().getNombres()
+                                : sesion.getTutor().getUsuario().getNombres();
+
+                notificacionRepository.save(Notificacion.builder()
+                                .usuario(sesion.getEstudiante().getUsuario().getId().equals(actorId)
+                                                ? sesion.getTutor().getUsuario()
+                                                : sesion.getEstudiante().getUsuario())
+                                .sesion(sesion)
+                                .tipo(TipoNotificacion.CANCELACION)
+                                .mensaje(actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre() + ".")
+                                .leida(false)
+                                .build());
+
+                return SesionResponse.from(sesion);
         }
 
         /**
