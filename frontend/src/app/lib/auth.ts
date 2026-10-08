@@ -32,3 +32,11 @@ export async function solicitarRecuperacion(correo: string): Promise<void> {
     body: JSON.stringify({ correo }),
   });
 }
+
+export async function restablecerContrasena(token: string, nuevaContrasena: string): Promise<void> {
+  await apiFetch<void>("/auth/reset-password", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify({ token, nuevaContrasena }),
+  });
+}
