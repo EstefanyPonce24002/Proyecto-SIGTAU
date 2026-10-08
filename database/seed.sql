@@ -7,9 +7,9 @@
 
 -- Usuarios base
 INSERT INTO usuarios (nombres, apellidos, correo, contrasena, rol_usuario) VALUES
-('María Alejandra', 'Gómez',    'maria.gomez@universidad.edu.sv',      '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'ESTUDIANTE'),
-('Andrés',          'Ramírez',  'andres.ramirez@universidad.edu.sv',   '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'TUTOR'),
-('Coordinación',    'Académica','coordinacion@universidad.edu.sv',     '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'COORDINADOR');
+('María Alejandra', 'Gómez',    'maria.gomez@universidad.edu.sv',      '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Andrés',          'Ramírez',  'andres.ramirez@universidad.edu.sv',   '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR'),
+('Coordinación',    'Académica','coordinacion@universidad.edu.sv',     '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'COORDINADOR');
 
 -- Estudiante
 INSERT INTO estudiante (id_estudiante, carnet, carrera, ciclo_actual) VALUES
@@ -41,11 +41,11 @@ INSERT INTO sesiones (id_estudiante, id_tutor, id_asignatura, id_horario, fecha_
 
 -- Usuarios adicionales para probar múltiples perfiles y solicitudes
 INSERT INTO usuarios (nombres, apellidos, correo, contrasena, rol_usuario) VALUES
-('Carlos',       'Pineda',    'carlos.pineda@universidad.edu.sv',    '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'ESTUDIANTE'),
-('Sofía',        'Hernández', 'sofia.hernandez@universidad.edu.sv', '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'ESTUDIANTE'),
-('Diego',        'Martínez',  'diego.martinez@universidad.edu.sv',  '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'ESTUDIANTE'),
-('Valentina',    'López',     'valentina.lopez@universidad.edu.sv', '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'TUTOR'),
-('Ricardo',      'Castro',    'ricardo.castro@universidad.edu.sv',  '$2a$10$7EqJtq98hPqEX7fNZaFWoO7xG3KjY2V9hM5dQ8cR1L6T0wE3uS4iG', 'TUTOR');
+('Carlos',       'Pineda',    'carlos.pineda@universidad.edu.sv',    '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Sofía',        'Hernández', 'sofia.hernandez@universidad.edu.sv', '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Diego',        'Martínez',  'diego.martinez@universidad.edu.sv',  '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Valentina',    'López',     'valentina.lopez@universidad.edu.sv', '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR'),
+('Ricardo',      'Castro',    'ricardo.castro@universidad.edu.sv',  '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR');
 
 -- Perfiles de estudiantes relacionados con los usuarios 4, 5 y 6
 INSERT INTO estudiante (id_estudiante, carnet, carrera, ciclo_actual) VALUES
