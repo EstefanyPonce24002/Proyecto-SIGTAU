@@ -5,6 +5,7 @@ import edu.ues.sigtau.dto.ReporteGeneradoResponse;
 import edu.ues.sigtau.model.Usuario;
 import edu.ues.sigtau.repository.UsuarioRepository;
 import edu.ues.sigtau.service.ReporteService;
+import edu.ues.sigtau.service.CoordinadorDashboardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReporteController {
 
     private final ReporteService reporteService;
+    private final CoordinadorDashboardService dashboardService;
     private final UsuarioRepository usuarioRepository;
 
     @PostMapping("/generar")
@@ -32,4 +34,9 @@ public class ReporteController {
                 .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
         return ResponseEntity.ok(reporteService.generar(request, coordinador.getId()));
     }
+    @GetMapping("/dashboard")
+    public ResponseEntity<edu.ues.sigtau.dto.CoordinadorDashboardResponse> dashboard() {
+        return ResponseEntity.ok(dashboardService.obtener());
+    }
+
 }
