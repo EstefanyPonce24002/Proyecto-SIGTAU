@@ -14,6 +14,7 @@ export interface Sesion {
   fechaSesion: string;   // "YYYY-MM-DD"
   horaInicio: string;    // "HH:mm:ss"
   horaFin: string;
+  descripcionDificultades: string | null;
   estado: EstadoSesion;
   observacionesTutor: string | null;
   calificacionProgreso: number | null;
