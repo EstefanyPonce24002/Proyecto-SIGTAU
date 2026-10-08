@@ -19,6 +19,7 @@ import {
   BellRing,
   LogOut,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 
 // Importación de la lógica de autenticación (API)
@@ -46,6 +47,7 @@ import { Supervision } from "./components/Supervision";
 import { Notificaciones } from "./components/Notificaciones";
 import { ProximosEventos } from "./components/ProximosEventos";
 import { VoiceSearchInput } from "./components/VoiceSearchInput";
+import { Mensajes } from "./components/Mensajes";
 
 // TIPOS Y CONSTANTES GLOBALES
 type Rol = "estudiante" | "tutor" | "coordinador";
@@ -160,6 +162,13 @@ const NAV_ITEMS: NavItem[] = [
     label: "Notificaciones",
     icon: BellRing,
     roles: ["coordinador"],
+  },
+  {
+    id: "mensajes",
+    path: "mensajes",
+    label: "Mensajes",
+    icon: MessageCircle,
+    roles: ["estudiante", "tutor", "coordinador"],
   },
   {
     id: "perfil",
@@ -701,6 +710,8 @@ export default function App() {
             {activeTab === "asignaturas" && <Asignaturas />}
             {activeTab === "supervision" && <Supervision />}
             {activeTab === "notificaciones" && <Notificaciones />}
+
+            {activeTab === "mensajes" && <Mensajes idUsuario={idUsuario} />}
 
             {/* VISTAS COMUNES (TODOS LOS ROLES) */}
             {activeTab === "perfil" && (
