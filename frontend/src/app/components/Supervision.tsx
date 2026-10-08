@@ -287,7 +287,6 @@ export function Supervision() {
   }, []);
 
 
-  const [sesiones, setSesiones] = useState<Sesion[]>(SESIONES);
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("Todos");
   const [filtroTutor, setFiltroTutor] = useState("Todos los tutores");
@@ -297,13 +296,18 @@ export function Supervision() {
   const [detalle, setDetalle] = useState<Sesion | null>(null);
   const [cancelando, setCancelando] = useState<Sesion | null>(null);
 
-  const cancelarSesion = (id: string) => {
-    setSesiones((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, estado: "CANCELADA" as Estado } : s,
-      ),
-    );
-    setCancelando(null);
+  const tutores = useMemo(() => ["Todos los tutores", ...Array.from(new Set(sesiones.map(s => s.tutor)))], [sesiones]);
+  const asignaturas = useMemo(() => ["Todas las asignaturas", ...Array.from(new Set(sesiones.map(s => s.asignatura)))], [sesiones]);
+
+  const cancelarSesion = async (id: string) => {
+    try {
+      await apiFetch("/sesiones/" + id + "/cancelar", { method: "PATCH" });
+      setSesiones(prev => prev.map(s => s.id === id ? { ...s, estado: "CANCELADA" } : s));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo cancelar la sesión");
+    } finally {
+      setCancelando(null);
+    }
   };
 
   const filtradas = sesiones.filter((s) => {
@@ -316,7 +320,9 @@ export function Supervision() {
       filtroTutor === "Todos los tutores" || s.tutor === filtroTutor;
     const matchA =
       filtroAsig === "Todas las asignaturas" || s.asignatura === filtroAsig;
-    return matchQ && matchE && matchT && matchA;
+    const matchFechaInicio = !fechaInicio || s.fecha >= fechaInicio;
+    const matchFechaFin = !fechaFin || s.fecha <= fechaFin;
+    return matchQ && matchE && matchT && matchA && matchFechaInicio && matchFechaFin;
   });
 
   const countByEstado = (e: Estado) =>
@@ -324,6 +330,8 @@ export function Supervision() {
 
   return (
     <div className="w-full space-y-5">
+      {error && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
+
       {/* Header */}
       <div>
         <h2 className="text-foreground">Supervisión de Sesiones</h2>
@@ -409,7 +417,7 @@ export function Supervision() {
                 } as React.CSSProperties
               }
             >
-              {TUTORES.map((t) => (
+              {tutores.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>
@@ -431,7 +439,7 @@ export function Supervision() {
                 } as React.CSSProperties
               }
             >
-              {ASIGNATS.map((a) => (
+              {asignaturas.map((a) => (
                 <option key={a}>{a}</option>
               ))}
             </select>
