@@ -107,7 +107,8 @@ CREATE TABLE sesiones (
     observaciones_tutor    TEXT,
     calificacion_progreso  DECIMAL(3,1) CHECK (calificacion_progreso BETWEEN 0.0 AND 10.0),
     asistencia             BOOLEAN,
-    fecha_solicitud        TIMESTAMP NOT NULL DEFAULT NOW()
+    fecha_solicitud        TIMESTAMP NOT NULL DEFAULT NOW(),
+    CHECK (hora_fin > hora_inicio)
 );
 
 -- ---------------------------------------------------------

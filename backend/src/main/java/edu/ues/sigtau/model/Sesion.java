@@ -1,6 +1,8 @@
 package edu.ues.sigtau.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -53,6 +55,7 @@ public class Sesion {
     private LocalTime horaFin;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     @Builder.Default
     private EstadoSesion estado = EstadoSesion.PENDIENTE;

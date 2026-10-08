@@ -1,6 +1,8 @@
 package edu.ues.sigtau.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class Notificacion {
     private Sesion sesion;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     private TipoNotificacion tipo;
 
