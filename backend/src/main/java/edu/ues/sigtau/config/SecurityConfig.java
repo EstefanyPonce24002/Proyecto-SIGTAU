@@ -90,6 +90,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/sesiones/tutor/*", "/api/sesiones/tutor/*/pendientes")
                         .hasAnyRole("TUTOR", "COORDINADOR")
 
+                        .requestMatchers(HttpMethod.POST, "/api/sesiones/*/adjuntos")
+                        .hasAnyRole("ESTUDIANTE", "COORDINADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/sesiones/*/adjuntos", "/api/sesiones/adjuntos/*/descarga")
+                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+
                         .requestMatchers("/api/notificaciones/**")
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
