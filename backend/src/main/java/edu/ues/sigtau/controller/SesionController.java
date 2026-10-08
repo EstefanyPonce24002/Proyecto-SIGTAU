@@ -22,6 +22,13 @@ public class SesionController {
     private final SesionService sesionService;
     private final AuthenticatedUserService authenticatedUserService;
 
+    @GetMapping
+    public ResponseEntity<List<SesionResponse>> listarTodas(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(sesionService.listarTodas(
+                authenticatedUserService.resolve(userDetails).getId(),
+                authenticatedUserService.isCoordinator(userDetails)));
+    }
+
     /** RF-04 */
     @PostMapping
     public ResponseEntity<SesionResponse> solicitar(@Valid @RequestBody SolicitarSesionRequest request,
