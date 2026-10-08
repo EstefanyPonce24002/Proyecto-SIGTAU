@@ -14,6 +14,7 @@ export interface Sesion {
   fechaSesion: string;   // "YYYY-MM-DD"
   horaInicio: string;    // "HH:mm:ss"
   horaFin: string;
+  descripcionDificultades: string | null;
   estado: EstadoSesion;
   observacionesTutor: string | null;
   calificacionProgreso: number | null;
@@ -29,6 +30,7 @@ export interface SolicitarSesionPayload {
   fecha: string;       // "YYYY-MM-DD"
   horaInicio: string;  // "HH:mm:ss" o "HH:mm"
   horaFin: string;
+  descripcionDificultades?: string;
 }
 
 /** RF-04 */
@@ -39,11 +41,37 @@ export function solicitarTutoria(payload: SolicitarSesionPayload): Promise<Sesio
   });
 }
 
+/** Adjuntar un documento a una sesión ya creada. */
+export function subirAdjunto(idSesion: number, file: File): Promise<unknown> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch<unknown>(`/sesiones/${idSesion}/adjuntos`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
 /** RF-07 */
 export function resolverSolicitud(idSesion: number, aprobar: boolean, justificacion?: string): Promise<Sesion> {
   const params = new URLSearchParams({ aprobar: String(aprobar) });
   if (justificacion) params.set("justificacion", justificacion);
   return apiFetch<Sesion>(`/sesiones/${idSesion}/resolver?${params.toString()}`, { method: "PATCH" });
+}
+
+/** Reprogramar una sesión existente. */
+export function reprogramarSesion(
+  idSesion: number,
+  payload: {
+    idHorario: number;
+    fecha: string;
+    horaInicio: string;
+    horaFin: string;
+  }
+): Promise<Sesion> {
+  return apiFetch<Sesion>(`/sesiones/${idSesion}/reprogramar`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }
 
 /** Cancelar sesión (PENDIENTE o APROBADA) */

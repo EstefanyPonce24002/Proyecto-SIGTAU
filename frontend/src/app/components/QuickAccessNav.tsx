@@ -1,8 +1,8 @@
 // Importamos los iconos necesarios de la librería lucide-react.
-import { CalendarClock, GraduationCap, History, Home } from "lucide-react";
+import { CalendarClock, GraduationCap, History, Home, MessageCircle } from "lucide-react";
 
 // Definimos los tipos de pestañas disponibles en la aplicación.
-export type QuickAccessTab = "inicio" | "solicitud" | "historial" | "eventos";
+export type QuickAccessTab = "inicio" | "solicitud" | "historial" | "eventos" | "mensajes";
 
 // Definimos la interfaz de las props que recibe este componente.
 interface Props {
@@ -34,6 +34,12 @@ const ACCESOS: {
     label: "Mis tutorías",
     description: "Consulta el estado de tus solicitudes.",
     icon: History,
+  },
+  {
+    id: "mensajes",
+    label: "Mensajes",
+    description: "Comunícate con tutores y coordinación.",
+    icon: MessageCircle,
   },
   {
     id: "eventos",

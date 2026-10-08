@@ -1,45 +1,42 @@
 package edu.ues.sigtau.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notificaciones")
+@Table(name = "mensajes")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notificacion {
+public class Mensaje {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_notificacion")
+    @Column(name = "id_mensaje")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_usuario")
-    private Usuario usuario;
+    @JoinColumn(name = "id_remitente")
+    private Usuario remitente;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_destinatario")
+    private Usuario destinatario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sesion")
     private Sesion sesion;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false)
-    private TipoNotificacion tipo;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String mensaje;
+    @Column(nullable = false, length = 2000)
+    private String contenido;
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean leida = false;
+    private Boolean leido = false;
 
     @Column(name = "fecha_envio", nullable = false, updatable = false)
     @Builder.Default

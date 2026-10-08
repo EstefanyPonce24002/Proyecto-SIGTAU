@@ -39,6 +39,7 @@ public class ReporteService {
             case RENDIMIENTO -> generarRendimiento(sesiones);
             case ESTADISTICAS -> generarEstadisticas(sesiones);
             case POR_TUTOR -> generarPorTutor(sesiones);
+            case DEMANDA -> generarDemanda(sesiones);
         };
 
         // RF-11: registrar el reporte generado en la tabla reportes
@@ -219,6 +220,39 @@ public class ReporteService {
         return new ReporteGeneradoResponse(TipoReporte.POR_TUTOR,
                 List.of("Tutor", "Sesiones", "Aprobadas/Completadas", "% Aprobación", "Prom. evaluación", "Asignaturas"),
                 rows, kpis, chart.stream().limit(8).toList(), rows.size(), java.time.LocalDateTime.now());
+    }
+
+    /* ── DEMANDA DE TUTORÍAS ─────────────────────────────────────────── */
+    private ReporteGeneradoResponse generarDemanda(List<Sesion> sesiones) {
+        Map<String, Long> porAsignatura = sesiones.stream()
+                .collect(Collectors.groupingBy(s -> s.getAsignatura().getNombre(), Collectors.counting()));
+
+        List<List<String>> rows = porAsignatura.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(e -> List.of(e.getKey(), String.valueOf(e.getValue())))
+                .toList();
+
+        List<ChartPointDto> chart = porAsignatura.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(8)
+                .map(e -> new ChartPointDto(e.getKey(), e.getValue()))
+                .toList();
+
+        long total = sesiones.size();
+        String masSolicitada = rows.isEmpty() ? "N/A" : rows.get(0).get(0);
+
+        List<KpiDto> kpis = List.of(
+                new KpiDto("Tutorías solicitadas", String.valueOf(total)),
+                new KpiDto("Asignaturas con demanda", String.valueOf(porAsignatura.size())),
+                new KpiDto("Más solicitada", masSolicitada),
+                new KpiDto("Mayor demanda", rows.isEmpty() ? "0" : rows.get(0).get(1))
+        );
+
+        return new ReporteGeneradoResponse(
+                TipoReporte.DEMANDA,
+                List.of("Asignatura", "Tutorías solicitadas"),
+                rows, kpis, chart, rows.size(), java.time.LocalDateTime.now()
+        );
     }
 
     /* ── Helpers ──────────────────────────────────────────────────────── */

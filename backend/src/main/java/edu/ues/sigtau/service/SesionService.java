@@ -1,5 +1,6 @@
 package edu.ues.sigtau.service;
 
+import edu.ues.sigtau.dto.ReprogramarSesionRequest;
 import edu.ues.sigtau.dto.SesionResponse;
 import edu.ues.sigtau.dto.SolicitarSesionRequest;
 import edu.ues.sigtau.model.*;
@@ -133,7 +134,15 @@ public class SesionService {
                         throw new IllegalStateException("Solo se pueden resolver solicitudes PENDIENTES");
                 }
 
+                if (aprobar && sesion.getFechaSesion().isBefore(java.time.LocalDate.now())) {
+                        throw new IllegalStateException("No se puede aprobar una solicitud cuya fecha ya pasó");
+                }
+
                 sesion.setEstado(aprobar ? EstadoSesion.APROBADA : EstadoSesion.RECHAZADA);
+
+                if (!aprobar) {
+                        notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
+                }
 
                 if (!aprobar && sesion.getHorario() != null) {
                         Horario horario = sesion.getHorario();
@@ -157,6 +166,92 @@ public class SesionService {
                 return SesionResponse.from(sesion);
         }
 
+        /** Reprogramar una sesión y notificar al estudiante el cambio de horario. */
+        @Transactional
+        public SesionResponse reprogramar(Integer idSesion, ReprogramarSesionRequest request,
+                        Integer actorId, boolean coordinator) {
+                Sesion sesion = sesionRepository.findById(idSesion)
+                                .orElseThrow(() -> new IllegalArgumentException("Sesión no encontrada"));
+
+                if (!coordinator && !sesion.getTutor().getId().equals(actorId)) {
+                        throw new IllegalStateException("La sesión no pertenece al tutor autenticado");
+                }
+
+                if (sesion.getEstado() != EstadoSesion.PENDIENTE
+                                && sesion.getEstado() != EstadoSesion.APROBADA) {
+                        throw new IllegalStateException("Solo se puede reprogramar una sesión PENDIENTE o APROBADA");
+                }
+
+                if (request.fecha().isBefore(java.time.LocalDate.now())) {
+                        throw new IllegalStateException("La nueva fecha no puede estar en el pasado");
+                }
+
+                if (!request.horaFin().isAfter(request.horaInicio())) {
+                        throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio");
+                }
+
+                Horario nuevoHorario = horarioRepository.findById(request.idHorario())
+                                .orElseThrow(() -> new IllegalArgumentException("Nuevo horario no encontrado"));
+
+                if (!nuevoHorario.getTutor().getId().equals(sesion.getTutor().getId())) {
+                        throw new IllegalStateException("El nuevo horario no pertenece al tutor de la sesión");
+                }
+
+                DiaSemana nuevoDia = switch (request.fecha().getDayOfWeek()) {
+                        case MONDAY -> DiaSemana.LUNES;
+                        case TUESDAY -> DiaSemana.MARTES;
+                        case WEDNESDAY -> DiaSemana.MIERCOLES;
+                        case THURSDAY -> DiaSemana.JUEVES;
+                        case FRIDAY -> DiaSemana.VIERNES;
+                        default -> null;
+                };
+
+                if (nuevoDia == null || nuevoHorario.getDiaSemana() != nuevoDia) {
+                        throw new IllegalStateException("La nueva fecha no corresponde al día del horario");
+                }
+
+                if (!request.horaInicio().equals(nuevoHorario.getHoraInicio())
+                                || !request.horaFin().equals(nuevoHorario.getHoraFin())) {
+                        throw new IllegalStateException("La hora no corresponde al bloque de horario seleccionado");
+                }
+
+                Horario horarioAnterior = sesion.getHorario();
+                notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
+                boolean mismoHorario = horarioAnterior != null
+                                && horarioAnterior.getId().equals(nuevoHorario.getId());
+
+                if (!mismoHorario && !Boolean.TRUE.equals(nuevoHorario.getDisponible())) {
+                        throw new IllegalStateException("El nuevo bloque de horario ya no está disponible");
+                }
+
+                sesion.setHorario(nuevoHorario);
+                sesion.setFechaSesion(request.fecha());
+                sesion.setHoraInicio(request.horaInicio());
+                sesion.setHoraFin(request.horaFin());
+                sesion = sesionRepository.save(sesion);
+
+                if (!mismoHorario && horarioAnterior != null) {
+                        horarioAnterior.setDisponible(true);
+                        horarioRepository.save(horarioAnterior);
+                        nuevoHorario.setDisponible(false);
+                        horarioRepository.save(nuevoHorario);
+                }
+
+                String mensaje = "Tu tutor reprogramó la tutoría de " + sesion.getAsignatura().getNombre()
+                                + " para el " + request.fecha() + " de " + request.horaInicio()
+                                + " a " + request.horaFin() + ".";
+
+                notificacionRepository.save(Notificacion.builder()
+                                .usuario(sesion.getEstudiante().getUsuario())
+                                .sesion(sesion)
+                                .tipo(TipoNotificacion.CAMBIO_HORARIO)
+                                .mensaje(mensaje)
+                                .leida(false)
+                                .build());
+
+                return SesionResponse.from(sesion);
+        }
+
         /** Cancelar sesión -- solo en PENDIENTE o APROBADA. */
         @Transactional
         public SesionResponse cancelar(Integer idSesion, Integer actorId, boolean coordinator) {
@@ -174,6 +269,7 @@ public class SesionService {
                 }
 
                 sesion.setEstado(EstadoSesion.CANCELADA);
+                notificacionRepository.deleteBySesion_IdAndTipo(idSesion, TipoNotificacion.RECORDATORIO);
 
                 if (sesion.getHorario() != null) {
                         Horario horario = sesion.getHorario();
@@ -219,6 +315,25 @@ public class SesionService {
                         throw new IllegalStateException("Solo se puede registrar seguimiento de una sesión APROBADA");
                 }
 
+                java.time.LocalDateTime finSesion = java.time.LocalDateTime.of(
+                                sesion.getFechaSesion(), sesion.getHoraFin());
+                if (java.time.LocalDateTime.now().isBefore(finSesion)) {
+                        throw new IllegalStateException("El seguimiento solo puede registrarse después de finalizar la sesión");
+                }
+
+                if (asistencia == null) {
+                        throw new IllegalArgumentException("La asistencia es obligatoria");
+                }
+
+                if (calificacion == null || calificacion.compareTo(java.math.BigDecimal.ZERO) < 0
+                                || calificacion.compareTo(java.math.BigDecimal.TEN) > 0) {
+                        throw new IllegalArgumentException("La calificación debe estar entre 0 y 10");
+                }
+
+                if (observaciones != null && observaciones.length() > 1000) {
+                        throw new IllegalArgumentException("Las observaciones no pueden superar 1000 caracteres");
+                }
+
                 sesion.setAsistencia(asistencia);
                 sesion.setObservacionesTutor(observaciones);
                 sesion.setCalificacionProgreso(calificacion);
@@ -238,7 +353,17 @@ public class SesionService {
         }
 
         @Transactional(readOnly = true)
-        public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
+        @Transactional(readOnly = true)
+    public List<SesionResponse> listarTodas(Integer actorId, boolean coordinator) {
+        if (!coordinator) {
+            throw new IllegalStateException("Solo un coordinador puede consultar todas las sesiones");
+        }
+        return sesionRepository.findAll().stream()
+                .map(SesionResponse::from)
+                .toList();
+    }
+
+    public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
                 if (!coordinator && !idEstudiante.equals(actorId)) {
                         throw new IllegalStateException("No puede consultar el historial de otro estudiante");
                 }

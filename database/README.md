@@ -4,7 +4,7 @@ PostgreSQL 14+
 
 ## Archivos
 
-- `schema.sql` — crea las 10 tablas, los 5 tipos ENUM y los índices de rendimiento. Es la versión corregida (v2) del diccionario de datos original.
+- `schema.sql` — crea las 12 tablas, los tipos ENUM y los índices de rendimiento. Es la versión corregida (v2) del diccionario de datos original.
 - `seed.sql` — datos de prueba mínimos (3 usuarios, 1 estudiante, 1 tutor, asignaturas, horario y una sesión de ejemplo) para desarrollo local. Ejecutar **después** de `schema.sql`.
 
 ## Crear la base de datos desde cero
@@ -34,3 +34,14 @@ Si solo quieres levantar el **backend** para programar sin instalar PostgreSQL, 
 - Se agregaron los índices de rendimiento.
 
 Detalle completo en el documento "Diccionario de Datos v2 + Script SQL" entregado junto con este proyecto.
+
+
+## Respaldo y restauración
+
+Para PostgreSQL se incluyen scripts reproducibles:
+
+- Linux/macOS: `./backup.sh` crea un archivo `custom dump` en `./backups`.
+- Linux/macOS: `./restore.sh backups/sigtau_YYYYMMDD_HHMMSS.dump` restaura un respaldo.
+- Windows PowerShell: `./backup.ps1`.
+
+Los scripts usan `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD`. No se guarda la contraseña en el repositorio.

@@ -1,6 +1,8 @@
 package edu.ues.sigtau.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ public class Usuario {
     private String contrasena;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "rol_usuario", nullable = false, length = 15)
     private RolUsuario rolUsuario;
 

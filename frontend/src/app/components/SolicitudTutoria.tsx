@@ -39,7 +39,7 @@ import {
   type TutorOption,
   type HorarioOption,
 } from "../lib/catalogo";
-import { solicitarTutoria } from "../lib/sesiones";
+import { solicitarTutoria, subirAdjunto } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
 import { QuickAccessNav, type QuickAccessTab } from "./QuickAccessNav";
 
@@ -349,7 +349,7 @@ export function SolicitudTutoria({
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await solicitarTutoria({
+      const sesionCreada = await solicitarTutoria({
         idEstudiante,
         idTutor,
         idAsignatura,
@@ -357,7 +357,13 @@ export function SolicitudTutoria({
         fecha,
         horaInicio: horarioSeleccionado.horaInicio,
         horaFin: horarioSeleccionado.horaFin,
+        descripcionDificultades: descripcion,
       });
+
+      for (const archivo of archivos) {
+        await subirAdjunto(sesionCreada.id, archivo);
+      }
+
       setSolicitudEnviada(true);
       setConfirmationOpen(false);
       onSuccess();

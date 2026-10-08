@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { apiFetch } from "../lib/api";
 import {
   ChevronDown,
   Eye,
@@ -61,153 +62,11 @@ const ESTADO_CFG: Record<Estado, { label: string; color: string; bg: string }> =
     },
   };
 
-const SESIONES: Sesion[] = [
-  {
-    id: "TUT-2026-1041",
-    estudiante: "María Alejandra Gómez",
-    tutor: "Prof. Andrés Ramírez",
-    asignatura: "Cálculo Diferencial",
-    fecha: "14/06/2026",
-    hora: "14:00",
-    estado: "PENDIENTE",
-    carnet: "20230187",
-    descripcion: "Dificultades con integrales por partes.",
-  },
-  {
-    id: "TUT-2026-1039",
-    estudiante: "Santiago Herrera Castro",
-    tutor: "Prof. Andrés Ramírez",
-    asignatura: "Cálculo Diferencial",
-    fecha: "14/06/2026",
-    hora: "16:00",
-    estado: "PENDIENTE",
-    carnet: "20220341",
-    descripcion: "Regla de la cadena y límites.",
-  },
-  {
-    id: "TUT-2026-1035",
-    estudiante: "Juliana Cardona Ríos",
-    tutor: "Prof. Sofía Mendoza",
-    asignatura: "Álgebra Lineal",
-    fecha: "15/06/2026",
-    hora: "09:00",
-    estado: "APROBADA",
-    carnet: "20231089",
-    descripcion: "Ortogonalización de Gram-Schmidt.",
-  },
-  {
-    id: "TUT-2026-1029",
-    estudiante: "Andrés Felipe Torres",
-    tutor: "Prof. Juliana Ospina",
-    asignatura: "Física Mecánica",
-    fecha: "16/06/2026",
-    hora: "11:30",
-    estado: "APROBADA",
-    carnet: "20220788",
-    descripcion: "Movimiento con fricción y planos.",
-  },
-  {
-    id: "TUT-2026-1021",
-    estudiante: "Valentina Ríos Molina",
-    tutor: "Prof. Andrés Ramírez",
-    asignatura: "Cálculo Diferencial",
-    fecha: "17/06/2026",
-    hora: "08:00",
-    estado: "PENDIENTE",
-    carnet: "20230562",
-    descripcion: "Series de Taylor y Maclaurin.",
-  },
-  {
-    id: "TUT-2026-0988",
-    estudiante: "María Alejandra Gómez",
-    tutor: "Prof. Lucas Fernández",
-    asignatura: "Programación I",
-    fecha: "05/06/2026",
-    hora: "09:30",
-    estado: "COMPLETADA",
-    carnet: "20230187",
-    descripcion: "Recursividad y listas enlazadas.",
-  },
-  {
-    id: "TUT-2026-0931",
-    estudiante: "Carlos Eduardo Pineda",
-    tutor: "Prof. Sofía Mendoza",
-    asignatura: "Álgebra Lineal",
-    fecha: "28/05/2026",
-    hora: "11:00",
-    estado: "COMPLETADA",
-    carnet: "20221043",
-    descripcion: "Eigenvalores y diagonalización.",
-  },
-  {
-    id: "TUT-2026-0874",
-    estudiante: "Valentina Ríos Molina",
-    tutor: "Prof. Camila Reyes",
-    asignatura: "Bases de Datos",
-    fecha: "20/05/2026",
-    hora: "16:00",
-    estado: "COMPLETADA",
-    carnet: "20230562",
-    descripcion: "Modelado ER y normalización 3FN.",
-  },
-  {
-    id: "TUT-2026-0812",
-    estudiante: "Santiago Herrera Castro",
-    tutor: "Prof. Juliana Ospina",
-    asignatura: "Física Mecánica",
-    fecha: "12/05/2026",
-    hora: "08:00",
-    estado: "CANCELADA",
-    carnet: "20220341",
-    descripcion: "Movimiento armónico y oscilaciones.",
-  },
-  {
-    id: "TUT-2026-0754",
-    estudiante: "Juliana Cardona Ríos",
-    tutor: "Prof. Sofía Mendoza",
-    asignatura: "Estadística Aplicada",
-    fecha: "03/05/2026",
-    hora: "14:30",
-    estado: "RECHAZADA",
-    carnet: "20231089",
-    descripcion: "Pruebas de hipótesis.",
-  },
-  {
-    id: "TUT-2026-0698",
-    estudiante: "Carlos Eduardo Pineda",
-    tutor: "Prof. Andrés Ramírez",
-    asignatura: "Cálculo Diferencial",
-    fecha: "22/04/2026",
-    hora: "10:00",
-    estado: "COMPLETADA",
-    carnet: "20221043",
-    descripcion: "Límites y continuidad.",
-  },
-  {
-    id: "TUT-2026-0641",
-    estudiante: "Andrés Felipe Torres",
-    tutor: "Prof. Lucas Fernández",
-    asignatura: "Programación I",
-    fecha: "15/04/2026",
-    hora: "15:00",
-    estado: "COMPLETADA",
-    carnet: "20220788",
-    descripcion: "Manejo de punteros y memoria.",
-  },
-];
 
-const TUTORES = [
-  "Todos los tutores",
-  ...Array.from(new Set(SESIONES.map((s) => s.tutor))),
-];
-const ASIGNATS = [
-  "Todas las asignaturas",
-  ...Array.from(new Set(SESIONES.map((s) => s.asignatura))),
-];
-const ESTUDIANTS = [
-  "Todos los estudiantes",
-  ...Array.from(new Set(SESIONES.map((s) => s.estudiante))),
-];
+
+const TUTORES = ["Todos los tutores"];
+const ASIGNATS = ["Todas las asignaturas"];
+const ESTUDIANTS = ["Todos los estudiantes"];
 
 function EstadoBadge({ estado }: { estado: Estado }) {
   const cfg = ESTADO_CFG[estado];
@@ -404,7 +263,30 @@ function ConfirmCancelModal({
 
 /* ═════════════════════════════════════════════════════════════════════ */
 export function Supervision() {
-  const [sesiones, setSesiones] = useState<Sesion[]>(SESIONES);
+  const [sesiones, setSesiones] = useState<Sesion[]>([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiFetch<Array<{
+      id: number; estudianteNombre: string; tutorNombre: string; asignaturaNombre: string;
+      fechaSesion: string; horaInicio: string; horaFin: string; estado: Estado;
+      descripcionDificultades?: string | null; idEstudiante: number;
+    }>>("/sesiones")
+      .then(data => setSesiones(data.map(s => ({
+        id: String(s.id),
+        estudiante: s.estudianteNombre,
+        tutor: s.tutorNombre,
+        asignatura: s.asignaturaNombre,
+        fecha: s.fechaSesion,
+        hora: s.horaInicio + " - " + s.horaFin,
+        estado: s.estado,
+        descripcion: s.descripcionDificultades || "Sin descripción.",
+        carnet: String(s.idEstudiante),
+      }))))
+      .catch(e => setError(e instanceof Error ? e.message : "No se pudo cargar la supervisión"));
+  }, []);
+
+
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("Todos");
   const [filtroTutor, setFiltroTutor] = useState("Todos los tutores");
@@ -414,13 +296,18 @@ export function Supervision() {
   const [detalle, setDetalle] = useState<Sesion | null>(null);
   const [cancelando, setCancelando] = useState<Sesion | null>(null);
 
-  const cancelarSesion = (id: string) => {
-    setSesiones((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, estado: "CANCELADA" as Estado } : s,
-      ),
-    );
-    setCancelando(null);
+  const tutores = useMemo(() => ["Todos los tutores", ...Array.from(new Set(sesiones.map(s => s.tutor)))], [sesiones]);
+  const asignaturas = useMemo(() => ["Todas las asignaturas", ...Array.from(new Set(sesiones.map(s => s.asignatura)))], [sesiones]);
+
+  const cancelarSesion = async (id: string) => {
+    try {
+      await apiFetch("/sesiones/" + id + "/cancelar", { method: "PATCH" });
+      setSesiones(prev => prev.map(s => s.id === id ? { ...s, estado: "CANCELADA" } : s));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo cancelar la sesión");
+    } finally {
+      setCancelando(null);
+    }
   };
 
   const filtradas = sesiones.filter((s) => {
@@ -433,7 +320,9 @@ export function Supervision() {
       filtroTutor === "Todos los tutores" || s.tutor === filtroTutor;
     const matchA =
       filtroAsig === "Todas las asignaturas" || s.asignatura === filtroAsig;
-    return matchQ && matchE && matchT && matchA;
+    const matchFechaInicio = !fechaInicio || s.fecha >= fechaInicio;
+    const matchFechaFin = !fechaFin || s.fecha <= fechaFin;
+    return matchQ && matchE && matchT && matchA && matchFechaInicio && matchFechaFin;
   });
 
   const countByEstado = (e: Estado) =>
@@ -441,6 +330,8 @@ export function Supervision() {
 
   return (
     <div className="w-full space-y-5">
+      {error && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
+
       {/* Header */}
       <div>
         <h2 className="text-foreground">Supervisión de Sesiones</h2>
@@ -526,7 +417,7 @@ export function Supervision() {
                 } as React.CSSProperties
               }
             >
-              {TUTORES.map((t) => (
+              {tutores.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>
@@ -548,7 +439,7 @@ export function Supervision() {
                 } as React.CSSProperties
               }
             >
-              {ASIGNATS.map((a) => (
+              {asignaturas.map((a) => (
                 <option key={a}>{a}</option>
               ))}
             </select>

@@ -1,15 +1,15 @@
 -- =========================================================
 -- SIGTAU - Datos de prueba (seed) para desarrollo local
 -- Ejecutar DESPUÉS de schema.sql
--- Contraseña de todos los usuarios de prueba: "password123"
--- (hash BCrypt de ejemplo, reemplazar en el backend real)
+-- Contraseña de los usuarios de prueba: "password123".
+-- Este hash BCrypt corresponde a esa contraseña.
 -- =========================================================
 
 -- Usuarios base
 INSERT INTO usuarios (nombres, apellidos, correo, contrasena, rol_usuario) VALUES
-('María Alejandra', 'Gómez',    'maria.gomez@universidad.edu.sv',      '$2a$10$examplehashreplaceme', 'ESTUDIANTE'),
-('Andrés',          'Ramírez',  'andres.ramirez@universidad.edu.sv',   '$2a$10$examplehashreplaceme', 'TUTOR'),
-('Coordinación',    'Académica','coordinacion@universidad.edu.sv',     '$2a$10$examplehashreplaceme', 'COORDINADOR');
+('María Alejandra', 'Gómez',    'maria.gomez@universidad.edu.sv',      '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Andrés',          'Ramírez',  'andres.ramirez@universidad.edu.sv',   '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR'),
+('Coordinación',    'Académica','coordinacion@universidad.edu.sv',     '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'COORDINADOR');
 
 -- Estudiante
 INSERT INTO estudiante (id_estudiante, carnet, carrera, ciclo_actual) VALUES
@@ -37,15 +37,15 @@ INSERT INTO horarios (id_tutor, dia_semana, hora_inicio, hora_fin, disponible) V
 
 -- Sesión de ejemplo
 INSERT INTO sesiones (id_estudiante, id_tutor, id_asignatura, id_horario, fecha_sesion, hora_inicio, hora_fin, estado) VALUES
-(1, 2, 1, 1, '2026-09-21', '14:00', '15:00', 'PENDIENTE');
+(1, 2, 1, 1, '2026-10-19', '14:00', '15:00', 'PENDIENTE');
 
 -- Usuarios adicionales para probar múltiples perfiles y solicitudes
 INSERT INTO usuarios (nombres, apellidos, correo, contrasena, rol_usuario) VALUES
-('Carlos',       'Pineda',    'carlos.pineda@universidad.edu.sv',    '$2a$10$examplehashreplaceme', 'ESTUDIANTE'),
-('Sofía',        'Hernández', 'sofia.hernandez@universidad.edu.sv', '$2a$10$examplehashreplaceme', 'ESTUDIANTE'),
-('Diego',        'Martínez',  'diego.martinez@universidad.edu.sv',  '$2a$10$examplehashreplaceme', 'ESTUDIANTE'),
-('Valentina',    'López',     'valentina.lopez@universidad.edu.sv', '$2a$10$examplehashreplaceme', 'TUTOR'),
-('Ricardo',      'Castro',    'ricardo.castro@universidad.edu.sv',  '$2a$10$examplehashreplaceme', 'TUTOR');
+('Carlos',       'Pineda',    'carlos.pineda@universidad.edu.sv',    '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Sofía',        'Hernández', 'sofia.hernandez@universidad.edu.sv', '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Diego',        'Martínez',  'diego.martinez@universidad.edu.sv',  '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'ESTUDIANTE'),
+('Valentina',    'López',     'valentina.lopez@universidad.edu.sv', '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR'),
+('Ricardo',      'Castro',    'ricardo.castro@universidad.edu.sv',  '$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS', 'TUTOR');
 
 -- Perfiles de estudiantes relacionados con los usuarios 4, 5 y 6
 INSERT INTO estudiante (id_estudiante, carnet, carrera, ciclo_actual) VALUES
@@ -76,17 +76,17 @@ INSERT INTO sesiones (
 	hora_inicio, hora_fin, estado, descripcion_dificultades,
 	observaciones_tutor, calificacion_progreso, asistencia
 ) VALUES
-(4, 2, 3, 1, '2026-09-22', '14:00', '15:00', 'APROBADA',
+(4, 2, 3, 1, '2026-10-19', '14:00', '15:00', 'APROBADA',
  'Dificultad con ciclos y funciones.', NULL, NULL, NULL),
-(5, 7, 2, 3, '2026-09-23', '08:00', '09:00', 'COMPLETADA',
+(5, 7, 2, 3, '2026-10-20', '08:00', '09:00', 'COMPLETADA',
  'Necesita practicar operaciones con matrices.', 'Resolvió correctamente los ejercicios asignados.', 8.5, true),
-(6, 8, 4, 5, '2026-09-24', '09:00', '10:00', 'RECHAZADA',
+(6, 8, 4, 5, '2026-10-21', '09:00', '10:00', 'RECHAZADA',
  'Quiere repasar consultas SQL.', 'El horario solicitado ya no estaba disponible.', NULL, NULL),
-(1, 7, 2, 4, '2026-09-25', '13:00', '14:00', 'PENDIENTE',
+(1, 7, 2, 4, '2026-10-23', '13:00', '14:00', 'PENDIENTE',
  'Preparación para el examen de álgebra.', NULL, NULL, NULL),
-(4, 8, 4, 6, '2026-09-28', '15:00', '16:00', 'CANCELADA',
+(4, 8, 4, 6, '2026-10-22', '15:00', '16:00', 'CANCELADA',
  'Revisión de normalización de bases de datos.', 'La sesión fue cancelada por el estudiante.', NULL, false),
-(5, 2, 1, 2, '2026-09-29', '10:00', '11:00', 'APROBADA',
+(5, 2, 1, 2, '2026-10-27', '10:00', '11:00', 'APROBADA',
  'Repaso de derivadas y aplicaciones.', NULL, NULL, NULL);
 
 -- Notificaciones vinculadas a sesiones existentes
@@ -100,6 +100,6 @@ INSERT INTO notificaciones (id_usuario, id_sesion, tipo, mensaje, leida) VALUES
 
 -- Reportes de ejemplo para el panel de coordinación
 INSERT INTO reportes (id_coordinador, tipo_reporte, fecha_inicio, fecha_fin, filtro_carrera) VALUES
-(3, 'ASISTENCIA',   '2026-09-01', '2026-09-30', NULL),
+(3, 'ASISTENCIA',   '2026-10-01', '2026-10-31', NULL),
 (3, 'RENDIMIENTO',  '2026-09-01', '2026-09-30', 'Ingeniería en Desarrollo de Software'),
 (3, 'POR_TUTOR',    '2026-09-01', '2026-09-30', NULL);

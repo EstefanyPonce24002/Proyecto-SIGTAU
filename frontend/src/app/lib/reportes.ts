@@ -1,6 +1,6 @@
 import { apiFetch } from "./api";
 
-export type TipoReporte = "ASISTENCIA" | "RENDIMIENTO" | "ESTADISTICAS" | "POR_TUTOR";
+export type TipoReporte = "ASISTENCIA" | "RENDIMIENTO" | "ESTADISTICAS" | "POR_TUTOR" | "DEMANDA";
 
 export interface Kpi {
   label: string;
