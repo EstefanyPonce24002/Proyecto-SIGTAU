@@ -261,7 +261,17 @@ public class SesionService {
         }
 
         @Transactional(readOnly = true)
-        public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
+        @Transactional(readOnly = true)
+    public List<SesionResponse> listarTodas(Integer actorId, boolean coordinator) {
+        if (!coordinator) {
+            throw new IllegalStateException("Solo un coordinador puede consultar todas las sesiones");
+        }
+        return sesionRepository.findAll().stream()
+                .map(SesionResponse::from)
+                .toList();
+    }
+
+    public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
                 if (!coordinator && !idEstudiante.equals(actorId)) {
                         throw new IllegalStateException("No puede consultar el historial de otro estudiante");
                 }
