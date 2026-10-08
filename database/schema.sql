@@ -152,6 +152,19 @@ CREATE TABLE password_reset_tokens (
 );
 
 -- ---------------------------------------------------------
+-- Tabla 11: documentos adjuntos de tutorías
+-- ---------------------------------------------------------
+CREATE TABLE documentos_adjuntos (
+    id_documento   SERIAL PRIMARY KEY,
+    id_sesion      INT NOT NULL REFERENCES sesiones(id_sesion) ON DELETE CASCADE,
+    nombre_original VARCHAR(255) NOT NULL,
+    ruta_archivo   VARCHAR(500) NOT NULL,
+    tipo_mime      VARCHAR(120) NOT NULL,
+    tamanio        BIGINT NOT NULL CHECK (tamanio > 0),
+    fecha_subida   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ---------------------------------------------------------
 -- Índices recomendados (RNF de rendimiento)
 -- ---------------------------------------------------------
 CREATE INDEX idx_sesiones_estudiante  ON sesiones(id_estudiante);
@@ -163,3 +176,4 @@ CREATE INDEX idx_tutasig_asignatura   ON tutor_asignatura(id_asignatura);
 CREATE INDEX idx_notif_usuario_leida  ON notificaciones(id_usuario, leida);
 CREATE INDEX idx_reportes_coordinador ON reportes(id_coordinador);
 CREATE INDEX idx_reset_token          ON password_reset_tokens(token);
+CREATE INDEX idx_adjuntos_sesion         ON documentos_adjuntos(id_sesion);
