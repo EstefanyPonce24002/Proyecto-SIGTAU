@@ -64,7 +64,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                 >
                   <Mail size={27} style={{ color: "#49666d" }} />
                 </div>
-                <h2 style={{ color: "#1E3A8A", letterSpacing: "-0.01em" }}>Recuperar Contraseña</h2>
+                <h2 style={{ color: "#151618", letterSpacing: "-0.01em" }}>Recuperar Contraseña</h2>
                 <p className="mx-auto mt-1.5 max-w-[280px]" style={{ fontSize: "0.88rem", color: "#6B7280", lineHeight: 1.45 }}>
                   Ingresa tu correo institucional para recibir un enlace de recuperación.
                 </p>
@@ -73,7 +73,7 @@ export function RecuperarContrasena({ onBack }: Props) {
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.48">
-                  <label className="block pl-1" style={{ fontSize: "0.875rem", color: "#1E3A8A" }}>
+                  <label className="block pl-1" style={{ fontSize: "0.875rem", color: "#151618" }}>
                     Correo electrónico
                   </label>
                   <div className="relative">
@@ -88,7 +88,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                         borderColor: error ? "rgba(239,68,68,0.5)" : "var(--border)",
                         background: "rgba(248,250,253,0.82)",
                         color: "#1E3A8A",
-                        "--tw-ring-color": "#10B981",
+                        "--tw-ring-color": "#118AB2",
                       } as React.CSSProperties}
                     />
                   </div>
@@ -101,7 +101,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                   type="submit"
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-70"
-                  style={{ background: "#10B981", fontSize: "0.9rem" }}
+                  style={{ background: "#118AB2", fontSize: "0.9rem" }}
                 >
                   {loading && <Loader2 size={15} className="animate-spin" />}
                   {loading ? "Enviando..." : "Enviar enlace de recuperación"}
@@ -115,7 +115,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
                 style={{ background: "rgba(16,185,129,0.1)" }}
               >
-                <CheckCircle2 size={30} style={{ color: "#10B981" }} />
+                <CheckCircle2 size={30} style={{ color: "#118AB2" }} />
               </div>
               <div>
                 <h3 style={{ color: "#1E3A8A", fontSize: "1.1rem" }}>¡Enlace enviado!</h3>
@@ -135,7 +135,7 @@ export function RecuperarContrasena({ onBack }: Props) {
             onClick={onBack}
             className="flex items-center gap-2 transition-colors w-full justify-center"
             style={{ fontSize: "0.875rem", color: "#6B7280" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#10B981")}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#118AB2")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#6B7280")}
           >
             <ArrowLeft size={14} />

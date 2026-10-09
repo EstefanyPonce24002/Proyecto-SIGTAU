@@ -1,8 +1,19 @@
 // Importamos los iconos necesarios de la librería lucide-react.
-import { CalendarClock, GraduationCap, History, Home, MessageCircle } from "lucide-react";
+import {
+  CalendarClock,
+  GraduationCap,
+  History,
+  Home,
+  MessageCircle,
+} from "lucide-react";
 
 // Definimos los tipos de pestañas disponibles en la aplicación.
-export type QuickAccessTab = "inicio" | "solicitud" | "historial" | "eventos" | "mensajes";
+export type QuickAccessTab =
+  | "inicio"
+  | "solicitud"
+  | "historial"
+  | "eventos"
+  | "mensajes";
 
 // Definimos la interfaz de las props que recibe este componente.
 interface Props {
@@ -67,7 +78,14 @@ export function QuickAccessNav({ activeTab, onNavigate }: Props) {
           onClick={() => onNavigate(id)} // Al hacer clic, navega a la pestaña correspondiente.
           aria-current={activeTab === id ? "page" : undefined} // Indica accesibilidad para la pestaña activa.
           title={description} // Tooltip que muestra la descripción al pasar el mouse.
-          className={`group relative flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 py-2 text-left text-sm transition-all first:pl-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105 ${activeTab === id ? "border-[var(--brand-navy)] text-[#57595B]" : "border-transparent text-[#57595B] hover:bg-white/5 hover:text-[#57595B]"}`}
+          className={`group relative flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 py-2 text-left text-sm
+          transition-all first:pl-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+          motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105
+          ${
+            activeTab === id
+              ? "border-brand-blue text-brand-blue-text"
+              : "border-transparent text-text-secondary hover:bg-surface-hover hover:text-brand-blue-text"
+          }`}
         >
           {/* --- SECCIÓN 3: Icono del Botón --- */}
           <Icon size={17} strokeWidth={1.8} className="shrink-0" />

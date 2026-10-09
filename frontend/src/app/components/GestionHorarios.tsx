@@ -87,7 +87,7 @@ function NuevoHorarioModal({
             type="button"
             onClick={onClose}
             aria-label="Cerrar nuevo horario"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <X size={15} />
           </button>
@@ -118,11 +118,10 @@ function NuevoHorarioModal({
               onChange={(e) =>
                 setDiaSemana(e.target.value as HorarioOption["diaSemana"])
               }
-              className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all"
+              className="w-full rounded-xl border border-border-strong bg-input-background text-card-foreground px-4 py-2.5 outline-none focus focus focus transition-all"
               style={
                 {
                   fontSize: "0.875rem",
-                  "--tw-ring-color": "#10B981",
                 } as React.CSSProperties
               }
             >
@@ -145,11 +144,10 @@ function NuevoHorarioModal({
                 type="time"
                 value={horaInicio}
                 onChange={(e) => setHoraInicio(e.target.value)}
-                className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all"
+                className="w-full rounded-xl border border-border-strong bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-all"
                 style={
                   {
                     fontSize: "0.875rem",
-                    "--tw-ring-color": "#10B981",
                   } as React.CSSProperties
                 }
               />
@@ -169,7 +167,7 @@ function NuevoHorarioModal({
                 style={
                   {
                     fontSize: "0.875rem",
-                    "--tw-ring-color": "#10B981",
+                    "--tw-ring-color": "#118AB2",
                   } as React.CSSProperties
                 }
               />
@@ -187,11 +185,8 @@ function NuevoHorarioModal({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-70"
-              style={{
-                background: "linear-gradient(135deg, #1E3A8A, #3B82F6)",
-                fontSize: "0.875rem",
-              }}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-2.5 transition-all hover active disabled focus-visible focus-visible focus-visible focus-visible"
+              style={{ fontSize: "0.875rem" }}
             >
               {saving && <Loader2 size={14} className="animate-spin" />}
               Guardar
@@ -267,18 +262,18 @@ export function GestionHorarios({ idTutor }: Props) {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-5">
+    <div className="w-full max-w-6xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-foreground">Mis Horarios</h2>
-          <p className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
-            RF-06 · {horarios.length} bloques registrados
+          <p className="text-muted-foreground" style={{ fontSize: "0.88rem" }}>
+            {horarios.length} bloques registrados
           </p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
-          style={{ background: "#10B981", fontSize: "0.875rem" }}
+          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:brightness-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          style={{ backgroundColor: "#118AB2", fontSize: "0.875rem" }}
         >
           <Plus size={15} /> Nuevo bloque
         </button>
@@ -320,22 +315,23 @@ export function GestionHorarios({ idTutor }: Props) {
           {DIAS.map((dia) => {
             const bloques = horarios.filter((h) => h.diaSemana === dia);
             if (bloques.length === 0) return null;
+
             return (
               <div
                 key={dia}
                 className="bg-card rounded-2xl border border-border overflow-hidden"
               >
-                <div
-                  className="px-4 py-3 border-b border-border"
-                  style={{ background: "rgba(245,158,11,0.1)" }}
-                >
+                {/* Encabezado del día */}{" "}
+                <div className="px-4 py-3 border-b border-border bg-brand-blue/10">
                   <p
                     className="text-foreground"
                     style={{ fontSize: "0.85rem" }}
                   >
-                    {DIA_LABEL[dia]}
-                  </p>
+                    {DIA_LABEL[dia]}{" "}
+                  </p>{" "}
                 </div>
+                ```
+                {/* Bloques de disponibilidad */}
                 <div className="divide-y divide-border">
                   {bloques.map((h) => (
                     <div
@@ -343,7 +339,7 @@ export function GestionHorarios({ idTutor }: Props) {
                       className="flex items-center justify-between px-4 py-3"
                     >
                       <div className="flex items-center gap-2.5">
-                        <Clock size={14} className="text-muted-foreground" />
+                        <Clock size={14} className="text-brand-blue" />
                         <span
                           className="text-foreground"
                           style={{
@@ -354,11 +350,13 @@ export function GestionHorarios({ idTutor }: Props) {
                           {formatHora(h.horaInicio)} – {formatHora(h.horaFin)}
                         </span>
                       </div>
+
                       {h.disponible ? (
                         <button
                           onClick={() => handleEliminar(h.id)}
                           disabled={eliminando === h.id}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all disabled:opacity-50"
+                          aria-label={`Eliminar horario del ${DIA_LABEL[h.diaSemana]}, de ${formatHora(h.horaInicio)} a ${formatHora(h.horaFin)}`}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           {eliminando === h.id ? (
                             <Loader2 size={14} className="animate-spin" />

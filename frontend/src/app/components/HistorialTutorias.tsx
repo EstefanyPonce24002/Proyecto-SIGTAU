@@ -486,7 +486,7 @@ function CalendarPanel({ tutorias }: { tutorias: Sesion[] }) {
                 fontWeight: isToday ? 700 : 400,
               }}
             >
-              <span>{day}</span>
+              <span style={{ color: "#d6dee5" }}>{day}</span>
               {sessions.length > 0 && (
                 <span className="mt-0.5 flex gap-0.5">
                   {Array.from(
@@ -712,7 +712,10 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
             <div className="flex flex-col gap-3 border-b border-[#C9D8E6] bg-[#E5EEF6] p-4 dark:border-[#2A4158] dark:bg-[#182A3A] sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div className="flex items-center gap-2.5">
                 <History size={20} className="text-brand-teal" />
-                <h2 className="text-[#17365D] dark:text-[#E2E8F0]" style={{ fontSize: "1.05rem" }}>
+                <h2
+                  className="text-[#17365D] dark:text-[#E2E8F0]"
+                  style={{ fontSize: "1.05rem" }}
+                >
                   Mi historial
                 </h2>
               </div>
@@ -722,11 +725,13 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
                   onChange={setBusqueda}
                   placeholder="Buscar..."
                   className="min-w-0 flex-1 sm:w-64"
-                  style={{
-                    fontSize: "0.8rem",
-                    borderColor: "#118AB2",
-                    "--tw-ring-color": "#118AB2",
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      fontSize: "0.8rem",
+                      borderColor: "#118AB2",
+                      "--tw-ring-color": "#118AB2",
+                    } as React.CSSProperties
+                  }
                 />
                 <div className="relative">
                   <select

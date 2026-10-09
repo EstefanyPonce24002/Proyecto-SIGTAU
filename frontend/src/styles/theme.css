@@ -7,13 +7,16 @@
   --brand-navy: #1E3A8A;
   --brand-navy-deep: #1E3A8A;
   --brand-navy-light: #3B82F6;
+  --brand-blue: #118AB2;
+  --brand-blue-dark: #0B6685;
+  --brand-blue-text: #0B6685;
   --brand-teal: #10B981;
   --brand-teal-soft: rgba(16, 185, 129, 0.12);
   --brand-bronze: #F59E0B;
   --brand-bronze-deep: #D97706;
   --brand-danger: #EF4444;
   --brand-warning: #F59E0B;
-  --brand-info: #3B82F6;
+  --brand-info: var(--brand-blue);
   --brand-primary-gradient: linear-gradient(135deg, var(--brand-navy), var(--brand-navy-light));
   --background: #F9FAFB;
   --foreground: #1F2937;
@@ -21,8 +24,8 @@
   --card-foreground: #1F2937;
   --popover: #FFFFFF;
   --popover-foreground: #1F2937;
-  --primary: #1E3A8A;
-  --primary-foreground: #ffffff;
+  --primary: var(--brand-blue-dark);  
+  --primary-foreground: #FFFFFF;
   --secondary: #EFF6FF;
   --secondary-foreground: #1E3A8A;
   --muted: #EFF6FF;
@@ -37,7 +40,7 @@
   --switch-background: #D1D5DB;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #3B82F6;
+  --ring: var(--focus-ring);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -52,33 +55,19 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+    /* Texto e iconos: modo claro */
+  --text-primary: #1F2937;
+  --text-secondary: #374151;  
+  --text-muted: #4B5563;
+  --icon-color: var(--brand-blue);
+  --icon-muted: #4B5563;
+
+  /* Superficies y estados */
+  --surface-hover: #E8F4F8;
+  --border-strong: #9CA3AF;
+  --focus-ring: var(--brand-blue);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111827;
-    --foreground: #F9FAFB;
-    --card: #1F2937;
-    --card-foreground: #F9FAFB;
-    --popover: #1F2937;
-    --popover-foreground: #F9FAFB;
-    --primary: #60A5FA;
-    --primary-foreground: #111827;
-    --secondary: #374151;
-    --secondary-foreground: #F9FAFB;
-    --muted: #374151;
-    --muted-foreground: #9CA3AF;
-    --accent: #34D399;
-    --accent-foreground: #111827;
-    --destructive: #EF4444;
-    --destructive-foreground: #FFFFFF;
-    --border: #374151;
-    --input: #374151;
-    --input-background: #1F2937;
-    --switch-background: #4B5563;
-    --ring: #60A5FA;
-  }
-}
 
 @layer components {
   .info-card {
@@ -193,6 +182,17 @@
   --background: #111827;
   --foreground: #F9FAFB;
   --card: #1F2937;
+    /* Texto e iconos: modo oscuro */
+  --brand-blue-text: #38BFE3;
+  --text-primary: #F9FAFB;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9CA3AF;
+  --icon-color: #E5E7EB;
+  --icon-muted: #9CA3AF;
+  /* Superficies y estados */
+  --surface-hover: #263F50;
+  --border-strong: #8494A7;
+  --focus-ring: #38BFE3;
   --card-foreground: #F9FAFB;
   --popover: #1F2937;
   --popover-foreground: #F9FAFB;
@@ -208,7 +208,7 @@
   --destructive-foreground: #FFFFFF;
   --border: #374151;
   --input: #374151;
-  --input-background: #1F2937;
+  --input-background: #263746;
   --ring: #60A5FA;
   --chart-1: #7B9BC9;
   --chart-2: #72C8B1;
@@ -227,7 +227,17 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-brand-blue-text: var(--brand-blue-text);
   --color-foreground: var(--foreground);
+  --color-brand-blue: var(--brand-blue);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-icon: var(--icon-color);
+  --color-icon-muted: var(--icon-muted);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-strong: var(--border-strong);
+  --color-focus-ring: var(--focus-ring);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -237,7 +247,7 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground: var(--text-secondary);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);

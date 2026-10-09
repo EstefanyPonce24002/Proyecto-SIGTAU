@@ -1,10 +1,12 @@
+# Configuración de la aplicación Spring Boot para el proyecto SIGTAU.
+
 spring:
   application:
     name: sigtau
 
   jpa:
     hibernate:
-      ddl-auto: validate   # el esquema lo crea database/schema.sql, no Hibernate
+      ddl-auto: validate # El esquema lo crea database/schema.sql, no Hibernate
     show-sql: true
     properties:
       hibernate:
@@ -35,44 +37,53 @@ sigtau:
     secret: ${JWT_SECRET}
     access-token-minutes: 30
     refresh-token-days: 7
+
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
   mail:
     from: ${MAIL_FROM:no-reply@sigtau.local}
+
   storage:
     upload-dir: ${SIGTAU_UPLOAD_DIR:./uploads}
 
-
 ---
+# Configuración para el perfil de desarrollo
+
 spring:
   config:
     activate:
       on-profile: dev
+
   datasource:
-    url: jdbc:h2:mem:sigtau;MODE=PostgreSQL
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:postgresql://localhost:5432/BD_SIGTAU
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: PG1234
+
   h2:
     console:
       enabled: true
       path: /h2-console
 
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
 sigtau:
   jwt:
     secret: dev-only-sigtau-jwt-secret-change-before-production-2026
 
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: create-drop   # en dev, Hibernate crea el esquema en memoria a partir de las entidades
-
 ---
+# Configuración para el perfil de producción
+
 spring:
   config:
     activate:
       on-profile: prod
+
   datasource:
     url: jdbc:postgresql://localhost:5432/sigtau
     username: ${DB_USER:sigtau_user}

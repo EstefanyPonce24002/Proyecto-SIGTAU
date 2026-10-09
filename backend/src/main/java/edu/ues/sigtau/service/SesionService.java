@@ -289,7 +289,8 @@ public class SesionService {
                                                 : sesion.getEstudiante().getUsuario())
                                 .sesion(sesion)
                                 .tipo(TipoNotificacion.CANCELACION)
-                                .mensaje(actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre() + ".")
+                                .mensaje(actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre()
+                                                + ".")
                                 .leida(false)
                                 .build());
 
@@ -318,7 +319,8 @@ public class SesionService {
                 java.time.LocalDateTime finSesion = java.time.LocalDateTime.of(
                                 sesion.getFechaSesion(), sesion.getHoraFin());
                 if (java.time.LocalDateTime.now().isBefore(finSesion)) {
-                        throw new IllegalStateException("El seguimiento solo puede registrarse después de finalizar la sesión");
+                        throw new IllegalStateException(
+                                        "El seguimiento solo puede registrarse después de finalizar la sesión");
                 }
 
                 if (asistencia == null) {
@@ -353,17 +355,16 @@ public class SesionService {
         }
 
         @Transactional(readOnly = true)
-        @Transactional(readOnly = true)
-    public List<SesionResponse> listarTodas(Integer actorId, boolean coordinator) {
-        if (!coordinator) {
-            throw new IllegalStateException("Solo un coordinador puede consultar todas las sesiones");
+        public List<SesionResponse> listarTodas(Integer actorId, boolean coordinator) {
+                if (!coordinator) {
+                        throw new IllegalStateException("Solo un coordinador puede consultar todas las sesiones");
+                }
+                return sesionRepository.findAll().stream()
+                                .map(SesionResponse::from)
+                                .toList();
         }
-        return sesionRepository.findAll().stream()
-                .map(SesionResponse::from)
-                .toList();
-    }
 
-    public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
+        public List<SesionResponse> historialEstudiante(Integer idEstudiante, Integer actorId, boolean coordinator) {
                 if (!coordinator && !idEstudiante.equals(actorId)) {
                         throw new IllegalStateException("No puede consultar el historial de otro estudiante");
                 }

@@ -395,7 +395,7 @@ export default function App() {
         {/* ── COLUMNA PRINCIPAL ── */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* ── HEADER FIJO ── */}
-          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-3 border-b border-[#DCEAF7] bg-[#F4F9FF] px-4 sm:px-5 dark:border-[#2A4158] dark:bg-[#182A3A]">
+          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-5 transition-colors duration-300">
             {/* Logo SIGTAU */}
             <div className="flex shrink-0 items-center gap-3">
               <button
@@ -413,7 +413,7 @@ export default function App() {
                     letterSpacing: "0.01em",
                   }}
                 >
-                  SIG<span style={{ color: "#118AB2" }}>TAU</span>
+                  SIG<span style={{ color: "var(--brand-blue)" }}>TAU</span>
                 </span>
                 <span className="mt-1 max-w-[210px] text-[0.65rem] font-semibold leading-tight text-muted-foreground sm:text-[0.70rem]">
                   Sistema Integral de Gestión
@@ -423,17 +423,13 @@ export default function App() {
               </button>
             </div>
 
-           {/* Barra de Búsqueda Global */}
+            {/* Barra de Búsqueda Global */}
             <div className="relative ml-auto min-w-0 max-w-md flex-1">
               <VoiceSearchInput
                 value={busquedaGlobal}
                 onChange={setBusquedaGlobal}
                 placeholder="Buscar tutoría, tutor o asignatura..."
-                className="rounded-xl border-[#118AB2] bg-input-background py-2.5 text-sm hover:border-[#118AB2] focus:border-[#118AB2] sm:py-2.5"
-                style={{
-                  borderColor: "#118AB2",
-                  "--tw-ring-color": "#118AB2",
-                } as React.CSSProperties}
+                className="rounded-xl border-border-strong bg-input-background py-2.5 text-sm hover:border-primary focus:border-primary sm:py-2.5"
               />
               {busquedaGlobal.trim() && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-card p-1.5 shadow-lg">
@@ -452,7 +448,7 @@ export default function App() {
                         >
                           <Icon
                             size={15}
-                            className="shrink-0 text-brand-teal"
+                            className="shrink-0 text-brand-blue"
                           />
                           <span>{item.label}</span>
                         </button>
@@ -579,11 +575,11 @@ export default function App() {
                   style={{
                     color:
                       activeTab === item.id
-                        ? "var(--brand-teal)"
-                        : "var(--muted-foreground)",
+                        ? "var(--brand-blue-text)"
+                        : "var(--text-secondary)",
                     borderBottomColor:
                       activeTab === item.id
-                        ? "var(--brand-teal)"
+                        ? "var(--brand-blue)"
                         : "transparent",
                   }}
                 >
@@ -631,6 +627,7 @@ export default function App() {
                 onNavigate={handleNavigate}
               />
             )}
+
             {activeTab === "solicitud" && solicitudOk && (
               <div className="w-full max-w-lg mx-auto">
                 <div className="bg-card rounded-2xl border border-border p-10 text-center space-y-5">
@@ -707,7 +704,9 @@ export default function App() {
             {activeTab === "horarios" && (
               <GestionHorarios idTutor={idUsuario} />
             )}
-            {activeTab === "calendario-tutor" && <CalendarioTutor idTutor={idUsuario} />}
+            {activeTab === "calendario-tutor" && (
+              <CalendarioTutor idTutor={idUsuario} />
+            )}
             {activeTab === "historial-sesiones" && (
               <HistorialSesiones idTutor={idUsuario} />
             )}
@@ -729,14 +728,13 @@ export default function App() {
           </main>
 
           {/* ── PIE DE PÁGINA ── */}
-          <footer className="flex flex-col items-center justify-center gap-1 border-t border-[#DCEAF7] bg-[#F4F9FF] px-5 py-4 text-center text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-center dark:border-[#2A4158] dark:bg-[#182A3A]">
+          <footer className="flex flex-col items-center justify-center gap-1 border-t border-border bg-background px-5 py-4 text-center text-xs text-muted-foreground transition-colors duration-300 sm:flex-row sm:items-center sm:justify-center">
             <span>
               <strong className="text-foreground">SIGTAU</strong>
               <br></br>Sistema Integral de Gestión de Tutorías Académicas
               <br></br>
               Sistema desarrollado con fines educativos.
-              <br></br>
-              © {new Date().getFullYear()}
+              <br></br>© {new Date().getFullYear()}
             </span>
           </footer>
         </div>
