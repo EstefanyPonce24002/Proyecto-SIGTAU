@@ -114,9 +114,9 @@ function NuevoUsuarioModal({
         role="dialog"
         aria-modal="true"
         aria-label={editando ? "Editar usuario" : "Nuevo usuario"}
-        className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-border bg-secondary/30 px-5 py-4">
           <h3 className="text-card-foreground" style={{ fontSize: "0.95rem" }}>
             {editando ? "Editar usuario" : "Nuevo usuario"}
           </h3>
@@ -147,7 +147,7 @@ function NuevoUsuarioModal({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label
                 className="text-card-foreground"
@@ -158,7 +158,7 @@ function NuevoUsuarioModal({
               <input
                 value={form.nombres}
                 onChange={set("nombres")}
-                className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all"
+                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
                 style={
                   {
                     fontSize: "0.875rem",
@@ -201,7 +201,7 @@ function NuevoUsuarioModal({
               onChange={set("correo")}
               disabled={editando}
               placeholder="usuario@universidad.edu.sv"
-              className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
+              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
               style={
                 {
                   fontSize: "0.875rem",
@@ -440,7 +440,7 @@ export function GestionUsuarios() {
   }
 
   return (
-    <div className="w-full space-y-5">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-foreground">Gestión de Usuarios</h2>
@@ -502,7 +502,7 @@ export function GestionUsuarios() {
       </div>
 
       {/* Table */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full" style={{ minWidth: "640px" }}>
             <thead>
