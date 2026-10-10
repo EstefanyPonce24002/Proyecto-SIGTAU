@@ -84,7 +84,7 @@ export function Mensajes({ idUsuario }: Props) {
       <div className="mb-6">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><MessageCircle size={14} className="text-brand-teal" /> Comunicación</div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mensajes</h2>
-        <p className="text-muted-foreground mt-1 text-sm">Comunícate con estudiantes, tutores y coordinación.</p>
+        <p className="text-muted-foreground mt-1 text-sm">Comunícate únicamente con estudiantes y tutores vinculados a tus tutorías.</p>
       </div>
 
       {error && <p className="mb-4 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
