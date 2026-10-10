@@ -49,7 +49,7 @@ const ACCESOS: {
   {
     id: "mensajes",
     label: "Mensajes",
-    description: "Comunícate con tutores y coordinación.",
+    description: "Comunícate únicamente con los tutores de tus tutorías.",
     icon: MessageCircle,
   },
   {
