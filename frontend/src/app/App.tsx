@@ -563,7 +563,7 @@ export default function App() {
           {/* NAVEGACIÓN SECUNDARIA */}
           {rol !== "estudiante" ? (
             <nav
-              className="flex shrink-0 gap-1 overflow-x-auto border-t border-b border-border bg-card px-4 sm:px-5"
+              className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
               aria-label="Navegación principal"
             >
               {NAV_ITEMS.filter(
@@ -592,7 +592,7 @@ export default function App() {
             </nav>
           ) : activeTab === "mensajes" ? (
             <nav
-              className="flex shrink-0 gap-1 overflow-x-auto border-t border-b border-border bg-card px-4 sm:px-5"
+              className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
               aria-label="Accesos rápidos"
             >
               {[
