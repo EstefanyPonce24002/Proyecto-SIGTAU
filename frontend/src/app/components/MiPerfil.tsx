@@ -508,7 +508,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       <div
         className="bg-card rounded-2xl overflow-hidden border border-border"
         style={{
-          background: `linear-gradient(145deg, ${NAVY} 0%, #162550 100%)`,
+          background: `linear-gradient(145deg, #471B59 0%, #351442 48%, #1B1830 100%)`,
         }}
       >
         {/* Bronze accent strip */}
