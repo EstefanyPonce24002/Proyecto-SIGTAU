@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GenerarHash",
+            "request": "launch",
+            "mainClass": "edu.ues.sigtau.GenerarHash",
+            "projectName": "sigtau"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-SigtauApplication<sigtau>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

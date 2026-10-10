@@ -7,7 +7,6 @@ import {
   MessageCircle,
 } from "lucide-react";
 
-// Definimos los tipos de pestañas disponibles en la aplicación.
 export type QuickAccessTab =
   | "inicio"
   | "solicitud"
@@ -15,13 +14,11 @@ export type QuickAccessTab =
   | "eventos"
   | "mensajes";
 
-// Definimos la interfaz de las props que recibe este componente.
 interface Props {
-  activeTab: QuickAccessTab; // Indica qué pestaña está activa actualmente.
-  onNavigate: (tab: QuickAccessTab) => void; // Función que se ejecuta al hacer clic en una pestaña.
+  activeTab: QuickAccessTab;
+  onNavigate: (tab: QuickAccessTab) => void;
 }
 
-// Array con la configuración de cada botón de acceso rápido.
 const ACCESOS: {
   id: QuickAccessTab;
   label: string;
@@ -59,43 +56,35 @@ const ACCESOS: {
     icon: CalendarClock,
   },
 ];
-
-// Componente principal de la barra de navegación rápida.
+// Componente de navegación rápida que permite al usuario cambiar entre diferentes secciones de la aplicación.
 export function QuickAccessNav({ activeTab, onNavigate }: Props) {
   return (
-    // --- SECCIÓN 1: Contenedor de la Barra de Navegación ---
-    // Es un elemento <nav> con scroll horizontal si es necesario.
     <nav
-      className="mb-4 flex justify-start overflow-x-auto border-b border-border"
+      className="mb-4 flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
       aria-label="Accesos rápidos"
     >
-      {/* --- SECCIÓN 2: Mapeo de los Botones de Navegación --- */}
-      {/* Iteramos sobre el array ACCESOS para crear un botón por cada pestaña. */}
-      {ACCESOS.map(({ id, label, description, icon: Icon }) => (
-        <button
-          key={id}
-          type="button"
-          onClick={() => onNavigate(id)} // Al hacer clic, navega a la pestaña correspondiente.
-          aria-current={activeTab === id ? "page" : undefined} // Indica accesibilidad para la pestaña activa.
-          title={description} // Tooltip que muestra la descripción al pasar el mouse.
-          className={`group relative flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 py-2 text-left text-sm
-          transition-all first:pl-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-          motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105
-          ${
-            activeTab === id
-              ? "border-brand-blue text-brand-blue-text"
-              : "border-transparent text-text-secondary hover:bg-surface-hover hover:text-brand-blue-text"
-          }`}
-        >
-          {/* --- SECCIÓN 3: Icono del Botón --- */}
-          <Icon size={17} strokeWidth={1.8} className="shrink-0" />
+      {ACCESOS.map(({ id, label, description, icon: Icon }) => {
+        const isActive = activeTab === id;
 
-          {/* --- SECCIÓN 4: Texto del Botón --- */}
-          <span className="whitespace-nowrap" style={{ fontWeight: 600 }}>
-            {label}
-          </span>
-        </button>
-      ))}
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onNavigate(id)}
+            aria-current={isActive ? "page" : undefined}
+            title={description}
+            className={`relative flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              isActive
+                ? "border-brand-blue text-brand-blue-text"
+                : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
+          >
+            <Icon size={15} strokeWidth={1.8} className="shrink-0" />
+
+            <span className="whitespace-nowrap font-semibold">{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

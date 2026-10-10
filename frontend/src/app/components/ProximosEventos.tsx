@@ -302,7 +302,7 @@ export function ProximosEventos({
               lineHeight: 1.3,
             }}
           >
-            Revisa las tutorías pendientes y confirmadas en un solo lugar.
+            Revisa las tutorías pendientes y confirmadas en un solo lugar
           </h1>
         </div>
       </div>

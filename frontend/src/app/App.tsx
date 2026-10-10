@@ -558,37 +558,79 @@ export default function App() {
             </div>
           </header>
 
-          {/* ── NAVEGACIÓN SECUNDARIA (SOLO PARA TUTOR Y COORDINADOR) ── */}
-          {rol !== "estudiante" && (
+          {/* ── NAVEGACIÓN SECUNDARIA */}
+
+          {/* NAVEGACIÓN SECUNDARIA */}
+          {rol !== "estudiante" ? (
             <nav
               className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
               aria-label="Navegación principal"
             >
               {NAV_ITEMS.filter(
                 (item) => item.roles.includes(rol) && item.showInNav !== false,
-              ).map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleNavigate(item.id)}
-                  className="flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm transition-colors"
-                  style={{
-                    color:
-                      activeTab === item.id
-                        ? "var(--brand-blue-text)"
-                        : "var(--text-secondary)",
-                    borderBottomColor:
-                      activeTab === item.id
-                        ? "var(--brand-blue)"
-                        : "transparent",
-                  }}
-                >
-                  <item.icon size={15} />
-                  {item.label}
-                </button>
-              ))}
+              ).map((item) => {
+                const Icon = item.icon;
+                const activo = activeTab === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleNavigate(item.id)}
+                    aria-current={activo ? "page" : undefined}
+                    className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      activo
+                        ? "border-brand-blue text-brand-blue-text"
+                        : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    <Icon size={15} />
+                    {item.label}
+                  </button>
+                );
+              })}
             </nav>
-          )}
+          ) : activeTab === "mensajes" ? (
+            <nav
+              className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
+              aria-label="Accesos rápidos"
+            >
+              {[
+                { id: "inicio", label: "Inicio", icon: LayoutDashboard },
+                {
+                  id: "solicitud",
+                  label: "Solicitar tutoría",
+                  icon: GraduationCap,
+                },
+                { id: "historial", label: "Mis tutorías", icon: History },
+                { id: "mensajes", label: "Mensajes", icon: MessageCircle },
+                {
+                  id: "eventos",
+                  label: "Próximos eventos",
+                  icon: CalendarClock,
+                },
+              ].map(({ id, label, icon: Icon }) => {
+                const activo = activeTab === id;
+
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => handleNavigate(id)}
+                    aria-current={activo ? "page" : undefined}
+                    className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      activo
+                        ? "border-brand-blue text-brand-blue-text"
+                        : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    <Icon size={15} />
+                    {label}
+                  </button>
+                );
+              })}
+            </nav>
+          ) : null}
 
           {/* ── CONTENIDO PRINCIPAL (RUTAS) ── */}
           <main className="min-h-0 flex-1 overflow-y-auto px-5 py-7">

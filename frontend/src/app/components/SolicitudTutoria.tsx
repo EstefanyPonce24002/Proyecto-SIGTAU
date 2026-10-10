@@ -384,6 +384,13 @@ export function SolicitudTutoria({
       {/* Barra de navegación rápida */}
       <QuickAccessNav activeTab="solicitud" onNavigate={onNavigate} />
 
+      <div className="mx-auto w-full max-w-6xl space-y-1"/>
+      <div className="mb-6">
+        <h1 className="text-foreground" style={{ fontSize: "1.3rem" }}>
+          Registra tu solicitud de tutoría en este espacio
+        </h1>
+      </div>
+
       <div className="mr-auto w-full max-w-[850px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* ── CABECERA DEL FORMULARIO (con indicador de pasos) ── */}
         <header className="border-b border-[rgba(31, 41, 55)] bg-rgba(24, 42, 58) px-5 pb-6 pt-7 text-foreground sm:px-7">
