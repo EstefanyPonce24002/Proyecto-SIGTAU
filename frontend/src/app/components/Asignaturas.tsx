@@ -32,8 +32,8 @@ function NuevaAsignaturaModal({ onCreated, onClose }: { onCreated: () => void; o
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-label="Nueva asignatura" className="relative w-full max-w-sm bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+      <div role="dialog" aria-modal="true" aria-label="Nueva asignatura" className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl">
+        <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-5 py-4">
           <h3 className="text-card-foreground" style={{ fontSize: "0.95rem" }}>Nueva asignatura</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar nueva asignatura" className="text-muted-foreground hover:text-foreground transition-colors"><X size={15} /></button>
         </div>
@@ -46,7 +46,7 @@ function NuevaAsignaturaModal({ onCreated, onClose }: { onCreated: () => void; o
           <div className="space-y-1.5">
             <label className="text-card-foreground" style={{ fontSize: "0.85rem" }}>Nombre</label>
             <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Estructuras de Datos"
-              className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
+              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
               style={{ fontSize: "0.875rem", "--tw-ring-color": "#10B981" } as React.CSSProperties} />
           </div>
           <div className="space-y-1.5">
@@ -115,7 +115,7 @@ function GestionarTutoresModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-label="Gestionar tutores" className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+      <div role="dialog" aria-modal="true" aria-label="Gestionar tutores" className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div>
             <h3 className="text-card-foreground" style={{ fontSize: "0.95rem" }}>Gestionar tutores</h3>
