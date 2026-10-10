@@ -82,10 +82,10 @@ export function Notificaciones() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-5">
-      <div className="flex items-start justify-between">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-foreground flex items-center gap-2.5">
+          <h2 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Notificaciones
             {noLeidas > 0 && (
               <span className="rounded-full px-2 py-0.5 text-white" style={{ fontSize: "0.72rem", background: "#10B981" }}>
@@ -99,7 +99,7 @@ export function Notificaciones() {
         </div>
         {noLeidas > 0 && (
           <button onClick={marcarTodas}
-            className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+            className="inline-flex w-fit items-center gap-1.5 rounded-xl border border-border px-3 py-2.5 text-muted-foreground transition-all hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             style={{ fontSize: "0.78rem" }}>
             <CheckCheck size={13} /> Marcar todas
           </button>
@@ -113,7 +113,7 @@ export function Notificaciones() {
       )}
 
       {/* Filter tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-card border border-border w-fit">
+      <div className="flex w-fit max-w-full gap-1 rounded-xl border border-border bg-card p-1">
         {[
           { id: "todas" as const, label: "Todas", count: notificaciones.length },
           { id: "no_leidas" as const, label: "Sin leer", count: noLeidas },
@@ -135,7 +135,7 @@ export function Notificaciones() {
       </div>
 
       {mostradas.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border py-16 text-center">
+        <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <Bell size={28} className="mx-auto mb-3 text-muted-foreground" />
           <p className="text-foreground" style={{ fontSize: "0.95rem" }}>Sin notificaciones</p>
           <p className="text-muted-foreground mt-1" style={{ fontSize: "0.82rem" }}>
@@ -148,14 +148,14 @@ export function Notificaciones() {
             const Icon = ICONO[n.tipo];
             const color = COLOR[n.tipo];
             return (
-              <div key={n.id} className="bg-card rounded-2xl border transition-all hover:shadow-sm"
+              <div key={n.id} className="rounded-2xl border bg-card shadow-sm transition-all hover:shadow-md"
                 style={{ borderColor: !n.leida ? `${color}30` : "var(--border)", opacity: n.leida ? 0.75 : 1 }}>
-                <div className="flex items-start gap-4 px-5 py-4">
+                <div className="flex items-start gap-3 px-4 py-4 sm:gap-4 sm:px-5">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style={{ background: `${color}15` }}>
                     <Icon size={15} style={{ color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <p className="text-foreground" style={{ fontSize: "0.875rem", fontWeight: n.leida ? 400 : 500 }}>{TITULO[n.tipo]}</p>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {!n.leida && <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />}
