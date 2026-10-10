@@ -269,7 +269,7 @@ function SectionCard({
     <div className="h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-colors">
       <div
         className="flex items-center gap-3 border-b border-border px-4 py-4 sm:px-6"
-        style={{ background: accent ? BRONZE_SOFT : undefined }}
+        style={{ background: accent ? `linear-gradient(135deg, ${BRONZE_SOFT}, var(--card))` : undefined }}
       >
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
@@ -306,8 +306,8 @@ function SaveButton({
       className="rounded-xl px-5 py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       style={{
         background: saved
-          ? `linear-gradient(135deg, ${BRONZE}, #D97706)`
-          : `linear-gradient(135deg, ${NAVY}, #3B82F6)`,
+          ? `linear-gradient(135deg, #059669, #10B981)`
+          : `linear-gradient(135deg, ${BRONZE}, #D97706)`,
         fontSize: "0.875rem",
       }}
     >
@@ -495,7 +495,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       {/* ── Page heading ─────────────────────────────────────────────── */}
       <div>
         <h2 className="text-foreground">Mi Perfil</h2>
@@ -649,7 +649,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               onKeyDown={handleTabKeyDown}
               className={`flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-2.5 text-center transition-all ${selected ? "text-white shadow-sm" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
               style={{
-                background: selected ? "var(--brand-teal)" : undefined,
+                background: selected ? `linear-gradient(135deg, ${BRONZE}, #D97706)` : undefined,
                 fontSize: "0.78rem",
               }}
             >
@@ -665,7 +665,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       {/* ── Información en modo lectura ──────────────────────────────── */}
       <div className="w-full">
         {rol === "estudiante" ? (
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {activeTab === "personal" && (
               <SectionCard title="Sobre mí" icon={Info} accent>
                 <div className="space-y-3">
@@ -835,7 +835,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             )}
           </div>
         ) : (
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <SectionCard title="Sobre mí" icon={Info} accent>
               <p
                 className="text-muted-foreground"
@@ -973,7 +973,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   setEditOpen(true);
                 }}
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90"
-                style={{ background: NAVY, fontSize: "0.8rem" }}
+                style={{ background: `linear-gradient(135deg, ${BRONZE}, #D97706)`, fontSize: "0.8rem" }}
               >
                 <Pencil size={14} />
                 Gestionar acceso
