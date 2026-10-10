@@ -80,27 +80,28 @@ export function Mensajes({ idUsuario }: Props) {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-foreground text-2xl font-semibold">Mensajes</h2>
+    <div className="mx-auto w-full max-w-6xl space-y-1">
+      <div className="mb-6">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><MessageCircle size={14} className="text-brand-teal" /> Comunicación</div>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mensajes</h2>
         <p className="text-muted-foreground mt-1 text-sm">Comunícate con estudiantes, tutores y coordinación.</p>
       </div>
 
       {error && <p className="mb-4 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>}
 
-      <div className="grid min-h-[520px] grid-cols-1 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[260px_1fr]">
+      <div className="grid min-h-[520px] grid-cols-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="border-b border-border md:border-b-0 md:border-r">
-          <div className="p-4 border-b border-border">
+          <div className="border-b border-border bg-secondary/30 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Contactos</p>
           </div>
-          <div className="max-h-[430px] overflow-y-auto p-2">
+          <div className="max-h-[260px] overflow-y-auto p-2 sm:max-h-[430px]">
             {contactos.length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">No hay contactos disponibles.</p>
             ) : contactos.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setContactoId(c.id)}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-secondary"
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 style={{ background: contactoId === c.id ? "var(--secondary)" : undefined }}
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
@@ -115,8 +116,8 @@ export function Mensajes({ idUsuario }: Props) {
           </div>
         </aside>
 
-        <section className="flex min-h-[520px] flex-col">
-          <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+        <section className="flex min-h-[520px] min-w-0 flex-col">
+          <div className="flex items-center gap-3 border-b border-border bg-card px-4 py-4 sm:px-5">
             <MessageCircle size={19} className="text-brand-teal" />
             <div>
               <p className="text-sm font-semibold text-foreground">{contacto?.nombreCompleto ?? "Selecciona un contacto"}</p>
@@ -124,7 +125,7 @@ export function Mensajes({ idUsuario }: Props) {
             </div>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-secondary/30 p-5">
+          <div className="flex-1 space-y-3 overflow-y-auto bg-secondary/30 p-3 sm:p-5">
             {cargandoMensajes ? (
               <div className="flex justify-center py-16"><Loader2 size={22} className="animate-spin text-muted-foreground" /></div>
             ) : mensajes.length === 0 ? (
@@ -161,12 +162,12 @@ export function Mensajes({ idUsuario }: Props) {
                 disabled={!contactoId || enviando}
                 rows={2}
                 placeholder="Escribe un mensaje…"
-                className="min-h-12 flex-1 resize-none rounded-xl border border-border bg-input-background px-4 py-3 text-sm text-foreground outline-none focus:ring-2"
+                className="min-h-12 min-w-0 flex-1 resize-none rounded-xl border border-border bg-input-background px-3 py-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring sm:px-4"
               />
               <button
                 onClick={enviar}
                 disabled={!contactoId || !texto.trim() || enviando}
-                className="self-end rounded-xl px-4 py-3 text-white disabled:opacity-50"
+                className="self-end rounded-xl px-4 py-3 text-white transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{ background: "#118AB2" }}
                 aria-label="Enviar mensaje"
               >
