@@ -1,6 +1,6 @@
 // IMPORTACIONES
 // Hooks de React que usaremos
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Iconos de la librería lucide-react
 import {
@@ -622,24 +622,6 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
     );
   });
 
-  const proximas = useMemo(
-    () =>
-      tutorias
-        .filter(
-          (session) =>
-            (session.estado === "PENDIENTE" || session.estado === "APROBADA") &&
-            fechaLocal(session.fechaSesion).getTime() >=
-              new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
-        )
-        .sort((a, b) =>
-          `${a.fechaSesion}${a.horaInicio}`.localeCompare(
-            `${b.fechaSesion}${b.horaInicio}`,
-          ),
-        )
-        .slice(0, 4),
-    [tutorias],
-  );
-
   if (cargando)
     return (
       <div className="flex w-full items-center justify-center py-20">
@@ -861,70 +843,6 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
         <div className="space-y-5">
           <CalendarPanel tutorias={tutorias} />
 
-          <section className="rounded-2xl border border-[#C9D8E6] bg-[#E5EEF6] p-4 dark:border-[#2A4158] dark:bg-[#182A3A] sm:p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-xl"
-                  style={{
-                    background: "rgba(16,185,129,0.12)",
-                    color: "#16805F",
-                  }}
-                >
-                  <CalendarDays size={19} />
-                </span>
-                <h2 className="text-foreground" style={{ fontSize: "1.05rem" }}>
-                  Próximos eventos
-                </h2>
-              </div>
-              <span className="text-xs text-brand-teal">
-                {proximas.length} próximas
-              </span>
-            </div>
-            <div className="divide-y divide-border dark:divide-[#2A4158]">
-              {proximas.length === 0 ? (
-                <p className="bg-[#F8FBFD] py-8 text-center text-sm text-muted-foreground dark:bg-[#1E2F42]">
-                  No tienes eventos próximos.
-                </p>
-              ) : (
-                proximas.map((session) => (
-                  <div
-                    key={session.id}
-                    className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                  >
-                    <div
-                      className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl"
-                      style={{
-                        background: ESTADO_CONFIG[session.estado].bg,
-                        color: ESTADO_CONFIG[session.estado].color,
-                      }}
-                    >
-                      <strong className="text-base leading-none">
-                        {fechaLocal(session.fechaSesion).getDate()}
-                      </strong>
-                      <span className="mt-0.5 text-[0.62rem] uppercase">
-                        {fechaLocal(session.fechaSesion).toLocaleDateString(
-                          "es-SV",
-                          { month: "short" },
-                        )}
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {session.asignaturaNombre}
-                      </p>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock3 size={11} />
-                        {formatHora(session.horaInicio)} –{" "}
-                        {formatHora(session.horaFin)}
-                      </p>
-                    </div>
-                    <EstadoBadge estado={session.estado} />
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
         </div>
       </div>
 
