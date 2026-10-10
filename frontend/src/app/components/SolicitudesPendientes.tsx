@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Lock,
   Loader2,
+  ClipboardList,
 } from "lucide-react";
 import {
   pendientesTutor,
@@ -238,11 +239,12 @@ export function SolicitudesPendientes({ idTutor }: Props) {
   }
 
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-foreground">Solicitudes Pendientes</h2>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><ClipboardList size={14} className="text-brand-blue" /> Gestión de solicitudes</div>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Solicitudes pendientes</h2>
           <p className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
             {pendientes.length} solicitud{pendientes.length !== 1 ? "es" : ""} ·
             ordenadas por fecha
@@ -326,7 +328,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
       </div>
       {/* Empty state */}
       {pendientes.length === 0 && !busqueda && (
-        <div className="bg-card rounded-2xl border border-border py-16 text-center">
+        <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <CheckCircle2 size={32} className="mx-auto mb-3 text-brand-blue" />
           <p className="text-foreground" style={{ fontSize: "0.95rem" }}>
             Sin solicitudes pendientes
@@ -347,10 +349,10 @@ export function SolicitudesPendientes({ idTutor }: Props) {
           return (
             <div
               key={s.id}
-              className="bg-card rounded-2xl border border-border overflow-hidden transition-all"
+              className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all"
             >
               <button
-                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-secondary/30 transition-colors text-left"
+                className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:gap-4 sm:px-5"
                 onClick={() => setExpandida(isOpen ? null : s.id)}
               >
                 <div
@@ -395,9 +397,9 @@ export function SolicitudesPendientes({ idTutor }: Props) {
               </button>
 
               {isOpen && (
-                <div className="border-t border-border px-5 pb-5 pt-4 space-y-4">
+                <div className="space-y-4 border-t border-border px-4 pb-5 pt-4 sm:px-5">
                   {/* Meta grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {[
                       { icon: User, label: "Código", val: `#${s.id}` },
                       {
