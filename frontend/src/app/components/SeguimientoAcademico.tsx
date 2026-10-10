@@ -132,13 +132,13 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-5">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-foreground">Registrar Seguimiento</h2>
+          <div><div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><CheckCircle2 size={14} className="text-brand-blue" /> Cierre de sesiones</div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Registrar seguimiento</h2><p className="mt-1 text-sm text-muted-foreground">Documenta la asistencia y el progreso académico de cada estudiante.</p></div>
         </div>
-        <div className="flex items-center gap-2 rounded-xl px-4 py-2 bg-card border border-border">
+        <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm">
           <Clock size={14} className="text-muted-foreground" />
           <span
             className="text-muted-foreground"
@@ -166,7 +166,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
       </div>
 
       {elegibles.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border py-16 text-center">
+        <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <CheckCircle2 size={32} className="mx-auto mb-3 text-brand-blue" />
           <p className="text-foreground" style={{ fontSize: "0.95rem" }}>
             Sin sesiones pendientes de cierre
@@ -179,7 +179,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
           {/* Lista de sesiones */}
           <div className="lg:col-span-2 space-y-2">
             <p
@@ -198,7 +198,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                 <button
                   key={s.id}
                   onClick={() => setSelectedId(s.id)}
-                  className="w-full text-left rounded-xl border p-4 transition-all"
+                  className="w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
                     background: isSelected ? "var(--card)" : "transparent",
                     borderColor: isSelected
@@ -264,9 +264,9 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           {/* Panel del formulario */}
           <div className="lg:col-span-3">
             {sesion && (
-              <div className="bg-card rounded-2xl border border-border overflow-hidden">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                 <div
-                  className="px-6 py-5 border-b border-border"
+                  className="border-b border-border px-5 py-5 sm:px-6"
                   style={{
                     background:
                       "linear-gradient(135deg, color-mix(in srgb, var(--brand-blue) 8%, transparent), color-mix(in srgb, var(--brand-blue) 2%, transparent))",
@@ -304,7 +304,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                   </div>
                 </div>
 
-                <form onSubmit={handleSave} className="px-6 py-5 space-y-5">
+                <form onSubmit={handleSave} className="space-y-5 px-5 py-5 sm:px-6">
                   {saveError && (
                     <div
                       className="rounded-xl px-4 py-3"
@@ -323,7 +323,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                   )}
 
                   {/* Asistencia */}
-                  <div className="flex items-center justify-between rounded-xl border border-border p-4 bg-input-background">
+                  <div className="flex flex-col gap-3 rounded-xl border border-border bg-input-background p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <User size={16} className="text-muted-foreground" />
                       <div>
