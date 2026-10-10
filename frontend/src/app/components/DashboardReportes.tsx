@@ -92,19 +92,18 @@ export function DashboardReportes() {
   };
 
   return (
-    <div className="w-full space-y-5">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-foreground">Reportes</h2>
-          <p className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
-            RF-11 · Coordinación Académica
-          </p>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><BarChart3 size={14} className="text-brand-teal" /> Análisis académico</div>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Reportes</h2>
+          <p className="mt-1 text-sm text-muted-foreground">RF-11 · Coordinación académica</p>
         </div>
         {reporte && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={() => downloadPDF(reporte, tipoInfo.label, fechaInicio, fechaFin)}
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{ fontSize: "0.82rem" }}>
               <FileText size={14} style={{ color: "#EF4444" }} />
               <span className="text-foreground">Exportar PDF</span>
@@ -120,7 +119,7 @@ export function DashboardReportes() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-card rounded-2xl border border-border p-5">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         <div className="flex items-center gap-2 mb-4">
           <Filter size={14} style={{ color: "#10B981" }} />
           <p className="text-muted-foreground" style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>
@@ -128,10 +127,10 @@ export function DashboardReportes() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {TIPO_OPCIONES.map((t) => (
             <button key={t.valor} onClick={() => { setTipo(t.valor); setReporte(null); }}
-              className="rounded-xl border p-3 text-left transition-all hover:shadow-sm"
+              className="rounded-xl border p-3.5 text-left transition-all hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{
                 borderColor: tipo === t.valor ? "#10B981" : "var(--border)",
                 background: tipo === t.valor ? "rgba(16,185,129,0.06)" : "var(--input-background)",
@@ -145,11 +144,11 @@ export function DashboardReportes() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-1">
             <label className="text-muted-foreground" style={{ fontSize: "0.73rem" }}>Fecha inicio</label>
             <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)}
-              className="w-full rounded-xl border border-border bg-input-background text-foreground px-3 py-2.5 outline-none focus:ring-2 transition-all"
+              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
               style={{ fontSize: "0.85rem", "--tw-ring-color": "#10B981" } as React.CSSProperties} />
           </div>
           <div className="space-y-1">
@@ -161,13 +160,13 @@ export function DashboardReportes() {
           <div className="space-y-1">
             <label className="text-muted-foreground" style={{ fontSize: "0.73rem" }}>Filtro por carrera</label>
             <input value={carrera} onChange={(e) => setCarrera(e.target.value)} placeholder="Todas las carreras"
-              className="w-full rounded-xl border border-border bg-input-background text-foreground px-3 py-2.5 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
+              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
               style={{ fontSize: "0.85rem", "--tw-ring-color": "#10B981" } as React.CSSProperties} />
           </div>
           <div className="space-y-1">
             <label className="text-muted-foreground" style={{ fontSize: "0.73rem" }}>&nbsp;</label>
             <button onClick={handleGenerar} disabled={generando}
-              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               style={{ background: generando ? "#6B7280" : "linear-gradient(135deg, #1E3A8A, #3B82F6)", fontSize: "0.875rem" }}>
               {generando ? <><Loader2 size={15} className="animate-spin" /> Generando...</> : <><Play size={14} /> Generar reporte</>}
             </button>
@@ -203,7 +202,7 @@ export function DashboardReportes() {
               const Icon = KPI_ICONS[i % KPI_ICONS.length];
               const color = KPI_COLORS[i % KPI_COLORS.length];
               return (
-                <div key={k.label} className="bg-card rounded-2xl border border-border p-4">
+                <div key={k.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style={{ background: `${color}18` }}>
                     <Icon size={15} style={{ color }} />
                   </div>
