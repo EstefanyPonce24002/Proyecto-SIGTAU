@@ -48,9 +48,9 @@ const PERFIL_TABS: { id: PerfilTab; label: string; icon: React.ElementType }[] =
   ];
 
 /* ─── Design tokens (bronze accent) ───────────────────────────────────── */
-const BRONZE = "#F59E0B";
-const BRONZE_SOFT = "rgba(245,158,11,0.1)";
-const BRONZE_BORDER = "rgba(245,158,11,0.3)";
+const BRONZE = "#14B8A6";
+const BRONZE_SOFT = "rgba(20,184,166,0.12)";
+const BRONZE_BORDER = "rgba(20,184,166,0.35)";
 const NAVY = "#1E3A8A";
 
 /* ─── Per-role static profile data ────────────────────────────────────── */
@@ -167,7 +167,7 @@ function strengthOf(pwd: string): {
 } {
   if (!pwd) return { score: 0, label: "", color: "" };
   if (pwd.length < 6) return { score: 1, label: "Débil", color: "#EF4444" };
-  if (pwd.length < 10) return { score: 2, label: "Regular", color: "#F59E0B" };
+  if (pwd.length < 10) return { score: 2, label: "Regular", color: "#14B8A6" };
   if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd))
     return { score: 4, label: "Fuerte", color: "#10B981" };
   return { score: 3, label: "Buena", color: BRONZE };
@@ -307,7 +307,7 @@ function SaveButton({
       style={{
         background: saved
           ? `linear-gradient(135deg, #059669, #10B981)`
-          : `linear-gradient(135deg, ${BRONZE}, #D97706)`,
+          : `linear-gradient(135deg, ${BRONZE}, #0F766E)`,
         fontSize: "0.875rem",
       }}
     >
@@ -515,7 +515,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         <div
           className="h-1"
           style={{
-            background: `linear-gradient(90deg, ${BRONZE}, #D97706, ${BRONZE})`,
+            background: `linear-gradient(90deg, ${BRONZE}, #0F766E, ${BRONZE})`,
           }}
         />
 
@@ -526,8 +526,8 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               <div
                 className="flex h-20 w-20 items-center justify-center rounded-2xl"
                 style={{
-                  background: `linear-gradient(135deg, ${BRONZE} 0%, #D97706 100%)`,
-                  boxShadow: `0 0 0 3px rgba(245,158,11,0.25)`,
+                  background: `linear-gradient(135deg, ${BRONZE} 0%, #0F766E 100%)`,
+                  boxShadow: `0 0 0 3px rgba(20,184,166,0.25)`,
                   fontSize: "1.4rem",
                   color: "#fff",
                 }}
@@ -544,7 +544,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               </div>
               <div
                 className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2"
-                style={{ background: "#10B981", borderColor: NAVY }}
+                style={{ background: "#34D399", borderColor: NAVY }}
               />
             </div>
 
@@ -649,7 +649,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               onKeyDown={handleTabKeyDown}
               className={`flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-2.5 text-center transition-all ${selected ? "text-white shadow-sm" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
               style={{
-                background: selected ? `linear-gradient(135deg, ${BRONZE}, #D97706)` : undefined,
+                background: selected ? `linear-gradient(135deg, ${BRONZE}, #0F766E)` : undefined,
                 fontSize: "0.78rem",
               }}
             >
@@ -691,7 +691,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     type="button"
                     onClick={() => setSobreMiExpandido(!sobreMiExpandido)}
                     className="inline-flex items-center gap-1 text-left transition-colors hover:opacity-75"
-                    style={{ color: "#4E91D8", fontSize: "0.74rem" }}
+                    style={{ color: "#14B8A6", fontSize: "0.74rem" }}
                   >
                     {sobreMiExpandido ? "Ver menos" : "Ver más"}
                     <ChevronDown
@@ -973,7 +973,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   setEditOpen(true);
                 }}
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90"
-                style={{ background: `linear-gradient(135deg, ${BRONZE}, #D97706)`, fontSize: "0.8rem" }}
+                style={{ background: `linear-gradient(135deg, ${BRONZE}, #0F766E)`, fontSize: "0.8rem" }}
               >
                 <Pencil size={14} />
                 Gestionar acceso
@@ -1016,7 +1016,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     <div
                       className="w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden"
                       style={{
-                        background: `linear-gradient(135deg, ${BRONZE} 0%, #D97706 100%)`,
+                        background: `linear-gradient(135deg, ${BRONZE} 0%, #0F766E 100%)`,
                         color: "#fff",
                         fontSize: "1.15rem",
                       }}
