@@ -176,7 +176,7 @@ const NAV_ITEMS: NavItem[] = [
     path: "mensajes",
     label: "Mensajes",
     icon: MessageCircle,
-    roles: ["estudiante", "tutor", "coordinador"],
+    roles: ["estudiante", "tutor"],
   },
   {
     id: "perfil",
