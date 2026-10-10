@@ -262,17 +262,17 @@ export function GestionHorarios({ idTutor }: Props) {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-foreground">Mis Horarios</h2>
-          <p className="text-muted-foreground" style={{ fontSize: "0.88rem" }}>
+          <div><div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><CalendarDays size={14} className="text-brand-blue" /> Disponibilidad</div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mis horarios</h2></div>
+          <p className="mt-1 text-sm text-muted-foreground">
             {horarios.length} bloques registrados
           </p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:brightness-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white shadow-sm transition-all hover:brightness-95 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           style={{ backgroundColor: "#118AB2", fontSize: "0.875rem" }}
         >
           <Plus size={15} /> Nuevo bloque
@@ -294,7 +294,7 @@ export function GestionHorarios({ idTutor }: Props) {
       )}
 
       {horarios.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border py-16 text-center">
+        <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <CalendarDays
             size={32}
             className="mx-auto mb-3 text-muted-foreground"
@@ -311,7 +311,7 @@ export function GestionHorarios({ idTutor }: Props) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {DIAS.map((dia) => {
             const bloques = horarios.filter((h) => h.diaSemana === dia);
             if (bloques.length === 0) return null;
@@ -319,10 +319,10 @@ export function GestionHorarios({ idTutor }: Props) {
             return (
               <div
                 key={dia}
-                className="bg-card rounded-2xl border border-border overflow-hidden"
+                className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
               >
                 {/* Encabezado del día */}{" "}
-                <div className="px-4 py-3 border-b border-border bg-brand-blue/10">
+                <div className="border-b border-border bg-brand-blue/10 px-4 py-3.5">
                   <p
                     className="text-foreground"
                     style={{ fontSize: "0.85rem" }}
@@ -330,13 +330,12 @@ export function GestionHorarios({ idTutor }: Props) {
                     {DIA_LABEL[dia]}{" "}
                   </p>{" "}
                 </div>
-                ```
                 {/* Bloques de disponibilidad */}
                 <div className="divide-y divide-border">
                   {bloques.map((h) => (
                     <div
                       key={h.id}
-                      className="flex items-center justify-between px-4 py-3"
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-secondary/30"
                     >
                       <div className="flex items-center gap-2.5">
                         <Clock size={14} className="text-brand-blue" />
