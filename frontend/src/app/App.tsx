@@ -395,7 +395,7 @@ export default function App() {
         {/* ── COLUMNA PRINCIPAL ── */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* ── HEADER FIJO ── */}
-          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-5 transition-colors duration-300">
+          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-3 border-b border-border/70 bg-background px-4 sm:px-5 transition-colors duration-300">
             {/* Logo SIGTAU */}
             <div className="flex shrink-0 items-center gap-3">
               <button
