@@ -105,7 +105,7 @@ function DetalleModal({
       />
 
       {/* Contenedor del modal */}
-      <div className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl overflow-hidden dark:border-[#2A4158]">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
         {/* Cabecera del modal */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border dark:border-[#2A4158]">
           <div className="flex items-center gap-2.5">
@@ -343,7 +343,7 @@ function ReprogramarModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl p-6">
+      <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-xl sm:p-6">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-card-foreground font-semibold">Reprogramar tutoría #{sesion.id}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
@@ -356,7 +356,7 @@ function ReprogramarModal({
               value={fecha}
               min={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setFecha(e.target.value); setIdHorario(""); }}
-              className="w-full rounded-xl border border-border bg-card text-foreground px-3 py-2.5"
+              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
@@ -462,7 +462,7 @@ export function HistorialSesiones({ idTutor }: Props) {
 
   // --- SECCIÓN 5: RENDERIZADO PRINCIPAL ---
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full space-y-6">
       {/* ── Encabezado ── */}
       <div>
         <h2 className="text-foreground" style={{ fontSize: "1.5rem", fontWeight: 600 }}>
