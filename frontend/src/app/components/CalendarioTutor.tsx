@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, CalendarDays, Clock3 } from "lucide-react";
 import { historialTutor, type Sesion } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
 
@@ -68,18 +68,27 @@ export function CalendarioTutor({ idTutor }: Props) {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-5">
-      <div>
-        <h2 className="text-2xl font-semibold text-foreground">Calendario</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Consulta tus tutorías programadas por fecha.</p>
+    <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+            <CalendarDays size={14} className="text-brand-blue" /> Organización académica
+          </div>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mi calendario</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Consulta tus tutorías programadas y revisa cada jornada.</p>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm">
+          <Clock3 size={16} className="text-brand-blue" />
+          <span><strong className="text-foreground">{sesionesMes.length}</strong> sesiones este mes</span>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <button onClick={() => { setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1)); setDiaSeleccionado(null); }} className="rounded-lg p-2 hover:bg-secondary">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-4 py-4 sm:px-5">
+          <button onClick={() => { setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1)); setDiaSeleccionado(null); }} className="rounded-xl border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <ChevronLeft size={18} />
           </button>
-          <h3 className="font-semibold text-foreground">{MESES[mes.getMonth()]} {mes.getFullYear()}</h3>
+          <h3 className="text-base font-semibold text-foreground sm:text-lg">{MESES[mes.getMonth()]} {mes.getFullYear()}</h3>
           <button onClick={() => { setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1)); setDiaSeleccionado(null); }} className="rounded-lg p-2 hover:bg-secondary">
             <ChevronRight size={18} />
           </button>
@@ -93,7 +102,7 @@ export function CalendarioTutor({ idTutor }: Props) {
 
         <div className="grid grid-cols-7">
           {dias.map((dia, i) => {
-            if (!dia) return <div key={i} className="min-h-24 border-b border-r border-border bg-secondary/20" />;
+            if (!dia) return <div key={i} className="min-h-20 border-b border-r border-border bg-secondary/20 sm:min-h-28" />;
             const fecha = isoDate(new Date(mes.getFullYear(), mes.getMonth(), dia));
             const eventos = sesiones.filter((s) => s.fechaSesion === fecha);
             const seleccionado = diaSeleccionado === fecha;
@@ -101,13 +110,13 @@ export function CalendarioTutor({ idTutor }: Props) {
               <button
                 key={fecha}
                 onClick={() => setDiaSeleccionado(fecha)}
-                className="min-h-24 border-b border-r border-border p-2 text-left align-top hover:bg-secondary/50"
-                style={{ background: seleccionado ? "rgba(17,138,178,0.08)" : undefined }}
+                className={`min-h-20 border-b border-r border-border p-1.5 text-left align-top transition-colors hover:bg-secondary/50 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:min-h-28 sm:p-2.5 ${seleccionado ? "bg-brand-blue/10 ring-1 ring-inset ring-brand-blue/40" : "bg-card"}`}
+                aria-pressed={seleccionado}
               >
-                <span className="text-sm font-medium text-foreground">{dia}</span>
+                <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full text-xs font-semibold sm:text-sm ${seleccionado ? "bg-brand-blue text-white" : "text-foreground"}`}>{dia}</span>
                 <div className="mt-1 space-y-1">
                   {eventos.slice(0, 3).map((s) => (
-                    <div key={s.id} className="truncate rounded-md bg-secondary px-1.5 py-1 text-[0.68rem] text-foreground">
+                    <div key={s.id} className="truncate rounded-md border border-brand-blue/15 bg-brand-blue/10 px-1.5 py-1 text-[0.62rem] font-medium text-foreground sm:text-[0.68rem]">
                       {formatHora(s.horaInicio)} · {s.asignaturaNombre}
                     </div>
                   ))}
@@ -119,8 +128,8 @@ export function CalendarioTutor({ idTutor }: Props) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-3">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+        <h3 className="mb-3 text-sm font-semibold text-foreground sm:text-base">
           {diaSeleccionado ? `Sesiones del ${new Date(diaSeleccionado + "T12:00:00").toLocaleDateString("es-SV")}` : "Selecciona un día"}
         </h3>
         {diaSeleccionado && sesionesDia.length === 0 ? (
@@ -128,12 +137,12 @@ export function CalendarioTutor({ idTutor }: Props) {
         ) : diaSeleccionado ? (
           <div className="space-y-2">
             {sesionesDia.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-xl bg-secondary p-3">
+              <div key={s.id} className="flex flex-col gap-2 rounded-xl border border-border bg-secondary/50 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">{s.asignaturaNombre}</p>
                   <p className="text-xs text-muted-foreground">{s.estudianteNombre} · {formatHora(s.horaInicio)}–{formatHora(s.horaFin)}</p>
                 </div>
-                <span className="text-xs text-muted-foreground">{s.estado}</span>
+                <span className="w-fit rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground">{s.estado}</span>
               </div>
             ))}
           </div>
