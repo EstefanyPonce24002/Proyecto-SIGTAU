@@ -93,8 +93,8 @@ function DetalleModal({
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl">
+        <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <FileText size={14} style={{ color: "#10B981" }} />
             <h3
@@ -124,7 +124,7 @@ function DetalleModal({
             </div>
             <EstadoBadge estado={sesion.estado} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[
               { icon: User, label: "Estudiante", val: sesion.estudiante },
               {
@@ -135,7 +135,7 @@ function DetalleModal({
               { icon: Calendar, label: "Fecha", val: sesion.fecha },
               { icon: Clock, label: "Hora", val: sesion.hora },
             ].map((r) => (
-              <div key={r.label} className="rounded-xl bg-secondary p-3">
+              <div key={r.label} className="rounded-xl border border-border bg-secondary/60 p-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <r.icon size={11} className="text-muted-foreground" />
                   <span
@@ -494,7 +494,7 @@ export function Supervision() {
       </div>
 
       {/* Table */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full" style={{ minWidth: "760px" }}>
             <thead>
