@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,33 +27,32 @@ public class MensajeService {
     private final UsuarioRepository usuarioRepository;
     private final SesionRepository sesionRepository;
 
+    private boolean rolesPermitidos(Usuario a, Usuario b) {
+        return (a.getRolUsuario() == RolUsuario.ESTUDIANTE && b.getRolUsuario() == RolUsuario.TUTOR)
+                || (a.getRolUsuario() == RolUsuario.TUTOR && b.getRolUsuario() == RolUsuario.ESTUDIANTE);
+    }
+
     @Transactional(readOnly = true)
     public List<ContactoMensajeResponse> contactos(Integer actorId) {
         Usuario actor = usuarioRepository.findById(actorId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
+        if (actor.getRolUsuario() != RolUsuario.ESTUDIANTE && actor.getRolUsuario() != RolUsuario.TUTOR) {
+            return List.of();
+        }
+
         LinkedHashMap<Integer, Usuario> contactos = new LinkedHashMap<>();
+        List<Sesion> sesiones = actor.getRolUsuario() == RolUsuario.ESTUDIANTE
+                ? sesionRepository.findByEstudiante_Id(actorId)
+                : sesionRepository.findByTutor_Id(actorId);
 
-        if (actor.getRolUsuario() == RolUsuario.COORDINADOR) {
-            usuarioRepository.findByActivoTrueAndRolUsuario(RolUsuario.ESTUDIANTE).forEach(u -> contactos.put(u.getId(), u));
-            usuarioRepository.findByActivoTrueAndRolUsuario(RolUsuario.TUTOR).forEach(u -> contactos.put(u.getId(), u));
-            usuarioRepository.findByActivoTrueAndRolUsuario(RolUsuario.COORDINADOR).forEach(u -> {
-                if (!u.getId().equals(actorId)) contactos.put(u.getId(), u);
-            });
-        } else {
-            List<Sesion> sesiones = actor.getRolUsuario() == RolUsuario.ESTUDIANTE
-                    ? sesionRepository.findByEstudiante_Id(actorId)
-                    : sesionRepository.findByTutor_Id(actorId);
-
-            for (Sesion sesion : sesiones) {
-                Usuario contacto = actor.getRolUsuario() == RolUsuario.ESTUDIANTE
-                        ? sesion.getTutor().getUsuario()
-                        : sesion.getEstudiante().getUsuario();
-                if (Boolean.TRUE.equals(contacto.getActivo())) contactos.put(contacto.getId(), contacto);
+        for (Sesion sesion : sesiones) {
+            Usuario contacto = actor.getRolUsuario() == RolUsuario.ESTUDIANTE
+                    ? sesion.getTutor().getUsuario()
+                    : sesion.getEstudiante().getUsuario();
+            if (Boolean.TRUE.equals(contacto.getActivo()) && rolesPermitidos(actor, contacto)) {
+                contactos.put(contacto.getId(), contacto);
             }
-
-            usuarioRepository.findByActivoTrueAndRolUsuario(RolUsuario.COORDINADOR)
-                    .forEach(u -> contactos.put(u.getId(), u));
         }
 
         return contactos.values().stream()
@@ -69,31 +70,26 @@ public class MensajeService {
                 .filter(Usuario::getActivo)
                 .orElseThrow(() -> new IllegalArgumentException("Destinatario no encontrado o inactivo"));
 
-        if (remitente.getId().equals(destinatario.getId())) {
-            throw new IllegalArgumentException("No puede enviarse un mensaje a sí mismo");
+        if (!rolesPermitidos(remitente, destinatario)) {
+            throw new IllegalStateException("La mensajería solo está permitida entre estudiantes y tutores");
         }
 
         Sesion sesion = null;
         if (request.idSesion() != null) {
             sesion = sesionRepository.findById(request.idSesion())
                     .orElseThrow(() -> new IllegalArgumentException("Sesión no encontrada"));
-
-            boolean participante = sesion.getEstudiante().getUsuario().getId().equals(actorId)
-                    || sesion.getTutor().getUsuario().getId().equals(actorId);
-            if (!coordinator && !participante) {
-                throw new IllegalStateException("No tiene acceso a la sesión indicada");
+            Integer estudianteId = sesion.getEstudiante().getUsuario().getId();
+            Integer tutorId = sesion.getTutor().getUsuario().getId();
+            boolean parejaDeLaSesion = (remitente.getId().equals(estudianteId) && destinatario.getId().equals(tutorId))
+                    || (remitente.getId().equals(tutorId) && destinatario.getId().equals(estudianteId));
+            if (!parejaDeLaSesion) {
+                throw new IllegalStateException("Solo puede escribir al estudiante o tutor de esa sesión");
             }
-
-            boolean destinatarioParticipa = sesion.getEstudiante().getUsuario().getId().equals(destinatario.getId())
-                    || sesion.getTutor().getUsuario().getId().equals(destinatario.getId());
-            if (!coordinator && !destinatarioParticipa && destinatario.getRolUsuario() != RolUsuario.COORDINADOR) {
-                throw new IllegalStateException("El destinatario no participa en la sesión indicada");
-            }
-        } else if (!coordinator && destinatario.getRolUsuario() != RolUsuario.COORDINADOR) {
+        } else {
             boolean contactoPermitido = contactos(actorId).stream()
                     .anyMatch(c -> c.id().equals(destinatario.getId()));
             if (!contactoPermitido) {
-                throw new IllegalStateException("Solo puede contactar a usuarios relacionados con sus tutorías o coordinadores");
+                throw new IllegalStateException("Solo puede contactar a estudiantes o tutores relacionados con sus tutorías");
             }
         }
 
@@ -110,11 +106,27 @@ public class MensajeService {
 
     @Transactional(readOnly = true)
     public List<MensajeResponse> listar(Integer actorId, Integer contactoId, boolean coordinator) {
+        Usuario actor = usuarioRepository.findById(actorId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        if (actor.getRolUsuario() != RolUsuario.ESTUDIANTE && actor.getRolUsuario() != RolUsuario.TUTOR) {
+            return List.of();
+        }
+
+        Set<Integer> contactosPermitidos = contactos(actorId).stream()
+                .map(ContactoMensajeResponse::id)
+                .collect(Collectors.toSet());
+        if (contactoId != null && !contactosPermitidos.contains(contactoId)) {
+            return List.of();
+        }
+
         List<Mensaje> mensajes = mensajeRepository.findByRemitente_IdOrDestinatario_IdOrderByFechaEnvioAsc(actorId, actorId);
         return mensajes.stream()
-                .filter(m -> contactoId == null
-                        || (m.getRemitente().getId().equals(contactoId) && m.getDestinatario().getId().equals(actorId))
-                        || (m.getDestinatario().getId().equals(contactoId) && m.getRemitente().getId().equals(actorId)))
+                .filter(m -> {
+                    Usuario otro = m.getRemitente().getId().equals(actorId) ? m.getDestinatario() : m.getRemitente();
+                    return rolesPermitidos(actor, otro)
+                            && contactosPermitidos.contains(otro.getId())
+                            && (contactoId == null || otro.getId().equals(contactoId));
+                })
                 .map(MensajeResponse::from)
                 .toList();
     }
@@ -125,6 +137,9 @@ public class MensajeService {
                 .orElseThrow(() -> new IllegalArgumentException("Mensaje no encontrado"));
         if (!mensaje.getDestinatario().getId().equals(actorId)) {
             throw new IllegalStateException("No puede modificar un mensaje que no recibió");
+        }
+        if (!rolesPermitidos(mensaje.getRemitente(), mensaje.getDestinatario())) {
+            throw new IllegalStateException("Solo se pueden marcar mensajes entre estudiantes y tutores");
         }
         mensaje.setLeido(true);
         mensajeRepository.save(mensaje);
