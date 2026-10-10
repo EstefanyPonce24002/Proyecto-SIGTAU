@@ -197,7 +197,7 @@ function Field({
         value={value}
         onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         disabled={disabled}
-        className="w-full rounded-xl border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-xl border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
         style={
           {
             fontSize: "0.875rem",
@@ -233,7 +233,7 @@ function PwdField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="••••••••"
-          className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 pr-11 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
+          className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 pr-11 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
           style={
             {
               fontSize: "0.875rem",
@@ -244,7 +244,7 @@ function PwdField({
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {show ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
@@ -266,9 +266,9 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden h-full">
+    <div className="h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-colors">
       <div
-        className="flex items-center gap-3 px-6 py-4 border-b border-border"
+        className="flex items-center gap-3 border-b border-border px-4 py-4 sm:px-6"
         style={{ background: accent ? BRONZE_SOFT : undefined }}
       >
         <div
@@ -287,7 +287,7 @@ function SectionCard({
           {title}
         </h3>
       </div>
-      <div className="px-6 py-5">{children}</div>
+      <div className="px-4 py-5 sm:px-6">{children}</div>
     </div>
   );
 }
@@ -303,7 +303,7 @@ function SaveButton({
   return (
     <button
       type="submit"
-      className="rounded-xl px-6 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
+      className="rounded-xl px-5 py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       style={{
         background: saved
           ? `linear-gradient(135deg, ${BRONZE}, #D97706)`
@@ -984,7 +984,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card text-foreground sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-foreground">
               {securityOnly ? "Seguridad de la cuenta" : "Editar información"}
@@ -1220,7 +1220,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             <button
               type="button"
               onClick={() => setEditOpen(false)}
-              className="rounded-xl border px-5 py-2.5 transition-colors hover:bg-red-50 dark:hover:bg-red-950/20"
+              className="rounded-xl border px-5 py-2.5 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{
                 fontSize: "0.875rem",
                 color: "#C96F78",
