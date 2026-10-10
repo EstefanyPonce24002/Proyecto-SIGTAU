@@ -1,16 +1,42 @@
-# Frontend
+# Frontend - React / Vite
 frontend/node_modules/
 frontend/dist/
+frontend/build/
 frontend/.vite/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/pnpm-debug.log*
 
-# Backend
+# Backend - Java / Spring Boot
 backend/target/
 backend/.mvn/
 backend/*.iml
+backend/*.class
 
-# General
-.DS_Store
-*.log
+# Configuración y secretos
 .env
+.env.*
+!.env.example
+**/application-local.yml
+**/application-local.yaml
+**/application-prod.yml
+**/application-prod.yaml
+
+# Archivos locales de SIGTAU
+/backend/arranque.txt
+
+# Editores
 .idea/
 .vscode/*.local.json
+
+# Sistema operativo y temporales
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo

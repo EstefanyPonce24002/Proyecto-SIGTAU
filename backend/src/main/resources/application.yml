@@ -1,5 +1,4 @@
 # Configuración de la aplicación Spring Boot para el proyecto SIGTAU.
-
 spring:
   application:
     name: sigtau
@@ -51,17 +50,16 @@ sigtau:
 
 ---
 # Configuración para el perfil de desarrollo
-
 spring:
   config:
     activate:
       on-profile: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/BD_SIGTAU
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/BD_SIGTAU}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: PG1234
+    username: ${DB_USER:sigtau_user}
+    password: ${DB_PASSWORD}
 
   h2:
     console:
@@ -74,11 +72,10 @@ spring:
 
 sigtau:
   jwt:
-    secret: dev-only-sigtau-jwt-secret-change-before-production-2026
+    secret: ${JWT_SECRET}
 
 ---
 # Configuración para el perfil de producción
-
 spring:
   config:
     activate:
