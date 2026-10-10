@@ -96,7 +96,7 @@ public class SecurityConfig {
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
                         .requestMatchers("/api/mensajes/**")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+                        .hasAnyRole("ESTUDIANTE", "TUTOR")
 
                         .requestMatchers("/api/notificaciones/**")
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
