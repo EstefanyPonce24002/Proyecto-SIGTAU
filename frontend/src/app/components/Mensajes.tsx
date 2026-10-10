@@ -105,7 +105,7 @@ export function Mensajes({ idUsuario }: Props) {
   return (
     // Contenedor principal del componente de Mensajes.
     <div className="mx-auto w-full max-w-6xl space-y-1">
-      <div className="mb-6">
+      <div className="mb-6 border-b border-border/70 pb-4">
         <h1 className="text-foreground" style={{ fontSize: "1.3rem" }}>
           Mantente en comunicación con tus tutores asignados
         </h1>
