@@ -84,11 +84,11 @@ export function CalendarioTutor({ idTutor }: Props) {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-5" style={{ background: "#1E3343", color: "#FFFFFF" }}>
           <button onClick={() => { setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1)); setDiaSeleccionado(null); }} className="rounded-xl border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <ChevronLeft size={18} />
           </button>
-          <h3 className="text-base font-semibold text-foreground sm:text-lg">{MESES[mes.getMonth()]} {mes.getFullYear()}</h3>
+          <h3 className="text-base font-semibold sm:text-lg" style={{ color: "#FFFFFF" }}>{MESES[mes.getMonth()]} {mes.getFullYear()}</h3>
           <button onClick={() => { setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1)); setDiaSeleccionado(null); }} className="rounded-lg p-2 hover:bg-secondary">
             <ChevronRight size={18} />
           </button>
@@ -113,10 +113,10 @@ export function CalendarioTutor({ idTutor }: Props) {
                 className={`min-h-20 border-b border-r border-border p-1.5 text-left align-top transition-colors hover:bg-secondary/50 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:min-h-28 sm:p-2.5 ${seleccionado ? "bg-brand-blue/10 ring-1 ring-inset ring-brand-blue/40" : "bg-card"}`}
                 aria-pressed={seleccionado}
               >
-                <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full text-xs font-semibold sm:text-sm ${seleccionado ? "bg-brand-blue text-white" : "text-foreground"}`}>{dia}</span>
+                <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full text-xs font-semibold sm:text-sm ${seleccionado ? "text-white" : "text-foreground"}`} style={seleccionado ? { backgroundColor: "#118AB2" } : undefined}>{dia}</span>
                 <div className="mt-1 space-y-1">
                   {eventos.slice(0, 3).map((s) => (
-                    <div key={s.id} className="truncate rounded-md border border-brand-blue/15 bg-brand-blue/10 px-1.5 py-1 text-[0.62rem] font-medium text-foreground sm:text-[0.68rem]">
+                    <div key={s.id} className="truncate rounded-md border px-1.5 py-1 text-[0.62rem] font-medium sm:text-[0.68rem]" style={{ borderColor: "rgba(17,138,178,0.28)", backgroundColor: "rgba(17,138,178,0.14)", color: "var(--foreground)" }}>
                       {formatHora(s.horaInicio)} · {s.asignaturaNombre}
                     </div>
                   ))}
