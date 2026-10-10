@@ -142,9 +142,9 @@ function CardHeader({
   subtitle: string;
 }) {
   return (
-    <div className="mb-5 flex items-start gap-3">
+    <div className="mb-4 flex items-start gap-2.5">
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
         style={{ background: "#118AB2" }}
       >
         <Icon size={18} />
@@ -384,16 +384,16 @@ export function SolicitudTutoria({
       {/* Barra de navegación rápida */}
       <QuickAccessNav activeTab="solicitud" onNavigate={onNavigate} />
 
-      <div className="mx-auto w-full max-w-6xl space-y-1"/>
-      <div className="mb-6">
-        <h1 className="text-foreground" style={{ fontSize: "1.3rem" }}>
+      <div className="mx-auto w-full max-w-[720px] px-3 sm:px-0">
+      <div className="mb-4 text-center">
+        <h1 className="text-foreground" style={{ fontSize: "1.08rem" }}>
           Registra tu solicitud de tutoría en este espacio
         </h1>
       </div>
 
-      <div className="mr-auto w-full max-w-[850px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* ── CABECERA DEL FORMULARIO (con indicador de pasos) ── */}
-        <header className="border-b border-[rgba(31, 41, 55)] bg-rgba(24, 42, 58) px-5 pb-6 pt-7 text-foreground sm:px-7">
+        <header className="border-b border-border px-4 pb-4 pt-5 text-foreground sm:px-5">
           <div>
             <h1 className="text-foreground" style={{ fontSize: "1.2rem" }}>
               Nueva solicitud
@@ -406,7 +406,7 @@ export function SolicitudTutoria({
             </p>
           </div>
           <div
-            className="mt-7 flex items-center gap-2 sm:gap-3"
+            className="mt-5 flex items-center gap-2 sm:gap-3"
             aria-label="Progreso de la solicitud"
           >
             <StepIndicator
@@ -431,7 +431,7 @@ export function SolicitudTutoria({
           </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-7">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
           {/* Alerta de error general */}
           {submitError && !confirmationOpen && (
             <div
@@ -444,7 +444,7 @@ export function SolicitudTutoria({
           )}
 
           {/* ── PASO 1: ASIGNATURA Y TUTOR ── */}
-          <section className="rounded-2xl border border-border p-5">
+          <section className="rounded-2xl border border-border p-4">
             <CardHeader
               step={1}
               icon={UserRound}
@@ -777,7 +777,7 @@ export function SolicitudTutoria({
                   onDragLeave={() => setDragging(false)}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-6 transition-all"
+                  className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed py-4 transition-all"
                   style={{
                     borderColor: dragging ? "#118ab2" : "var(--border)",
                     background: dragging
@@ -851,12 +851,13 @@ export function SolicitudTutoria({
           {/* Botón de envío del formulario */}
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#118AB2] py-3 text-white transition-all hover:opacity-90 active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#118AB2] py-2.5 text-sm text-white transition-all hover:opacity-90 active:scale-[0.99]"
             style={{ background: "#118AB2" }}
           >
             Enviar
           </button>
         </form>
+      </div>
       </div>
 
       {/* ── DIÁLOGO DE CONFIRMACIÓN ── */}
