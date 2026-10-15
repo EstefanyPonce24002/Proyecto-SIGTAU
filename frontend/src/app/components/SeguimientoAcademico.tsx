@@ -136,7 +136,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div><div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><CheckCircle2 size={14} className="text-brand-blue" /> Cierre de sesiones</div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Registrar seguimiento</h2><p className="mt-1 text-sm text-muted-foreground">Documenta la asistencia y el progreso académico de cada estudiante.</p></div>
+          <div><div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground"><CheckCircle2 size={14} className="text-brand-blue" /> Cierre de sesiones</div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-2xl">Documenta la asistencia y el progreso académico de cada estudiante</h2></div>
         </div>
         <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm">
           <Clock size={14} className="text-muted-foreground" />

@@ -429,13 +429,22 @@ export default function App() {
                 value={busquedaGlobal}
                 onChange={setBusquedaGlobal}
                 placeholder="Buscar tutoría, tutor o asignatura..."
-                className="rounded-xl border-border-strong bg-input-background py-2.5 text-sm hover:border-primary focus:border-primary sm:py-2.5"
+                className="rounded-xl border-[#118AB2] bg-input-background py-2.5 text-sm
+                hover:border-[#118AB2]
+                focus:border-[#118AB2]
+                focus:ring-1 focus:ring-[#118AB2]
+                focus-visible:border-[#118AB2]
+                focus-visible:ring-1 focus-visible:ring-[#118AB2]
+                sm:py-2.5"
               />
+
+              {/* Resultados de la búsqueda */}
               {busquedaGlobal.trim() && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-card p-1.5 shadow-lg">
                   {resultadosBusqueda.length > 0 ? (
                     resultadosBusqueda.map((item) => {
                       const Icon = item.icon;
+
                       return (
                         <button
                           key={item.id}
@@ -450,6 +459,7 @@ export default function App() {
                             size={15}
                             className="shrink-0 text-brand-blue"
                           />
+
                           <span>{item.label}</span>
                         </button>
                       );
@@ -557,8 +567,6 @@ export default function App() {
               <NotificacionesBell />
             </div>
           </header>
-
-          {/* ── NAVEGACIÓN SECUNDARIA */}
 
           {/* NAVEGACIÓN SECUNDARIA */}
           {rol !== "estudiante" ? (
