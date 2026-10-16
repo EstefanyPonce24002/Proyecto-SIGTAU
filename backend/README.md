@@ -24,7 +24,7 @@ La API queda disponible en `http://localhost:8080`.
 
 ## Arrancar contra PostgreSQL real (perfil prod)
 
-1. Crea la base de datos y ejecuta `database/schema.sql` (y opcionalmente `database/seed.sql`).
+1. Restaura o prepara la base de datos desde el **respaldo oficial** y verifica que su esquema sea compatible con las entidades JPA. `database/schema.sql` está marcado como NO CANÓNICO y no debe usarse para producción hasta cotejarlo con ese respaldo. No ejecutes `database/seed.sql` contra datos reales.
 2. Define las variables de entorno:
    ```bash
    export DB_USER=sigtau_user
