@@ -1,7 +1,10 @@
 -- =========================================================
--- SIGTAU - Script de creación de base de datos (PostgreSQL)
--- Versión 2.0 - Incluye correcciones respecto al diccionario
--- de datos original (informe de primer avance, 07/06/2026)
+-- SIGTAU - Esquema de referencia PostgreSQL (NO CANÓNICO)
+-- Estado: pendiente de cotejo con el respaldo oficial de la base de datos.
+-- No usar este archivo como fuente oficial ni para despliegues productivos
+-- hasta verificarlo contra el respaldo oficial y documentar la equivalencia.
+-- Conserva los ENUM y las restricciones existentes; no se elimina la
+-- validación horaria de sesiones sin una decisión funcional explícita.
 -- =========================================================
 
 -- ---------------------------------------------------------
