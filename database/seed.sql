@@ -103,4 +103,4 @@ INSERT INTO notificaciones (id_usuario, id_sesion, tipo, mensaje, leida) VALUES
 INSERT INTO reportes (id_coordinador, tipo_reporte, fecha_inicio, fecha_fin, filtro_carrera) VALUES
 (3, 'ASISTENCIA',   '2026-10-01', '2026-10-31', NULL),
 (3, 'RENDIMIENTO',  '2026-09-01', '2026-09-30', 'Ingeniería en Desarrollo de Software'),
-(3, 'POR_TUTOR',    '2026-09-01', '2026-09-30', NULL);
+(3, 'TUTORIAS_POR_CARRERA', '2026-09-01', '2026-09-30', NULL);
