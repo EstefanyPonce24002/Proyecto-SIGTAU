@@ -51,7 +51,7 @@ SIGTAU/
 
 ## Base de datos
 
-El esquema PostgreSQL se encuentra en `database/schema.sql`.
+El archivo `database/schema.sql` es un esquema de referencia **NO CANÓNICO**, pendiente de cotejo con el respaldo oficial. Para producción, prevalece el respaldo oficial hasta validar la equivalencia.
 
 Incluye:
 - usuarios y roles;
