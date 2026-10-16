@@ -20,7 +20,12 @@ CREATE TYPE tipo_notificacion_enum AS ENUM (
 );
 
 CREATE TYPE tipo_reporte_enum AS ENUM (
-    'ASISTENCIA', 'RENDIMIENTO', 'ESTADISTICAS', 'POR_TUTOR', 'DEMANDA'
+    'ASISTENCIA',
+    'RENDIMIENTO',
+    'ESTADISTICAS',
+    'TUTORIAS_POR_CARRERA',
+    'ESTUDIANTES_ATENDIDOS',
+    'TUTORIAS_MAS_SOLICITADAS'
 );
 
 -- ---------------------------------------------------------
