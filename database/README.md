@@ -4,8 +4,8 @@ PostgreSQL 14+
 
 ## Archivos
 
-- `schema.sql` — crea las 12 tablas, los tipos ENUM y los índices de rendimiento. Es la versión corregida (v2) del diccionario de datos original.
-- `seed.sql` — datos de prueba mínimos (3 usuarios, 1 estudiante, 1 tutor, asignaturas, horario y una sesión de ejemplo) para desarrollo local. Ejecutar **después** de `schema.sql`.
+- `schema.sql` — esquema de referencia **NO CANÓNICO**, pendiente de cotejo con el respaldo oficial. Conserva los ENUM y las restricciones actuales; no debe tratarse como definición oficial ni usarse para despliegues productivos hasta validar la equivalencia.
+- `seed.sql` — datos de prueba mínimos para desarrollo local. Ejecutarlo únicamente después de validar y crear el esquema correspondiente.
 
 ## Crear la base de datos desde cero
 
@@ -14,6 +14,7 @@ PostgreSQL 14+
 createdb sigtau
 
 # 2. Crear el esquema
+# Solo para pruebas aisladas: este script aún no es canónico.
 psql -d sigtau -f schema.sql
 
 # 3. (Opcional) Cargar datos de prueba
@@ -22,7 +23,11 @@ psql -d sigtau -f seed.sql
 
 ## Nota sobre desarrollo diario
 
-Si solo quieres levantar el **backend** para programar sin instalar PostgreSQL, usa el perfil `dev` del backend (ver `backend/README.md`), que corre con una base H2 en memoria y no necesita este script — Hibernate genera el esquema automáticamente a partir de las entidades Java. Usa `schema.sql` cuando trabajes contra PostgreSQL real o para el despliegue final.
+Si solo quieres levantar el **backend** para programar sin instalar PostgreSQL, usa el perfil `dev` del backend (ver `backend/README.md`), que corre con una base H2 en memoria y no necesita este script — Hibernate genera el esquema automáticamente a partir de las entidades Java. **No uses `schema.sql` como fuente oficial de producción** hasta cotejarlo con el respaldo oficial. Antes de despliegues PostgreSQL, restaura/valida el respaldo oficial y confirma la compatibilidad con las entidades del backend.
+
+## Estado de validación
+
+El archivo `schema.sql` se conserva como referencia provisional, no como fuente canónica. El respaldo oficial prevalece hasta completar el cotejo. La restricción `CHECK (hora_fin > hora_inicio)` en `sesiones` se mantiene pendiente de una decisión funcional; no debe retirarse automáticamente.
 
 ## Cambios respecto al diccionario de datos original (informe de avance)
 
