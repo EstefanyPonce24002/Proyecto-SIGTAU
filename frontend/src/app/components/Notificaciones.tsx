@@ -5,8 +5,8 @@ import { ApiError } from "../lib/api";
 
 const ICONO: Record<TipoNotificacion, React.ElementType> = {
   APROBACION: CheckCircle2,
-  CANCELACION: AlertCircle,
   RECHAZO: AlertCircle,
+  CANCELACION: AlertCircle,
   CAMBIO_HORARIO: Clock,
   RECORDATORIO: Clock,
   OBSERVACION: Info,
@@ -14,8 +14,8 @@ const ICONO: Record<TipoNotificacion, React.ElementType> = {
 
 const COLOR: Record<TipoNotificacion, string> = {
   APROBACION: "#10B981",
-  CANCELACION: "#EF4444",
   RECHAZO: "#EF4444",
+  CANCELACION: "#EF4444",
   CAMBIO_HORARIO: "#F59E0B",
   RECORDATORIO: "#F59E0B",
   OBSERVACION: "#3B82F6",
@@ -23,8 +23,8 @@ const COLOR: Record<TipoNotificacion, string> = {
 
 const TITULO: Record<TipoNotificacion, string> = {
   APROBACION: "Solicitud aprobada",
-  CANCELACION: "Tutoría cancelada",
   RECHAZO: "Solicitud rechazada",
+  CANCELACION: "Tutoría cancelada",
   CAMBIO_HORARIO: "Cambio de horario",
   RECORDATORIO: "Recordatorio",
   OBSERVACION: "Seguimiento registrado",
@@ -156,7 +156,7 @@ export function Notificaciones() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <p className="text-foreground" style={{ fontSize: "0.875rem", fontWeight: n.leida ? 400 : 500 }}>{TITULO[n.tipo]}</p>
+                      <p className="text-foreground" style={{ fontSize: "0.875rem", fontWeight: n.leida ? 400 : 500 }}>{n.tipo === "RECHAZO" && n.mensaje.toLowerCase().includes("canceló") ? "Tutoría cancelada" : TITULO[n.tipo]}</p>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {!n.leida && <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />}
                         <span className="text-muted-foreground whitespace-nowrap" style={{ fontSize: "0.72rem" }}>{formatFechaHora(n.fechaEnvio)}</span>
