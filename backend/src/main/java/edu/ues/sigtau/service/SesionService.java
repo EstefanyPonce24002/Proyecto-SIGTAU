@@ -288,7 +288,7 @@ public class SesionService {
                                                 ? sesion.getTutor().getUsuario()
                                                 : sesion.getEstudiante().getUsuario())
                                 .sesion(sesion)
-                                .tipo(TipoNotificacion.CANCELACION)
+                                .tipo(TipoNotificacion.RECHAZO)
                                 .mensaje(actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre()
                                                 + ".")
                                 .leida(false)
