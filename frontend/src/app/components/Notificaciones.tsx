@@ -6,6 +6,7 @@ import { ApiError } from "../lib/api";
 const ICONO: Record<TipoNotificacion, React.ElementType> = {
   APROBACION: CheckCircle2,
   RECHAZO: AlertCircle,
+  CANCELACION: AlertCircle,
   CAMBIO_HORARIO: Clock,
   RECORDATORIO: Clock,
   OBSERVACION: Info,
@@ -14,6 +15,7 @@ const ICONO: Record<TipoNotificacion, React.ElementType> = {
 const COLOR: Record<TipoNotificacion, string> = {
   APROBACION: "#10B981",
   RECHAZO: "#EF4444",
+  CANCELACION: "#EF4444",
   CAMBIO_HORARIO: "#F59E0B",
   RECORDATORIO: "#F59E0B",
   OBSERVACION: "#3B82F6",
@@ -22,6 +24,7 @@ const COLOR: Record<TipoNotificacion, string> = {
 const TITULO: Record<TipoNotificacion, string> = {
   APROBACION: "Solicitud aprobada",
   RECHAZO: "Solicitud rechazada",
+  CANCELACION: "Tutoría cancelada",
   CAMBIO_HORARIO: "Cambio de horario",
   RECORDATORIO: "Recordatorio",
   OBSERVACION: "Seguimiento registrado",
