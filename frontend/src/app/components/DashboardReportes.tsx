@@ -11,11 +11,12 @@ import { generarReporte, type TipoReporte, type ReporteGenerado } from "../lib/r
 import { ApiError } from "../lib/api";
 
 const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
-  { valor: "ASISTENCIA",   label: "Asistencia",             info: "Sesiones por estado e índice de asistencia por asignatura." },
-  { valor: "RENDIMIENTO",  label: "Rendimiento Académico",  info: "Promedios de calificaciones por asignatura." },
-  { valor: "ESTADISTICAS", label: "Estadísticas Generales", info: "Totales del período: sesiones, estudiantes, tutores, asistencia." },
-  { valor: "POR_TUTOR",    label: "Por Tutor",              info: "Desempeño individual: sesiones, aprobación y evaluación." },
-  { valor: "DEMANDA",     label: "Tutorías más solicitadas", info: "Demanda de tutorías agrupada por asignatura." },
+  { valor: "ASISTENCIA", label: "Asistencia", info: "Sesiones por estado e índice de asistencia por asignatura." },
+  { valor: "RENDIMIENTO", label: "Rendimiento Académico", info: "Promedios de calificaciones por asignatura." },
+  { valor: "ESTADISTICAS", label: "Estadísticas Generales", info: "Totales del período: sesiones, estudiantes, tutores y asistencia." },
+  { valor: "TUTORIAS_POR_CARRERA", label: "Tutorías por carrera", info: "Cantidad de tutorías, estudiantes, sesiones completadas y asistencia por carrera." },
+  { valor: "ESTUDIANTES_ATENDIDOS", label: "Estudiantes atendidos", info: "Estudiantes con tutorías completadas y asistencia confirmada." },
+  { valor: "TUTORIAS_MAS_SOLICITADAS", label: "Tutorías más solicitadas", info: "Demanda de tutorías agrupada por asignatura." },
 ];
 
 const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
