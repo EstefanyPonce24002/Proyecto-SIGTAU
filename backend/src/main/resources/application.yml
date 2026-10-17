@@ -61,10 +61,10 @@ spring:
     username: ${DB_USER:sigtau_user}
     password: ${DB_PASSWORD}
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  #h2:
+    #console:
+    #enabled: true
+    #path: /h2-console
 
   jpa:
     hibernate:

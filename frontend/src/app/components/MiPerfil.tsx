@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+
 import {
   Lock,
   Mail,
@@ -23,11 +24,14 @@ import {
   Laptop,
   Users,
 } from "lucide-react";
+
 import {
   obtenerPerfil,
   actualizarPerfil,
   cambiarContrasena,
 } from "../lib/perfil";
+import { historialEstudiante } from "../lib/sesiones";
+
 import {
   Dialog,
   DialogContent,
@@ -38,67 +42,103 @@ import {
 } from "../../components/ui/dialog";
 
 type Rol = "estudiante" | "tutor" | "coordinador";
+
 type PerfilTab = "personal" | "asignaturas" | "seguridad";
 
 const PERFIL_TABS: { id: PerfilTab; label: string; icon: React.ElementType }[] =
   [
     { id: "personal", label: "Información personal", icon: UserRound },
+
     { id: "asignaturas", label: "Asignaturas en curso", icon: BookOpen },
+
     { id: "seguridad", label: "Seguridad", icon: Lock },
   ];
 
 /* ─── Design tokens (bronze accent) ───────────────────────────────────── */
+
 const BRONZE = "#14B8A6";
+
 const BRONZE_SOFT = "rgba(20,184,166,0.12)";
+
 const BRONZE_BORDER = "rgba(20,184,166,0.35)";
+
 const NAVY = "rgba(59,130,246,0.1)";
 
 /* ─── Per-role static profile data ────────────────────────────────────── */
+
 interface ProfileData {
   titulo: string;
+
   departamento: string;
+
   ciclo: string;
+
   telefono: string;
+
   ciudad: string;
+
   extra: { icon: React.ElementType; label: string; value: string }[];
 }
 
 const PROFILE_DATA: Record<Rol, ProfileData> = {
   estudiante: {
     titulo: "Ingeniería de Sistemas",
+
     departamento: "Facultad de Ingeniería",
+
     ciclo: "2026-I · Semestre VI",
+
     telefono: "+503 7123 4567",
+
     ciudad: "San Salvador, El Salvador",
+
     extra: [
       { icon: BookOpen, label: "Carrera", value: "Ingeniería de Sistemas" },
     ],
   },
+
   tutor: {
     titulo: "Tutor Académico Especialista",
+
     departamento: "Dpto. de Matemáticas y Ciencias",
+
     ciclo: "Vinculación: 2024-I",
+
     telefono: "+503 7234 5678",
+
     ciudad: "Santa Ana, El Salvador",
+
     extra: [
       { icon: BookOpen, label: "Especialidad", value: "Matemáticas y Cálculo" },
+
       { icon: Award, label: "Sesiones totales", value: "20 completadas" },
+
       { icon: Calendar, label: "Vinculación", value: "2024-I" },
     ],
   },
+
   coordinador: {
     titulo: "Coordinador Académico",
+
     departamento: "Vicerrectoría Académica",
+
     ciclo: "Cargo desde: 2022",
+
     telefono: "+503 2289 0012",
+
     ciudad: "San Salvador, El Salvador",
+
     extra: [
       {
         icon: BookOpen,
+
         label: "Dependencia",
+
         value: "Vicerrectoría Académica",
       },
+
       { icon: Award, label: "Tutores a cargo", value: "12 tutores activos" },
+
       { icon: Calendar, label: "Cargo desde", value: "enero 2022" },
     ],
   },
@@ -106,80 +146,78 @@ const PROFILE_DATA: Record<Rol, ProfileData> = {
 
 const CARRERAS_EST = [
   "Ingeniería de Sistemas",
+
   "Ingeniería Civil",
+
   "Matemáticas",
+
   "Física",
+
   "Estadística",
+
   "Economía",
 ];
-const ESPECIALIDADES = [
-  "Matemáticas y Cálculo",
-  "Álgebra Lineal",
-  "Programación y Algoritmos",
-  "Bases de Datos",
-  "Física Mecánica",
-  "Estadística Aplicada",
-];
+
+const ESPECIALIDADES = ["Programación I", "Estructuras de Datos"];
+
+const DESCRIPCIONES_ESPECIALIDADES: Record<string, string> = {
+  "Programación I":
+    "Fundamentos de programación, lógica computacional y desarrollo de soluciones mediante código.",
+  "Estructuras de Datos":
+    "Organización y manejo eficiente de datos utilizando listas, pilas, colas, árboles y otras estructuras.",
+};
+
 const DEPARTAMENTOS = [
   "Vicerrectoría Académica",
+
   "Dpto. de Ingeniería",
+
   "Dpto. de Matemáticas y Ciencias",
+
   "Dpto. de Humanidades",
 ];
 
-const MATERIAS_EN_CURSO = [
-  {
-    nombre: "Programación",
-    nivel: "Cálculo",
-    icon: Code2,
-    color: "#5B9BEA",
-    colorClaro: "#2563EB",
-    fondo: "rgba(91,155,234,0.14)",
-  },
-  {
-    nombre: "Bases de Datos",
-    nivel: "Intermedio",
-    icon: Database,
-    color: "#9B7BEA",
-    colorClaro: "#6D28D9",
-    fondo: "rgba(155,123,234,0.14)",
-  },
-  {
-    nombre: "Estructuras de Datos",
-    nivel: "Avanzado",
-    icon: Share2,
-    color: "#42C7AF",
-    colorClaro: "#0F766E",
-    fondo: "rgba(66,199,175,0.14)",
-  },
-];
-
 /* ─── Password strength ────────────────────────────────────────────────── */
+
 function strengthOf(pwd: string): {
   score: number;
+
   label: string;
+
   color: string;
 } {
   if (!pwd) return { score: 0, label: "", color: "" };
+
   if (pwd.length < 6) return { score: 1, label: "Débil", color: "#EF4444" };
+
   if (pwd.length < 10) return { score: 2, label: "Regular", color: "#14B8A6" };
+
   if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd))
     return { score: 4, label: "Fuerte", color: "#10B981" };
+
   return { score: 3, label: "Buena", color: BRONZE };
 }
 
 /* ─── Field input - Formulario de edición (adaptable a ambos temas) ───── */
 function Field({
   label,
+
   value,
+
   onChange,
+
   disabled = false,
+
   type = "text",
 }: {
   label: string;
+
   value: string;
+
   onChange?: (v: string) => void;
+
   disabled?: boolean;
+
   type?: string;
 }) {
   return (
@@ -199,8 +237,7 @@ function Field({
           text-foreground placeholder:text-muted-foreground
           outline-none transition-all
           focus:border-primary focus:ring-2 focus:ring-ring
-          disabled:cursor-not-allowed disabled:opacity-60
-        "
+          disabled:cursor-not-allowed disabled:opacity-60"
         style={
           {
             fontSize: "0.875rem",
@@ -242,8 +279,7 @@ function PwdField({
             bg-input-background px-4 py-2.5 pr-11
             text-foreground placeholder:text-muted-foreground
             outline-none transition-all
-            focus:border-primary focus:ring-2 focus:ring-ring
-          "
+            focus:border-primary focus:ring-2 focus:ring-ring"
           style={
             {
               fontSize: "0.875rem",
@@ -262,8 +298,7 @@ function PwdField({
             rounded-md p-1 text-muted-foreground
             transition-colors hover:text-foreground
             focus-visible:outline-none focus-visible:ring-2
-            focus-visible:ring-ring
-          "
+            focus-visible:ring-ring"
         >
           {show ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
@@ -346,8 +381,21 @@ interface Props {
 
 export function MiPerfil({ rol, nombre, email }: Props) {
   const profile = PROFILE_DATA[rol];
-  const partes = nombre.replace("Prof. ", "").split(" ");
+  const perfilTabs = PERFIL_TABS.map((tab) =>
+    tab.id === "asignaturas"
+      ? {
+          ...tab,
+          label:
+            rol === "estudiante"
+              ? "Materias en curso"
+              : rol === "tutor"
+                ? "Áreas de apoyo"
+                : "Áreas de seguimiento",
+        }
+      : tab,
+  );
 
+  const partes = nombre.replace("Prof. ", "").split(" ");
   /* Tema: el modal se renderiza en un portal (fuera de este componente),
      por lo que puede perder la clase "dark" si esta vive en un contenedor
      interno. Se detecta el tema desde el componente y se reaplica al modal. */
@@ -380,7 +428,11 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   const [pwdError, setPwdError] = useState("");
   const [pwdSaved, setPwdSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<PerfilTab>("personal");
-
+  const [materiasEnCurso, setMateriasEnCurso] = useState<
+    { id: number; nombre: string }[]
+  >([]);
+  const [cargandoMaterias, setCargandoMaterias] = useState(false);
+  const [errorMaterias, setErrorMaterias] = useState("");
   const strength = strengthOf(newPwd);
 
   /* true si el componente está dentro de un contenedor (o <html>) con la clase "dark" */
@@ -394,16 +446,50 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
     let activo = true;
     obtenerPerfil()
-      .then((data) => {
+      .then(async (data) => {
         if (!activo) return;
         setNombres(data.nombres);
         setApellidos(data.apellidos);
         setEmailActual(data.correo);
         if (data.carrera) setCategoria(data.carrera);
+        setCargandoMaterias(true);
+        setErrorMaterias("");
+        try {
+          const sesiones = await historialEstudiante(data.id);
+          if (!activo) return;
+          // Una materia se muestra si tiene al menos una sesión aprobada.
+          // Se agrupa por ID para no duplicar materias con varias sesiones.
+          const materiasAprobadas = new Map<
+            number,
+            { id: number; nombre: string }
+          >();
+
+          sesiones
+            .filter((sesion) => sesion.estado === "APROBADA")
+            .forEach((sesion) => {
+              materiasAprobadas.set(sesion.idAsignatura, {
+                id: sesion.idAsignatura,
+                nombre: sesion.asignaturaNombre,
+              });
+            });
+
+          setMateriasEnCurso(Array.from(materiasAprobadas.values()));
+        } catch {
+          if (activo) {
+            setErrorMaterias(
+              "No se pudieron verificar las materias con solicitudes aprobadas.",
+            );
+          }
+        } finally {
+          if (activo) setCargandoMaterias(false);
+        }
       })
       .catch(() => {
-        if (activo)
+        if (activo) {
           setPerfilError("No se pudo cargar la información actual del perfil.");
+          setErrorMaterias("No se pudieron cargar las materias aprobadas.");
+          setCargandoMaterias(false);
+        }
       });
 
     return () => {
@@ -498,23 +584,26 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   const changeTab = (tab: PerfilTab) => setActiveTab(tab);
 
   const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    const currentIndex = PERFIL_TABS.findIndex((tab) => tab.id === activeTab);
+    const currentIndex = perfilTabs.findIndex((tab) => tab.id === activeTab);
+
     const nextIndex =
       event.key === "ArrowRight"
-        ? (currentIndex + 1) % PERFIL_TABS.length
+        ? (currentIndex + 1) % perfilTabs.length
         : event.key === "ArrowLeft"
-          ? (currentIndex - 1 + PERFIL_TABS.length) % PERFIL_TABS.length
+          ? (currentIndex - 1 + perfilTabs.length) % perfilTabs.length
           : -1;
 
     if (nextIndex >= 0) {
       event.preventDefault();
-      changeTab(PERFIL_TABS[nextIndex].id);
+
+      changeTab(perfilTabs[nextIndex].id);
     }
   };
 
   return (
     <div ref={rootRef} className="mx-auto w-full max-w-5xl space-y-6">
       {/* ── Page heading ─────────────────────────────────────────────── */}
+
       <div>
         <h2 className="text-foreground text-2xl font-bold">
           Información personal y Configuración de Seguridad
@@ -522,6 +611,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       {/* ── Profile hero card ────────────────────────────────────────── */}
+
       <div className="bg-card dark:bg-[#1c2734] rounded-2xl overflow-hidden border border-border">
         <div
           className="h-1"
@@ -533,9 +623,11 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         <div className="px-5 py-5 sm:px-7 sm:py-6">
           <div className="flex items-start gap-4">
             {/* Avatar */}
+
             <div className="relative shrink-0">
               <div
-                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[rgba(59,130,246,0.1)] font-bold text-[#17365D] dark:bg-[rgba(91,155,234,0.1)] dark:text-white"
+                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[rgba(59,130,246,0.1)] 
+                font-bold text-[#17365D] dark:bg-[rgba(91,155,234,0.1)] dark:text-white"
                 style={{
                   fontSize: "1.4rem",
                 }}
@@ -550,6 +642,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   initials
                 )}
               </div>
+
               <div
                 className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2"
                 style={{ background: "#34D399", borderColor: NAVY }}
@@ -557,6 +650,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             </div>
 
             {/* Identity */}
+
             <div className="min-w-0 flex-1">
               <p
                 className="break-words text-2xl font-bold leading-tight text-foreground dark:text-white sm:text-3xl"
@@ -564,16 +658,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               >
                 {nombre}
               </p>
+
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <p
                   className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[#0F766E] dark:text-[#14B8A6]"
                   style={{
                     background: BRONZE_SOFT,
+
                     border: `1px solid ${BRONZE_BORDER}`,
+
                     fontSize: "0.72rem",
                   }}
                 >
                   <BookOpen size={12} />
+
                   {profile.titulo}
                 </p>
               </div>
@@ -583,12 +681,14 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               type="button"
               onClick={() => {
                 setSecurityOnly(false);
+
                 setEditOpen(true);
               }}
               className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
               style={{ background: "#118ab2", fontSize: "0.82rem" }}
             >
               <Pencil size={14} />
+
               <span className="hidden sm:inline">Editar</span>
             </button>
           </div>
@@ -596,13 +696,22 @@ export function MiPerfil({ rol, nombre, email }: Props) {
           <div className="my-4 border-t border-border dark:border-white/20" />
 
           {/* Contact information */}
+
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
             <div className="flex items-center gap-3">
-              <Mail size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <Mail
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div className="min-w-0">
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Correo electrónico
                 </p>
+
                 <p
                   className="text-foreground dark:text-white truncate font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -611,12 +720,21 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-3">
-              <Phone size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <Phone
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div>
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Teléfono
                 </p>
+
                 <p
                   className="text-foreground dark:text-white font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -625,12 +743,21 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-3">
-              <MapPin size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <MapPin
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div>
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Ciudad
                 </p>
+
                 <p
                   className="text-foreground dark:text-white font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -644,14 +771,16 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       {/* ── Tabs container ───────────────────────────────────────────── */}
+
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div
           role="tablist"
           aria-label="Secciones del perfil"
           className="grid grid-cols-1 gap-1 border-b border-border bg-secondary/30 p-1.5 sm:grid-cols-3"
         >
-          {PERFIL_TABS.map(({ id, label, icon: Icon }) => {
+          {perfilTabs.map(({ id, label, icon: Icon }) => {
             const selected = activeTab === id;
+
             return (
               <button
                 key={id}
@@ -681,7 +810,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
           })}
         </div>
 
-        {/* ── Contenido de las pestañas ─────────────────────────────────── */}
+        {/* ── Contenido de las pestañas ───────────────── */}
         <div className="w-full min-w-0 p-4 sm:p-6">
           {/* 1. Pestaña Personal */}
           {activeTab === "personal" && (
@@ -691,7 +820,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   <p
                     className="whitespace-normal break-words text-muted-foreground"
                     style={{
-                      fontSize: "0.90rem",
+                      fontSize: "0.93rem",
                       lineHeight: 1.65,
                       overflowWrap: "anywhere",
                     }}
@@ -702,121 +831,17 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     Actualmente busco fortalecer mis conocimientos en
                     programación y bases de datos.
                   </p>
-                  <br></br>
                 </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  <SectionCard title="Sobre mí" icon={Info} accent>
-                    <p
-                      className="text-muted-foreground"
-                      style={{ fontSize: "0.78rem", lineHeight: 1.65 }}
-                    >
-                      {rol === "tutor"
-                        ? "Tutor académico comprometido con acompañar a los estudiantes y convertir cada sesión en un avance concreto."
-                        : "Coordinador académico enfocado en organizar el acompañamiento y fortalecer la experiencia de aprendizaje."}
-                    </p>
-                  </SectionCard>
-
-                  <SectionCard
-                    title={
-                      rol === "tutor" ? "Áreas de apoyo" : "Responsabilidades"
-                    }
-                    icon={BookOpen}
-                    accent
+                <div className="w-full min-w-0">
+                  <p
+                    className="block w-full text-muted-foreground"
+                    style={{ fontSize: "0.90rem", lineHeight: 1.65 }}
                   >
-                    <div className="space-y-3">
-                      {profile.extra.map(({ icon: Icon, label, value }) => (
-                        <div
-                          key={label}
-                          className="flex items-center gap-2.5 min-w-0"
-                        >
-                          <Icon
-                            size={15}
-                            className="text-muted-foreground shrink-0"
-                          />
-                          <div className="min-w-0">
-                            <p
-                              className="text-muted-foreground truncate"
-                              style={{ fontSize: "0.68rem" }}
-                            >
-                              {label}
-                            </p>
-                            <p
-                              className="text-card-foreground break-words font-medium"
-                              style={{ fontSize: "0.78rem" }}
-                            >
-                              {value}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </SectionCard>
-
-                  <SectionCard title="Resumen" icon={Award} accent>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2.5">
-                        <Calendar
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Trayectoria
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {profile.ciclo}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <Phone
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Contacto
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {telefono}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <MapPin
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Ubicación
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {profile.ciudad}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </SectionCard>
+                    {rol === "tutor"
+                      ? "Tutor académico especializado en Programación y Estructuras de Datos, comprometido con fortalecer el pensamiento lógico, resolver dudas de manera práctica y convertir cada sesión en un avance real hacia el éxito académico."
+                      : "Líder académico enfocado en mejorar los procesos de tutoría, impulsar el desempeño estudiantil y fomentar una cultura de aprendizaje colaborativo."}
+                  </p>
                 </div>
               )}
             </div>
@@ -825,55 +850,87 @@ export function MiPerfil({ rol, nombre, email }: Props) {
           {/* 2. Pestaña Asignaturas */}
           {activeTab === "asignaturas" && (
             <div className="space-y-3">
-              {MATERIAS_EN_CURSO.map(
-                ({
-                  nombre: materia,
-                  nivel,
-                  icon: Icon,
-                  color,
-                  colorClaro,
-                  fondo,
-                }) => (
-                  <div
-                    key={materia}
-                    className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-secondary/50 p-4 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
-                  >
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-[color:var(--cl)] dark:text-[color:var(--c)]"
-                      style={
-                        {
-                          background: fondo,
-                          "--c": color,
-                          "--cl": colorClaro,
-                        } as React.CSSProperties
-                      }
-                    >
-                      <Icon size={20} />
-                    </div>
+              {rol === "estudiante" && (
+                <div className="mx-auto w-full max-w-3xl space-y-2.5">
+                  {cargandoMaterias ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                      Verificando materias aprobadas...
+                    </p>
+                  ) : errorMaterias ? (
+                    <p className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+                      {errorMaterias}
+                    </p>
+                  ) : materiasEnCurso.length > 0 ? (
+                    materiasEnCurso.map((materia) => (
+                      <div
+                        key={materia.id}
+                        className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-secondary/50 p-3 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                          <BookOpen size={18} />
+                        </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="text-card-foreground font-semibold"
-                        style={{ fontSize: "0.88rem" }}
-                      >
-                        {materia}
-                      </p>
-                      <span
-                        className="inline-flex items-center justify-center rounded-full px-3 py-0.5 mt-1 font-medium text-[color:var(--cl)] dark:text-[color:var(--c)]"
-                        style={
-                          {
-                            background: fondo,
-                            "--c": color,
-                            "--cl": colorClaro,
-                            fontSize: "0.72rem",
-                          } as React.CSSProperties
-                        }
-                      >
-                        {nivel}
-                      </span>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className="font-semibold text-card-foreground"
+                            style={{ fontSize: "0.82rem" }}
+                          >
+                            {materia.nombre}
+                          </p>
+
+                          <span className="mt-1 inline-flex items-center justify-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">
+                            Tutoría aprobada
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+                      No hay materias con solicitudes de tutoría aprobadas.
+                    </p>
+                  )}
+                </div>
+              )}
+              {/* Sección de Áreas de apoyo del tutor*/}
+              {rol === "tutor" && (
+                <div className="space-y-3">
+                  {ESPECIALIDADES.map((area) => (
+                    <div
+                      key={area}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                        <BookOpen size={19} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-card-foreground">
+                          {area}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {DESCRIPCIONES_ESPECIALIDADES[area]}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ),
+                  ))}
+                </div>
+              )}
+
+              {rol === "coordinador" && (
+                <div className="space-y-3">
+                  {DEPARTAMENTOS.map((area) => (
+                    <div
+                      key={area}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Users size={19} />
+                      </div>
+                      <p className="min-w-0 flex-1 text-sm font-medium text-card-foreground">
+                        {area}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}
@@ -888,6 +945,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 >
                   Contraseña y acceso
                 </p>
+
                 <p
                   className="text-muted-foreground mt-0.5"
                   style={{ fontSize: "0.82rem" }}
@@ -896,10 +954,12 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   seguridad.
                 </p>
               </div>
+
               <button
                 type="button"
                 onClick={() => {
                   setSecurityOnly(true);
+
                   setEditOpen(true);
                 }}
                 className="inline-flex items-center justify-center gap-2 min-h-11 rounded-xl border border-[#118AB2] px-4 py-2.5 font-medium text-[#118AB2] transition-all hover:bg-[#118AB2] hover:text-white shrink-0"
@@ -936,6 +996,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             {perfilError && (
               <div className="flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-destructive text-xs">
                 <AlertCircle size={15} className="shrink-0" />
+
                 <span>{perfilError}</span>
               </div>
             )}
@@ -963,7 +1024,9 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       className="w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden font-bold"
                       style={{
                         background: " #118AB2",
+
                         color: "#fff",
+
                         fontSize: "1.15rem",
                       }}
                     >
@@ -986,10 +1049,11 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       Cambiar foto
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/\*"
                         className="sr-only"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
+
                           if (file) setFotoPerfil(URL.createObjectURL(file));
                         }}
                       />
@@ -1003,12 +1067,14 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                         value={nombres}
                         onChange={setNombres}
                       />
+
                       <Field
                         label="Apellidos"
                         value={apellidos}
                         onChange={setApellidos}
                       />
                     </div>
+
                     <Field
                       label="Fecha de nacimiento"
                       value={fechaNacimiento}
@@ -1017,17 +1083,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     />
                   </div>
                 </div>
+
                 <Field
                   label="Correo electrónico"
                   value={emailActual}
                   disabled
                 />
+
                 <p
                   className="text-muted-foreground"
                   style={{ fontSize: "0.63rem", marginTop: "-8px" }}
                 >
                   El correo institucional no puede modificarse
                 </p>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field
                     label="Teléfono"
@@ -1035,8 +1104,10 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     onChange={setTelefono}
                     type="tel"
                   />
+
                   <Field label="Ciudad" value={ciudad} onChange={setCiudad} />
                 </div>
+
                 <div className="space-y-1.5">
                   <label
                     className="block text-foreground"
@@ -1052,7 +1123,9 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     style={
                       {
                         fontSize: "0.875rem",
+
                         "--tw-ring-color": BRONZE,
+
                         colorScheme: "light dark",
                       } as React.CSSProperties
                     }
@@ -1068,6 +1141,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     ))}
                   </select>
                 </div>
+
                 <div className="flex justify-end pt-2">
                   <SaveButton saved={perfilSaved} label="Guardar información" />
                 </div>
@@ -1083,6 +1157,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   {pwdError && (
                     <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-xs">
                       <AlertCircle size={14} className="shrink-0" />
+
                       <span>{pwdError}</span>
                     </div>
                   )}
@@ -1127,6 +1202,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                         <p
                           style={{
                             fontSize: "0.73rem",
+
                             color: strength.color,
                           }}
                         >
@@ -1159,10 +1235,13 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               type="button"
               onClick={() => setEditOpen(false)}
               className="rounded-xl border px-5 py-2.5 bg-red-500/5 transition-colors hover:bg-red-500/15 focus-visible:outline-none
+
               focus-visible:ring-2 focus-visible:ring-red-400
+
               text-xs font-medium"
               style={{
                 color: "#C96F78",
+
                 borderColor: "rgba(201,111,120,0.35)",
               }}
             >

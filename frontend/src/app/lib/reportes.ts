@@ -1,6 +1,12 @@
 import { apiFetch } from "./api";
 
-export type TipoReporte = "ASISTENCIA" | "RENDIMIENTO" | "ESTADISTICAS" | "POR_TUTOR" | "DEMANDA";
+export type TipoReporte =
+  | "ASISTENCIA"
+  | "RENDIMIENTO"
+  | "ESTADISTICAS"
+  | "TUTORIAS_POR_CARRERA"
+  | "ESTUDIANTES_ATENDIDOS"
+  | "TUTORIAS_MAS_SOLICITADAS";
 
 export interface Kpi {
   label: string;
@@ -24,12 +30,14 @@ export interface ReporteGenerado {
 
 export interface GenerarReportePayload {
   tipoReporte: TipoReporte;
-  fechaInicio: string; // "YYYY-MM-DD"
+  fechaInicio: string;
   fechaFin: string;
   filtroCarrera?: string;
 }
 
-export function generarReporte(payload: GenerarReportePayload): Promise<ReporteGenerado> {
+export function generarReporte(
+  payload: GenerarReportePayload,
+): Promise<ReporteGenerado> {
   return apiFetch<ReporteGenerado>("/reportes/generar", {
     method: "POST",
     body: JSON.stringify(payload),

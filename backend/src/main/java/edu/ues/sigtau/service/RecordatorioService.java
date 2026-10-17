@@ -42,17 +42,17 @@ public class RecordatorioService {
                 limiteInferior.toLocalDate(),
                 limiteSuperior.toLocalDate()
         );
-
+        // Filtrar las sesiones que están dentro del rango de tiempo exacto
         for (Sesion sesion : sesiones) {
             if (sesion.getEstado() != EstadoSesion.APROBADA) {
                 continue;
             }
-
+            // Combinar la fecha y hora de inicio de la sesión para obtener un LocalDateTime
             LocalDateTime inicio = LocalDateTime.of(sesion.getFechaSesion(), sesion.getHoraInicio());
             if (inicio.isBefore(limiteInferior) || inicio.isAfter(limiteSuperior)) {
                 continue;
             }
-
+            // Crear el mensaje de recordatorio
             String mensaje = "Recordatorio: tienes una tutoría de "
                     + sesion.getAsignatura().getNombre()
                     + " el " + sesion.getFechaSesion()
@@ -63,13 +63,13 @@ public class RecordatorioService {
             crearSiNoExiste(sesion, sesion.getTutor().getUsuario(), mensaje);
         }
     }
-
+    // Este método privado se encarga de crear una notificación de recordatorio para un usuario específico si aún no existe una notificación de ese tipo para la sesión dada. Primero, verifica si ya existe una notificación de recordatorio para la combinación de sesión y usuario. Si no existe, crea y guarda una nueva notificación en el repositorio.
     private void crearSiNoExiste(Sesion sesion, edu.ues.sigtau.model.Usuario usuario, String mensaje) {
         if (notificacionRepository.existsBySesion_IdAndUsuario_IdAndTipo(
                 sesion.getId(), usuario.getId(), TipoNotificacion.RECORDATORIO)) {
             return;
         }
-
+        // Crear y guardar la notificación de recordatorio
         notificacionRepository.save(Notificacion.builder()
                 .usuario(usuario)
                 .sesion(sesion)

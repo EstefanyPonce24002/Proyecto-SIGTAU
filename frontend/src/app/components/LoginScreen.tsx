@@ -1,4 +1,11 @@
+// ==========================================
+// IMPORTACIONES DE DEPENDENCIAS Y MÓDULOS
+// ==========================================
+
+// Importa el hook useState de React para manejar estados locales del componente
 import { useState } from "react";
+
+// Iconos vectoriales de la librería lucide-react para la interfaz de usuario
 import {
   Eye,
   EyeOff,
@@ -9,11 +16,16 @@ import {
   Loader2,
   UserRound,
 } from "lucide-react";
+
+// Funciones y clases auxiliares para el proceso de autenticación y manejo de errores API
 import { login as loginApi } from "../lib/auth";
 import { ApiError } from "../lib/api";
 
+// DEFINICIÓN DE TIPOS E INTERFACES
+// Tipos de roles de usuario permitidos dentro del sistema institucional
 type Rol = "estudiante" | "tutor" | "coordinador";
 
+// Propiedades recibidas por el componente LoginScreen
 interface Props {
   dark: boolean;
   onToggleDark: () => void;
@@ -21,7 +33,9 @@ interface Props {
   onForgot?: () => void;
 }
 
+// COMPONENTE PRINCIPAL: LoginScreen
 export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
+  // ESTADOS LOCALES DEL FORMULARIO
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,12 +43,19 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
 
+  // MANEJADORES DE EVENTOS (HANDLERS)
+  /**
+   * Procesa el envío del formulario de inicio de sesión.
+   * Realiza validación preliminar en cliente y llama a la API de autenticación.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault(); // Evita la recarga predeterminada del navegador
+    setError(null); // Limpia errores previos
 
+    // Normaliza el correo eliminando espacios en blanco y pasando a minúsculas
     const normalizedEmail = email.trim().toLowerCase();
 
+    // Validación básica: comprobar que ambos campos contengan datos
     if (!normalizedEmail || !password) {
       setError(
         "Debe ingresar su correo electrónico y contraseña para continuar.",
@@ -42,15 +63,19 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Activa estado de carga
 
     try {
+      // Envía credenciales al servicio de autenticación
       const data = await loginApi(normalizedEmail, password);
+
+      // Convierte el rol retornado a minúsculas para coincidir con el tipo union 'Rol'
       const rol = data.rol.toLowerCase() as Rol;
 
-      // backend: "ESTUDIANTE" -> frontend: "estudiante"
+      // Notifica al componente padre los datos del usuario autenticado
       onLogin(rol, data.nombreCompleto, data.idUsuario);
     } catch (err) {
+      // Discrimina entre un error controlado de la API o un error general de red
       const msg =
         err instanceof ApiError
           ? err.message
@@ -58,46 +83,54 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
 
       setError(msg);
     } finally {
-      setLoading(false);
+      setLoading(false); // Desactiva estado de carga sin importar el resultado
     }
   };
 
+  /**
+   * Maneja el clic en el enlace de recuperación de contraseña.
+   * Ejecuta el callback delegado o muestra una alerta temporal local.
+   */
   const handleForgot = (e: React.MouseEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Evita navegación por defecto del enlace '#'
 
     if (onForgot) {
-      onForgot();
+      onForgot(); // Ejecuta navegación externa provista por el padre
     } else {
+      // Flujo alternativo: muestra mensaje temporal de éxito durante 4 segundos
       setForgotSent(true);
       setTimeout(() => setForgotSent(false), 4000);
     }
   };
 
+  // RENDERIZADO VISUAL DEL COMPONENTE
   return (
     <div className="relative min-h-screen overflow-hidden bg-background transition-colors duration-300">
-      {/* Full-screen campus backdrop */}
+      {/* FONDO PRINCIPAL: Imagen panorámica institucional */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
+        {/* Capa de imagen de fondo */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1562774053-701939374585?w=1800&h=1200&fit=crop&auto=format')",
+            backgroundImage: "url('Colaboracion_uni.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
           }}
         />
 
+        {/* Capa de oscurecimiento dependiente del tema para legibilidad */}
         <div
           className="absolute inset-0"
           style={{
-            background: dark ? "rgba(17,24,39,0.78)" : "rgba(26,39,77,0.58)",
+            background: dark ? "rgba(17,24,39,0.55)" : "rgba(26,39,77,0.30)",
           }}
         />
       </div>
 
-      {/* Left panel — campus image */}
+      {/* PANEL IZQUIERDO: Identidad visual y branding (solo pantallas grandes) */}
       <div className="relative z-20 hidden min-h-screen flex-col justify-between overflow-hidden p-10 lg:flex lg:w-[52%]">
-        {/* Logo top */}
+        {/* Logotipo y título institucional superior */}
         <div className="relative flex flex-col items-start">
           <span
             className="text-white"
@@ -126,7 +159,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
           </span>
         </div>
 
-        {/* Bottom caption */}
+        {/* Espacio inferior reservado para pie o leyenda */}
         <p
           className="relative"
           style={{
@@ -136,22 +169,22 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
         ></p>
       </div>
 
-      {/* Login card */}
+      {/* CONTENEDOR CENTRAL: Tarjeta de formulario flotante                 */}
       <div className="absolute inset-0 z-10 flex min-h-[100dvh] w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
-        {/* Dark mode toggle */}
+        {/* Botón superior derecho para alternar modo claro / oscuro */}
         <button
           onClick={onToggleDark}
           className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition-all hover:bg-secondary hover:text-foreground"
           aria-label="Cambiar modo"
         >
           {dark ? (
-            <Sun size={20} style={{ color: "#D6DEE5" }} />
+            <Sun size={20} style={{ color: "#e0e7ed" }} />
           ) : (
-            <Moon size={20} />
+            <Moon size={20} style={{ color: "#e0e7ed" }} />
           )}
         </button>
 
-        {/* Mobile logo */}
+        {/* Logotipo móvil visible únicamente en resoluciones menores a 'lg' */}
         <div className="mb-8 flex items-center gap-2.5 lg:hidden">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-xl"
@@ -173,22 +206,20 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
           </span>
         </div>
 
-        {/* Card */}
+        {/* Tarjeta de cristal esmerilado (Glassmorphism) con el formulario */}
         <div
           className="mx-auto max-h-[calc(100dvh-7rem)] w-full max-w-[400px] space-y-6 overflow-y-auto rounded-2xl border p-6 backdrop-blur-xl shadow-xl sm:p-8"
           style={{
             background: dark ? "rgba(31,41,55,0.72)" : "rgba(255,255,255,0.68)",
-
             borderColor: dark
               ? "rgba(249,250,251,0.2)"
               : "rgba(255,255,255,0.78)",
-
             boxShadow: dark
               ? "0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08)"
               : "0 24px 60px rgba(30,58,138,0.12), inset 0 1px 0 rgba(255,255,255,0.9)",
           }}
         >
-          {/* Heading */}
+          {/* Encabezado y bienvenida */}
           <div className="text-center">
             <h2
               className="text-card-foreground"
@@ -209,7 +240,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
             </p>
           </div>
 
-          {/* Avatar de acceso */}
+          {/* Avatar ilustrativo central */}
           <div className="flex justify-center" aria-hidden="true">
             <div
               className="flex h-20 w-20 items-center justify-center rounded-full shadow-lg ring-4"
@@ -224,7 +255,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
             </div>
           </div>
 
-          {/* Error banner */}
+          {/* Banner dinámico de error con animación de altura y opacidad */}
           <div
             className="overflow-hidden transition-all duration-200"
             style={{
@@ -254,7 +285,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
             </div>
           </div>
 
-          {/* Recovery success */}
+          {/* Banner de confirmación para envío de correo de recuperación */}
           <div
             className="overflow-hidden transition-all duration-200"
             style={{
@@ -262,7 +293,6 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               opacity: forgotSent ? 1 : 0,
             }}
           >
-            {/* Success message for password recovery */}
             <div
               className="flex items-center gap-3 rounded-xl px-4 py-3"
               style={{
@@ -282,9 +312,9 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Formulario de ingreso de credenciales */}
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Email */}
+            {/* Campo: Correo Electrónico */}
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
@@ -295,7 +325,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               >
                 Correo electrónico
               </label>
-
+              {/*Campo de entrada de correo electrónico con validación y estilos dinámicos según el estado de error*/}
               <input
                 id="email"
                 type="email"
@@ -303,7 +333,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setError(null);
+                  setError(null); // Resetea el error al tipear
                 }}
                 placeholder="usuario@universidad.edu.sv"
                 className="w-full rounded-xl border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2"
@@ -319,7 +349,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               />
             </div>
 
-            {/* Password */}
+            {/* Campo: Contraseña con toggle de visibilidad */}
             <div className="space-y-1.5">
               <label
                 htmlFor="password"
@@ -339,7 +369,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    setError(null);
+                    setError(null); // Resetea el error al tipear
                   }}
                   placeholder="••••••••"
                   className="w-full rounded-xl border bg-input-background px-4 py-2.5 pr-11 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2"
@@ -354,6 +384,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
                   }
                 />
 
+                {/* Botón para alternar visibilidad de contraseña (mostrar/ocultar) */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -367,7 +398,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               </div>
             </div>
 
-            {/* Forgot password */}
+            {/* Enlace para restablecimiento de contraseña */}
             <div className="flex justify-end">
               <a
                 href="#"
@@ -382,17 +413,20 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               </a>
             </div>
 
+            {/* Botón principal de autenticación */}
             <button
-            type="submit"
-            disabled={loading}
-            className="sigtau-focus-ring flex w-full items-center justify-center gap-2 rounded-xl py-3 text-white transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-            style={{
-              fontSize: "0.95rem",
-              backgroundColor: "#118AB2",
-            }}
+              type="submit"
+              disabled={loading} // Bloquea clics repetidos durante la petición
+              className="sigtau-focus-ring flex w-full items-center justify-center gap-2 rounded-xl py-3 text-white transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+              style={{
+                fontSize: "0.95rem",
+                backgroundColor: "#118AB2",
+              }}
             >
+              {/* Spinner de carga durante el estado de espera */}
               {loading && <Loader2 size={16} className="animate-spin" />}
 
+              {/* Texto dependiente del estado de la petición */}
               {loading ? "Verificando..." : "Ingresar"}
             </button>
           </form>
