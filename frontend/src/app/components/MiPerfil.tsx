@@ -112,13 +112,42 @@ const CARRERAS_EST = [
   "Estadística",
   "Economía",
 ];
-const ESPECIALIDADES = [
-  "Matemáticas y Cálculo",
-  "Álgebra Lineal",
-  "Programación y Algoritmos",
-  "Bases de Datos",
-  "Física Mecánica",
-  "Estadística Aplicada",
+interface Especialidad {
+  nombre: string;
+  descripcion: string;
+}
+
+const ESPECIALIDADES: Especialidad[] = [
+  {
+    nombre: "Matemáticas y Cálculo",
+    descripcion:
+      "Apoyo en resolución de ejercicios, comprensión de conceptos y aplicación de métodos de cálculo.",
+  },
+  {
+    nombre: "Álgebra Lineal",
+    descripcion:
+      "Orientación en matrices, vectores, sistemas de ecuaciones y transformaciones lineales.",
+  },
+  {
+    nombre: "Programación y Algoritmos",
+    descripcion:
+      "Apoyo en lógica de programación, diseño de algoritmos y resolución de problemas.",
+  },
+  {
+    nombre: "Bases de Datos",
+    descripcion:
+      "Asesoría en consultas SQL, relaciones entre tablas, diseño y normalización de bases de datos.",
+  },
+  {
+    nombre: "Física Mecánica",
+    descripcion:
+      "Acompañamiento en movimiento, fuerzas, leyes de Newton y resolución de problemas físicos.",
+  },
+  {
+    nombre: "Estadística Aplicada",
+    descripcion:
+      "Orientación en análisis de datos, probabilidad e interpretación de resultados estadísticos.",
+  },
 ];
 const DEPARTAMENTOS = [
   "Vicerrectoría Académica",
@@ -247,8 +276,7 @@ function PwdField({
           style={
             {
               fontSize: "0.875rem",
-              "--tw-ring-color": BRONZE,
-              colorScheme: "light dark",
+              "--tw-ring-color": BRONZE,              colorScheme: "light dark",
             } as React.CSSProperties
           }
         />
@@ -347,6 +375,19 @@ interface Props {
 export function MiPerfil({ rol, nombre, email }: Props) {
   const profile = PROFILE_DATA[rol];
   const partes = nombre.replace("Prof. ", "").split(" ");
+  const perfilTabs = PERFIL_TABS.map((tab) =>
+    tab.id === "asignaturas"
+      ? {
+          ...tab,
+          label:
+            rol === "estudiante"
+              ? "Materias en curso"
+              : rol === "tutor"
+                ? "Áreas de apoyo"
+                : "Áreas de seguimiento",
+        }
+      : tab,
+  );
 
   /* Tema: el modal se renderiza en un portal (fuera de este componente),
      por lo que puede perder la clase "dark" si esta vive en un contenedor
@@ -362,7 +403,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const [categoria, setCategoria] = useState(
     rol === "tutor"
-      ? ESPECIALIDADES[0]
+      ? ESPECIALIDADES[0].nombre
       : rol === "coordinador"
         ? DEPARTAMENTOS[0]
         : CARRERAS_EST[0],
@@ -429,7 +470,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
     rol === "coordinador"
       ? DEPARTAMENTOS
       : rol === "tutor"
-        ? ESPECIALIDADES
+        ? ESPECIALIDADES.map((especialidad) => especialidad.nombre)
         : CARRERAS_EST;
 
   const handlePerfilSave = async (e: React.FormEvent) => {
@@ -497,18 +538,17 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
   const changeTab = (tab: PerfilTab) => setActiveTab(tab);
 
-  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    const currentIndex = PERFIL_TABS.findIndex((tab) => tab.id === activeTab);
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {    const currentIndex = perfilTabs.findIndex((tab) => tab.id === activeTab);
     const nextIndex =
       event.key === "ArrowRight"
-        ? (currentIndex + 1) % PERFIL_TABS.length
+        ? (currentIndex + 1) % perfilTabs.length
         : event.key === "ArrowLeft"
-          ? (currentIndex - 1 + PERFIL_TABS.length) % PERFIL_TABS.length
+          ? (currentIndex - 1 + perfilTabs.length) % perfilTabs.length
           : -1;
 
     if (nextIndex >= 0) {
       event.preventDefault();
-      changeTab(PERFIL_TABS[nextIndex].id);
+      changeTab(perfilTabs[nextIndex].id);
     }
   };
 
@@ -650,7 +690,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
           aria-label="Secciones del perfil"
           className="grid grid-cols-1 gap-1 border-b border-border bg-secondary/30 p-1.5 sm:grid-cols-3"
         >
-          {PERFIL_TABS.map(({ id, label, icon: Icon }) => {
+          {perfilTabs.map(({ id, label, icon: Icon }) => {
             const selected = activeTab === id;
             return (
               <button
@@ -747,8 +787,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                             >
                               {value}
                             </p>
-                          </div>
-                        </div>
+                          </div>                        </div>
                       ))}
                     </div>
                   </SectionCard>
@@ -822,58 +861,107 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             </div>
           )}
 
-          {/* 2. Pestaña Asignaturas */}
+          {/* 2. Contenido académico según el rol */}
           {activeTab === "asignaturas" && (
-            <div className="space-y-3">
-              {MATERIAS_EN_CURSO.map(
-                ({
-                  nombre: materia,
-                  nivel,
-                  icon: Icon,
-                  color,
-                  colorClaro,
-                  fondo,
-                }) => (
-                  <div
-                    key={materia}
-                    className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-secondary/50 p-4 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
-                  >
+            <div className="space-y-4">
+              {rol === "estudiante" ? (
+                MATERIAS_EN_CURSO.map(
+                  ({
+                    nombre: materia,
+                    nivel,
+                    icon: Icon,
+                    color,
+                    colorClaro,
+                    fondo,
+                  }) => (
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-[color:var(--cl)] dark:text-[color:var(--c)]"
-                      style={
-                        {
-                          background: fondo,
-                          "--c": color,
-                          "--cl": colorClaro,
-                        } as React.CSSProperties
-                      }
+                      key={materia}
+                      className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-secondary/50 p-4 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
                     >
-                      <Icon size={20} />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="text-card-foreground font-semibold"
-                        style={{ fontSize: "0.88rem" }}
-                      >
-                        {materia}
-                      </p>
-                      <span
-                        className="inline-flex items-center justify-center rounded-full px-3 py-0.5 mt-1 font-medium text-[color:var(--cl)] dark:text-[color:var(--c)]"
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-[color:var(--cl)] dark:text-[color:var(--c)]"
                         style={
                           {
                             background: fondo,
                             "--c": color,
                             "--cl": colorClaro,
-                            fontSize: "0.72rem",
                           } as React.CSSProperties
                         }
                       >
-                        {nivel}
-                      </span>
+                        <Icon size={20} />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className="text-card-foreground font-semibold"
+                          style={{ fontSize: "0.88rem" }}
+                        >
+                          {materia}
+                        </p>
+                        <span
+                          className="inline-flex items-center justify-center rounded-full px-3 py-0.5 mt-1 font-medium text-[color:var(--cl)] dark:text-[color:var(--c)]"
+                          style={
+                            {
+                              background: fondo,
+                              "--c": color,
+                              "--cl": colorClaro,
+                              fontSize: "0.72rem",
+                            } as React.CSSProperties
+                          }
+                        >
+                          {nivel}
+                        </span>
+                      </div>
                     </div>
+                  ),
+                )
+              ) : rol === "tutor" ? (
+                <>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Áreas en las que se ofrece acompañamiento académico.
+                  </p>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {ESPECIALIDADES.map(({ nombre: especialidad, descripcion }) => (
+                      <div
+                        key={especialidad}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                          <BookOpen size={19} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-card-foreground">
+                            {especialidad}
+                          </p>
+                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                            {descripcion}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ),
+                </>
+              ) : (
+                <>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Departamentos y áreas bajo seguimiento de la coordinación académica.
+                  </p>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {DEPARTAMENTOS.map((departamento) => (
+                      <div
+                        key={departamento}
+                        className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                          <Users size={19} />
+                        </div>
+                        <p className="text-sm font-semibold text-card-foreground">
+                          {departamento}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -997,8 +1085,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">                      <Field
                         label="Nombres"
                         value={nombres}
                         onChange={setNombres}
