@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+
 import {
   Lock,
   Mail,
@@ -23,11 +24,13 @@ import {
   Laptop,
   Users,
 } from "lucide-react";
+
 import {
   obtenerPerfil,
   actualizarPerfil,
   cambiarContrasena,
 } from "../lib/perfil";
+
 import {
   Dialog,
   DialogContent,
@@ -38,67 +41,103 @@ import {
 } from "../../components/ui/dialog";
 
 type Rol = "estudiante" | "tutor" | "coordinador";
+
 type PerfilTab = "personal" | "asignaturas" | "seguridad";
 
 const PERFIL_TABS: { id: PerfilTab; label: string; icon: React.ElementType }[] =
   [
     { id: "personal", label: "Información personal", icon: UserRound },
+
     { id: "asignaturas", label: "Asignaturas en curso", icon: BookOpen },
+
     { id: "seguridad", label: "Seguridad", icon: Lock },
   ];
 
 /* ─── Design tokens (bronze accent) ───────────────────────────────────── */
+
 const BRONZE = "#14B8A6";
+
 const BRONZE_SOFT = "rgba(20,184,166,0.12)";
+
 const BRONZE_BORDER = "rgba(20,184,166,0.35)";
+
 const NAVY = "rgba(59,130,246,0.1)";
 
 /* ─── Per-role static profile data ────────────────────────────────────── */
+
 interface ProfileData {
   titulo: string;
+
   departamento: string;
+
   ciclo: string;
+
   telefono: string;
+
   ciudad: string;
+
   extra: { icon: React.ElementType; label: string; value: string }[];
 }
 
 const PROFILE_DATA: Record<Rol, ProfileData> = {
   estudiante: {
     titulo: "Ingeniería de Sistemas",
+
     departamento: "Facultad de Ingeniería",
+
     ciclo: "2026-I · Semestre VI",
+
     telefono: "+503 7123 4567",
+
     ciudad: "San Salvador, El Salvador",
+
     extra: [
       { icon: BookOpen, label: "Carrera", value: "Ingeniería de Sistemas" },
     ],
   },
+
   tutor: {
     titulo: "Tutor Académico Especialista",
+
     departamento: "Dpto. de Matemáticas y Ciencias",
+
     ciclo: "Vinculación: 2024-I",
+
     telefono: "+503 7234 5678",
+
     ciudad: "Santa Ana, El Salvador",
+
     extra: [
       { icon: BookOpen, label: "Especialidad", value: "Matemáticas y Cálculo" },
+
       { icon: Award, label: "Sesiones totales", value: "20 completadas" },
+
       { icon: Calendar, label: "Vinculación", value: "2024-I" },
     ],
   },
+
   coordinador: {
     titulo: "Coordinador Académico",
+
     departamento: "Vicerrectoría Académica",
+
     ciclo: "Cargo desde: 2022",
+
     telefono: "+503 2289 0012",
+
     ciudad: "San Salvador, El Salvador",
+
     extra: [
       {
         icon: BookOpen,
+
         label: "Dependencia",
+
         value: "Vicerrectoría Académica",
       },
+
       { icon: Award, label: "Tutores a cargo", value: "12 tutores activos" },
+
       { icon: Calendar, label: "Cargo desde", value: "enero 2022" },
     ],
   },
@@ -106,109 +145,121 @@ const PROFILE_DATA: Record<Rol, ProfileData> = {
 
 const CARRERAS_EST = [
   "Ingeniería de Sistemas",
+
   "Ingeniería Civil",
+
   "Matemáticas",
+
   "Física",
+
   "Estadística",
+
   "Economía",
 ];
-interface Especialidad {
-  nombre: string;
-  descripcion: string;
-}
 
-const ESPECIALIDADES: Especialidad[] = [
-  {
-    nombre: "Matemáticas y Cálculo",
-    descripcion:
-      "Apoyo en resolución de ejercicios, comprensión de conceptos y aplicación de métodos de cálculo.",
-  },
-  {
-    nombre: "Álgebra Lineal",
-    descripcion:
-      "Orientación en matrices, vectores, sistemas de ecuaciones y transformaciones lineales.",
-  },
-  {
-    nombre: "Programación y Algoritmos",
-    descripcion:
-      "Apoyo en lógica de programación, diseño de algoritmos y resolución de problemas.",
-  },
-  {
-    nombre: "Bases de Datos",
-    descripcion:
-      "Asesoría en consultas SQL, relaciones entre tablas, diseño y normalización de bases de datos.",
-  },
-  {
-    nombre: "Física Mecánica",
-    descripcion:
-      "Acompañamiento en movimiento, fuerzas, leyes de Newton y resolución de problemas físicos.",
-  },
-  {
-    nombre: "Estadística Aplicada",
-    descripcion:
-      "Orientación en análisis de datos, probabilidad e interpretación de resultados estadísticos.",
-  },
+const ESPECIALIDADES = [
+  
+  "Programación I",
+  
+  "Estructuras de Datos",
 ];
+
 const DEPARTAMENTOS = [
   "Vicerrectoría Académica",
+
   "Dpto. de Ingeniería",
+
   "Dpto. de Matemáticas y Ciencias",
+
   "Dpto. de Humanidades",
 ];
 
 const MATERIAS_EN_CURSO = [
   {
     nombre: "Programación",
+
     nivel: "Cálculo",
+
     icon: Code2,
+
     color: "#5B9BEA",
+
     colorClaro: "#2563EB",
+
     fondo: "rgba(91,155,234,0.14)",
   },
+
   {
     nombre: "Bases de Datos",
+
     nivel: "Intermedio",
+
     icon: Database,
+
     color: "#9B7BEA",
+
     colorClaro: "#6D28D9",
+
     fondo: "rgba(155,123,234,0.14)",
   },
+
   {
     nombre: "Estructuras de Datos",
+
     nivel: "Avanzado",
+
     icon: Share2,
+
     color: "#42C7AF",
+
     colorClaro: "#0F766E",
+
     fondo: "rgba(66,199,175,0.14)",
   },
 ];
 
 /* ─── Password strength ────────────────────────────────────────────────── */
+
 function strengthOf(pwd: string): {
   score: number;
+
   label: string;
+
   color: string;
 } {
   if (!pwd) return { score: 0, label: "", color: "" };
+
   if (pwd.length < 6) return { score: 1, label: "Débil", color: "#EF4444" };
+
   if (pwd.length < 10) return { score: 2, label: "Regular", color: "#14B8A6" };
+
   if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd))
     return { score: 4, label: "Fuerte", color: "#10B981" };
+
   return { score: 3, label: "Buena", color: BRONZE };
 }
 
 /* ─── Field input - Formulario de edición (adaptable a ambos temas) ───── */
+
 function Field({
   label,
+
   value,
+
   onChange,
+
   disabled = false,
+
   type = "text",
 }: {
   label: string;
+
   value: string;
+
   onChange?: (v: string) => void;
+
   disabled?: boolean;
+
   type?: string;
 }) {
   return (
@@ -224,16 +275,24 @@ function Field({
         disabled={disabled}
         placeholder={label}
         className="w-full rounded-xl border border-border
+
           bg-input-background px-4 py-2.5
+
           text-foreground placeholder:text-muted-foreground
+
           outline-none transition-all
+
           focus:border-primary focus:ring-2 focus:ring-ring
+
           disabled:cursor-not-allowed disabled:opacity-60
+
         "
         style={
           {
             fontSize: "0.875rem",
+
             "--tw-ring-color": BRONZE,
+
             colorScheme: "light dark",
           } as React.CSSProperties
         }
@@ -243,13 +302,18 @@ function Field({
 }
 
 /* ─── Campo de contraseña adaptable a ambos temas ─── */
+
 function PwdField({
   label,
+
   value,
+
   onChange,
 }: {
   label: string;
+
   value: string;
+
   onChange: (v: string) => void;
 }) {
   const [show, setShow] = useState(false);
@@ -267,16 +331,25 @@ function PwdField({
           onChange={(e) => onChange(e.target.value)}
           placeholder="••••••••"
           className="
+
             w-full rounded-xl border border-border
+
             bg-input-background px-4 py-2.5 pr-11
+
             text-foreground placeholder:text-muted-foreground
+
             outline-none transition-all
+
             focus:border-primary focus:ring-2 focus:ring-ring
+
           "
           style={
             {
               fontSize: "0.875rem",
-              "--tw-ring-color": BRONZE,              colorScheme: "light dark",
+
+              "--tw-ring-color": BRONZE,
+
+              colorScheme: "light dark",
             } as React.CSSProperties
           }
         />
@@ -286,11 +359,17 @@ function PwdField({
           onClick={() => setShow(!show)}
           aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
           className="
+
             absolute right-3 top-1/2 -translate-y-1/2
+
             rounded-md p-1 text-muted-foreground
+
             transition-colors hover:text-foreground
+
             focus-visible:outline-none focus-visible:ring-2
+
             focus-visible:ring-ring
+
           "
         >
           {show ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -301,15 +380,22 @@ function PwdField({
 }
 
 /* ─── Section card ─────────────────────────────────────────────────────── */
+
 function SectionCard({
   title,
+
   icon: Icon,
+
   accent = false,
+
   children,
 }: {
   title: string;
+
   icon: React.ElementType;
+
   accent?: boolean;
+
   children: React.ReactNode;
 }) {
   return (
@@ -326,6 +412,7 @@ function SectionCard({
           className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
           style={{
             background: accent ? BRONZE_SOFT : "var(--secondary)",
+
             border: accent ? `1px solid ${BRONZE_BORDER}` : undefined,
           }}
         >
@@ -334,21 +421,26 @@ function SectionCard({
             style={{ color: accent ? BRONZE : "var(--muted-foreground)" }}
           />
         </div>
+
         <h3 className="text-card-foreground" style={{ fontSize: "0.95rem" }}>
           {title}
         </h3>
       </div>
+
       <div className="px-4 py-5 sm:px-6">{children}</div>
     </div>
   );
 }
 
 /* ─── Save button ──────────────────────────────────────────────────────── */
+
 function SaveButton({
   saved,
+
   label = "Guardar cambios",
 }: {
   saved: boolean;
+
   label?: string;
 }) {
   return (
@@ -357,6 +449,7 @@ function SaveButton({
       className="rounded-xl px-5 py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       style={{
         background: "#118ab2",
+
         fontSize: "0.875rem",
       }}
     >
@@ -366,15 +459,17 @@ function SaveButton({
 }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
+
 interface Props {
   rol: Rol;
+
   nombre: string;
+
   email: string;
 }
 
 export function MiPerfil({ rol, nombre, email }: Props) {
   const profile = PROFILE_DATA[rol];
-  const partes = nombre.replace("Prof. ", "").split(" ");
   const perfilTabs = PERFIL_TABS.map((tab) =>
     tab.id === "asignaturas"
       ? {
@@ -389,42 +484,66 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       : tab,
   );
 
+  const partes = nombre.replace("Prof. ", "").split(" ");
+
   /* Tema: el modal se renderiza en un portal (fuera de este componente),
+
      por lo que puede perder la clase "dark" si esta vive en un contenedor
+
      interno. Se detecta el tema desde el componente y se reaplica al modal. */
+
   const rootRef = useRef<HTMLDivElement>(null);
 
   /* Personal data state */
+
   const [nombres, setNombres] = useState(partes.slice(0, 2).join(" "));
+
   const [apellidos, setApellidos] = useState(partes.slice(2).join(" ") || "");
+
   const [telefono, setTelefono] = useState(profile.telefono);
+
   const [ciudad, setCiudad] = useState(profile.ciudad);
+
   const [fechaNacimiento, setFechaNacimiento] = useState("2001-03-15");
+
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
   const [categoria, setCategoria] = useState(
     rol === "tutor"
-      ? ESPECIALIDADES[0].nombre
+      ? ESPECIALIDADES[0]
       : rol === "coordinador"
         ? DEPARTAMENTOS[0]
         : CARRERAS_EST[0],
   );
+
   const [perfilSaved, setPerfilSaved] = useState(false);
+
   const [perfilError, setPerfilError] = useState("");
+
   const [emailActual, setEmailActual] = useState(email);
+
   const [editOpen, setEditOpen] = useState(false);
+
   const [securityOnly, setSecurityOnly] = useState(false);
 
   /* Security state */
+
   const [currentPwd, setCurrentPwd] = useState("");
+
   const [newPwd, setNewPwd] = useState("");
+
   const [confirmPwd, setConfirmPwd] = useState("");
+
   const [pwdError, setPwdError] = useState("");
+
   const [pwdSaved, setPwdSaved] = useState(false);
+
   const [activeTab, setActiveTab] = useState<PerfilTab>("personal");
 
   const strength = strengthOf(newPwd);
 
   /* true si el componente está dentro de un contenedor (o <html>) con la clase "dark" */
+
   const esOscuro =
     editOpen &&
     (!!rootRef.current?.closest(".dark") ||
@@ -434,14 +553,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
     if (rol !== "estudiante") return;
 
     let activo = true;
+
     obtenerPerfil()
       .then((data) => {
         if (!activo) return;
+
         setNombres(data.nombres);
+
         setApellidos(data.apellidos);
+
         setEmailActual(data.correo);
+
         if (data.carrera) setCategoria(data.carrera);
       })
+
       .catch(() => {
         if (activo)
           setPerfilError("No se pudo cargar la información actual del perfil.");
@@ -453,11 +578,17 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   }, [rol]);
 
   const initials = nombre
+
     .replace("Prof. ", "")
+
     .split(" ")
+
     .map((w) => w[0])
+
     .join("")
+
     .slice(0, 2)
+
     .toUpperCase();
 
   const fieldLabel =
@@ -466,35 +597,48 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       : rol === "tutor"
         ? "Especialidad"
         : "Carrera";
+
   const opciones =
     rol === "coordinador"
       ? DEPARTAMENTOS
       : rol === "tutor"
-        ? ESPECIALIDADES.map((especialidad) => especialidad.nombre)
+        ? ESPECIALIDADES
         : CARRERAS_EST;
 
   const handlePerfilSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setPerfilError("");
 
     if (rol !== "estudiante") {
       setPerfilSaved(true);
+
       setEditOpen(false);
+
       setTimeout(() => setPerfilSaved(false), 3000);
+
       return;
     }
 
     try {
       const data = await actualizarPerfil({
         nombres,
+
         apellidos,
+
         carrera: categoria,
       });
+
       setNombres(data.nombres);
+
       setApellidos(data.apellidos);
+
       if (data.carrera) setCategoria(data.carrera);
+
       setPerfilSaved(true);
+
       setEditOpen(false);
+
       setTimeout(() => setPerfilSaved(false), 3000);
     } catch (err) {
       setPerfilError(
@@ -507,25 +651,38 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
   const handlePwdSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setPwdError("");
+
     if (!currentPwd) {
       setPwdError("Ingresa tu contraseña actual");
+
       return;
     }
+
     if (newPwd.length < 8) {
       setPwdError("Mínimo 8 caracteres");
+
       return;
     }
+
     if (newPwd !== confirmPwd) {
       setPwdError("Las contraseñas no coinciden");
+
       return;
     }
+
     try {
       await cambiarContrasena(currentPwd, newPwd);
+
       setPwdSaved(true);
+
       setCurrentPwd("");
+
       setNewPwd("");
+
       setConfirmPwd("");
+
       setTimeout(() => setPwdSaved(false), 3000);
     } catch (err) {
       setPwdError(
@@ -538,7 +695,9 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
   const changeTab = (tab: PerfilTab) => setActiveTab(tab);
 
-  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {    const currentIndex = perfilTabs.findIndex((tab) => tab.id === activeTab);
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const currentIndex = perfilTabs.findIndex((tab) => tab.id === activeTab);
+
     const nextIndex =
       event.key === "ArrowRight"
         ? (currentIndex + 1) % perfilTabs.length
@@ -548,6 +707,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
     if (nextIndex >= 0) {
       event.preventDefault();
+
       changeTab(perfilTabs[nextIndex].id);
     }
   };
@@ -555,6 +715,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
   return (
     <div ref={rootRef} className="mx-auto w-full max-w-5xl space-y-6">
       {/* ── Page heading ─────────────────────────────────────────────── */}
+
       <div>
         <h2 className="text-foreground text-2xl font-bold">
           Información personal y Configuración de Seguridad
@@ -562,6 +723,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       {/* ── Profile hero card ────────────────────────────────────────── */}
+
       <div className="bg-card dark:bg-[#1c2734] rounded-2xl overflow-hidden border border-border">
         <div
           className="h-1"
@@ -573,6 +735,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         <div className="px-5 py-5 sm:px-7 sm:py-6">
           <div className="flex items-start gap-4">
             {/* Avatar */}
+
             <div className="relative shrink-0">
               <div
                 className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[rgba(59,130,246,0.1)] font-bold text-[#17365D] dark:bg-[rgba(91,155,234,0.1)] dark:text-white"
@@ -590,6 +753,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   initials
                 )}
               </div>
+
               <div
                 className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2"
                 style={{ background: "#34D399", borderColor: NAVY }}
@@ -597,6 +761,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             </div>
 
             {/* Identity */}
+
             <div className="min-w-0 flex-1">
               <p
                 className="break-words text-2xl font-bold leading-tight text-foreground dark:text-white sm:text-3xl"
@@ -604,16 +769,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               >
                 {nombre}
               </p>
+
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <p
                   className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[#0F766E] dark:text-[#14B8A6]"
                   style={{
                     background: BRONZE_SOFT,
+
                     border: `1px solid ${BRONZE_BORDER}`,
+
                     fontSize: "0.72rem",
                   }}
                 >
                   <BookOpen size={12} />
+
                   {profile.titulo}
                 </p>
               </div>
@@ -623,12 +792,14 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               type="button"
               onClick={() => {
                 setSecurityOnly(false);
+
                 setEditOpen(true);
               }}
               className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
               style={{ background: "#118ab2", fontSize: "0.82rem" }}
             >
               <Pencil size={14} />
+
               <span className="hidden sm:inline">Editar</span>
             </button>
           </div>
@@ -636,13 +807,22 @@ export function MiPerfil({ rol, nombre, email }: Props) {
           <div className="my-4 border-t border-border dark:border-white/20" />
 
           {/* Contact information */}
+
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
             <div className="flex items-center gap-3">
-              <Mail size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <Mail
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div className="min-w-0">
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Correo electrónico
                 </p>
+
                 <p
                   className="text-foreground dark:text-white truncate font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -651,12 +831,21 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-3">
-              <Phone size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <Phone
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div>
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Teléfono
                 </p>
+
                 <p
                   className="text-foreground dark:text-white font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -665,12 +854,21 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-3">
-              <MapPin size={15} className="text-muted-foreground dark:text-white/60 shrink-0" />
+              <MapPin
+                size={15}
+                className="text-muted-foreground dark:text-white/60 shrink-0"
+              />
+
               <div>
-                <p className="text-muted-foreground dark:text-white/55" style={{ fontSize: "0.65rem" }}>
+                <p
+                  className="text-muted-foreground dark:text-white/55"
+                  style={{ fontSize: "0.65rem" }}
+                >
                   Ciudad
                 </p>
+
                 <p
                   className="text-foreground dark:text-white font-medium"
                   style={{ fontSize: "0.76rem" }}
@@ -684,6 +882,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       {/* ── Tabs container ───────────────────────────────────────────── */}
+
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div
           role="tablist"
@@ -692,6 +891,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         >
           {perfilTabs.map(({ id, label, icon: Icon }) => {
             const selected = activeTab === id;
+
             return (
               <button
                 key={id}
@@ -709,10 +909,12 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 }`}
                 style={{
                   backgroundColor: selected ? "#118AB2" : undefined,
+
                   fontSize: "0.78rem",
                 }}
               >
                 <Icon size={15} className="shrink-0" />
+
                 <span className={selected ? "inline" : "hidden sm:inline"}>
                   {label}
                 </span>
@@ -722,8 +924,10 @@ export function MiPerfil({ rol, nombre, email }: Props) {
         </div>
 
         {/* ── Contenido de las pestañas ─────────────────────────────────── */}
+
         <div className="w-full min-w-0 p-4 sm:p-6">
           {/* 1. Pestaña Personal */}
+
           {activeTab === "personal" && (
             <div>
               {rol === "estudiante" ? (
@@ -731,8 +935,10 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   <p
                     className="whitespace-normal break-words text-muted-foreground"
                     style={{
-                      fontSize: "0.90rem",
+                      fontSize: "0.93rem",
+
                       lineHeight: 1.65,
+
                       overflowWrap: "anywhere",
                     }}
                   >
@@ -742,6 +948,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     Actualmente busco fortalecer mis conocimientos en
                     programación y bases de datos.
                   </p>
+
                   <br></br>
                 </div>
               ) : (
@@ -752,8 +959,8 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       style={{ fontSize: "0.78rem", lineHeight: 1.65 }}
                     >
                       {rol === "tutor"
-                        ? "Tutor académico comprometido con acompañar a los estudiantes y convertir cada sesión en un avance concreto."
-                        : "Coordinador académico enfocado en organizar el acompañamiento y fortalecer la experiencia de aprendizaje."}
+                        ? "Tutor académico especializado en Programación y Estructuras de Datos, comprometido con fortalecer el pensamiento lógico, resolver dudas de manera práctica y convertir cada sesión en un avance real hacia el éxito académico."
+                        : "Líder académico enfocado en mejorar los procesos de tutoría, impulsar el desempeño estudiantil y fomentar una cultura de aprendizaje colaborativo."}
                     </p>
                   </SectionCard>
 
@@ -774,6 +981,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                             size={15}
                             className="text-muted-foreground shrink-0"
                           />
+
                           <div className="min-w-0">
                             <p
                               className="text-muted-foreground truncate"
@@ -781,79 +989,16 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                             >
                               {label}
                             </p>
+
                             <p
                               className="text-card-foreground break-words font-medium"
                               style={{ fontSize: "0.78rem" }}
                             >
                               {value}
                             </p>
-                          </div>                        </div>
+                          </div>
+                        </div>
                       ))}
-                    </div>
-                  </SectionCard>
-
-                  <SectionCard title="Resumen" icon={Award} accent>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2.5">
-                        <Calendar
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Trayectoria
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {profile.ciclo}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <Phone
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Contacto
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {telefono}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <MapPin
-                          size={15}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <div>
-                          <p
-                            className="text-muted-foreground"
-                            style={{ fontSize: "0.68rem" }}
-                          >
-                            Ubicación
-                          </p>
-                          <p
-                            className="text-card-foreground font-medium"
-                            style={{ fontSize: "0.78rem" }}
-                          >
-                            {profile.ciudad}
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </SectionCard>
                 </div>
@@ -861,112 +1006,107 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             </div>
           )}
 
-          {/* 2. Contenido académico según el rol */}
+          {/* 2. Pestaña Asignaturas */}
           {activeTab === "asignaturas" && (
-            <div className="space-y-4">
-              {rol === "estudiante" ? (
-                MATERIAS_EN_CURSO.map(
-                  ({
-                    nombre: materia,
-                    nivel,
-                    icon: Icon,
-                    color,
-                    colorClaro,
-                    fondo,
-                  }) => (
-                    <div
-                      key={materia}
-                      className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-secondary/50 p-4 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
-                    >
+            <div className="space-y-3">
+              {rol === "estudiante" && (
+                <div className="space-y-3">
+                  {MATERIAS_EN_CURSO.map(
+                    ({
+                      nombre: materia,
+                      nivel,
+                      icon: Icon,
+                      color,
+                      colorClaro,
+                      fondo,
+                    }) => (
                       <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-[color:var(--cl)] dark:text-[color:var(--c)]"
-                        style={
-                          {
-                            background: fondo,
-                            "--c": color,
-                            "--cl": colorClaro,
-                          } as React.CSSProperties
-                        }
+                        key={materia}
+                        className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-secondary/50 p-4 transition-all hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
                       >
-                        <Icon size={20} />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className="text-card-foreground font-semibold"
-                          style={{ fontSize: "0.88rem" }}
-                        >
-                          {materia}
-                        </p>
-                        <span
-                          className="inline-flex items-center justify-center rounded-full px-3 py-0.5 mt-1 font-medium text-[color:var(--cl)] dark:text-[color:var(--c)]"
+                        <div
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[color:var(--cl)] dark:text-[color:var(--c)]"
                           style={
                             {
                               background: fondo,
                               "--c": color,
                               "--cl": colorClaro,
-                              fontSize: "0.72rem",
                             } as React.CSSProperties
                           }
                         >
-                          {nivel}
-                        </span>
-                      </div>
-                    </div>
-                  ),
-                )
-              ) : rol === "tutor" ? (
-                <>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    Áreas en las que se ofrece acompañamiento académico.
-                  </p>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {ESPECIALIDADES.map(({ nombre: especialidad, descripcion }) => (
-                      <div
-                        key={especialidad}
-                        className="flex items-start gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
-                      >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                          <BookOpen size={19} />
+                          <Icon size={20} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-card-foreground">
-                            {especialidad}
+                          <p
+                            className="font-semibold text-card-foreground"
+                            style={{ fontSize: "0.88rem" }}
+                          >
+                            {materia}
                           </p>
-                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                            {descripcion}
-                          </p>
+                          <span
+                            className="mt-1 inline-flex items-center justify-center rounded-full px-3 py-0.5 font-medium text-[color:var(--cl)] dark:text-[color:var(--c)]"
+                            style={
+                              {
+                                background: fondo,
+                                "--c": color,
+                                "--cl": colorClaro,
+                                fontSize: "0.72rem",
+                              } as React.CSSProperties
+                            }
+                          >
+                            {nivel}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    Departamentos y áreas bajo seguimiento de la coordinación académica.
+                    ),
+                  )}
+                </div>
+              )}
+              {/* Sección de Áreas de apoyo del tutor*/}
+              {rol === "tutor" && (
+                <div className="space-y-3">
+                  {ESPECIALIDADES.map((area) => (
+                    <div
+                      key={area}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                        <BookOpen size={19} />
+                      </div>
+                      <p className="min-w-0 flex-1 text-sm font-medium text-card-foreground">
+                        {area}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {rol === "coordinador" && (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Departamentos que pueden formar parte de las áreas de
+                    seguimiento académico.
                   </p>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {DEPARTAMENTOS.map((departamento) => (
-                      <div
-                        key={departamento}
-                        className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
-                      >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                          <Users size={19} />
-                        </div>
-                        <p className="text-sm font-semibold text-card-foreground">
-                          {departamento}
-                        </p>
+                  {DEPARTAMENTOS.map((area) => (
+                    <div
+                      key={area}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-secondary/50 p-4 transition-colors hover:bg-secondary dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Users size={19} />
                       </div>
-                    ))}
-                  </div>
-                </>
+                      <p className="min-w-0 flex-1 text-sm font-medium text-card-foreground">
+                        {area}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}
 
           {/* 4. Pestaña Seguridad */}
+
           {activeTab === "seguridad" && (
             <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="pl-2 sm:pl-4">
@@ -976,6 +1116,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 >
                   Contraseña y acceso
                 </p>
+
                 <p
                   className="text-muted-foreground mt-0.5"
                   style={{ fontSize: "0.82rem" }}
@@ -984,10 +1125,12 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   seguridad.
                 </p>
               </div>
+
               <button
                 type="button"
                 onClick={() => {
                   setSecurityOnly(true);
+
                   setEditOpen(true);
                 }}
                 className="inline-flex items-center justify-center gap-2 min-h-11 rounded-xl border border-[#118AB2] px-4 py-2.5 font-medium text-[#118AB2] transition-all hover:bg-[#118AB2] hover:text-white shrink-0"
@@ -996,6 +1139,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                 }}
               >
                 <Pencil size={14} className="shrink-0" />
+
                 <span>Gestionar acceso</span>
               </button>
             </div>
@@ -1004,6 +1148,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
       </div>
 
       {/* ── Modal de Edición (adaptable a modo claro y oscuro) ────────── */}
+
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent
           className={`${esOscuro ? "dark " : ""}max-h-[90vh] overflow-y-auto border-border bg-background text-foreground shadow-2xl sm:max-w-2xl`}
@@ -1024,11 +1169,13 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             {perfilError && (
               <div className="flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-destructive text-xs">
                 <AlertCircle size={15} className="shrink-0" />
+
                 <span>{perfilError}</span>
               </div>
             )}
 
             {/* ── Formulario: Editar información personal ── */}
+
             {!securityOnly && (
               <form onSubmit={handlePerfilSave} className="space-y-4">
                 <h3
@@ -1051,7 +1198,9 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       className="w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden font-bold"
                       style={{
                         background: " #118AB2",
+
                         color: "#fff",
+
                         fontSize: "1.15rem",
                       }}
                     >
@@ -1074,10 +1223,11 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       Cambiar foto
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/\*"
                         className="sr-only"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
+
                           if (file) setFotoPerfil(URL.createObjectURL(file));
                         }}
                       />
@@ -1085,17 +1235,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">                      <Field
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field
                         label="Nombres"
                         value={nombres}
                         onChange={setNombres}
                       />
+
                       <Field
                         label="Apellidos"
                         value={apellidos}
                         onChange={setApellidos}
                       />
                     </div>
+
                     <Field
                       label="Fecha de nacimiento"
                       value={fechaNacimiento}
@@ -1104,17 +1257,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     />
                   </div>
                 </div>
+
                 <Field
                   label="Correo electrónico"
                   value={emailActual}
                   disabled
                 />
+
                 <p
                   className="text-muted-foreground"
                   style={{ fontSize: "0.63rem", marginTop: "-8px" }}
                 >
                   El correo institucional no puede modificarse
                 </p>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field
                     label="Teléfono"
@@ -1122,8 +1278,10 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     onChange={setTelefono}
                     type="tel"
                   />
+
                   <Field label="Ciudad" value={ciudad} onChange={setCiudad} />
                 </div>
+
                 <div className="space-y-1.5">
                   <label
                     className="block text-foreground"
@@ -1139,7 +1297,9 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     style={
                       {
                         fontSize: "0.875rem",
+
                         "--tw-ring-color": BRONZE,
+
                         colorScheme: "light dark",
                       } as React.CSSProperties
                     }
@@ -1155,6 +1315,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                     ))}
                   </select>
                 </div>
+
                 <div className="flex justify-end pt-2">
                   <SaveButton saved={perfilSaved} label="Guardar información" />
                 </div>
@@ -1170,6 +1331,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   {pwdError && (
                     <div className="flex items-center gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive text-xs">
                       <AlertCircle size={14} className="shrink-0" />
+
                       <span>{pwdError}</span>
                     </div>
                   )}
@@ -1214,6 +1376,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                         <p
                           style={{
                             fontSize: "0.73rem",
+
                             color: strength.color,
                           }}
                         >
@@ -1246,10 +1409,13 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               type="button"
               onClick={() => setEditOpen(false)}
               className="rounded-xl border px-5 py-2.5 bg-red-500/5 transition-colors hover:bg-red-500/15 focus-visible:outline-none
+
               focus-visible:ring-2 focus-visible:ring-red-400
+
               text-xs font-medium"
               style={{
                 color: "#C96F78",
+
                 borderColor: "rgba(201,111,120,0.35)",
               }}
             >
