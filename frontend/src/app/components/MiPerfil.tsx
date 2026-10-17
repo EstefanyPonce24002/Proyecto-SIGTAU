@@ -164,6 +164,13 @@ const ESPECIALIDADES = [
   "Estructuras de Datos",
 ];
 
+const DESCRIPCIONES_ESPECIALIDADES: Record<string, string> = {
+  "Programación I":
+    "Fundamentos de programación, lógica computacional y desarrollo de soluciones mediante código.",
+  "Estructuras de Datos":
+    "Organización y manejo eficiente de datos utilizando listas, pilas, colas, árboles y otras estructuras.",
+};
+
 const DEPARTAMENTOS = [
   "Vicerrectoría Académica",
 
@@ -1073,9 +1080,14 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
                         <BookOpen size={19} />
                       </div>
-                      <p className="min-w-0 flex-1 text-sm font-medium text-card-foreground">
-                        {area}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-card-foreground">
+                          {area}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {DESCRIPCIONES_ESPECIALIDADES[area]}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
