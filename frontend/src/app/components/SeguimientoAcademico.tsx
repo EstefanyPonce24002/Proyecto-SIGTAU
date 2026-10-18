@@ -11,7 +11,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
-  pendientesTutor,
+  historialTutor,
   registrarSeguimiento,
   type Sesion,
 } from "../lib/sesiones";
@@ -53,7 +53,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   const cargar = useCallback(() => {
     setCargando(true);
     setLoadError(null);
-    pendientesTutor(idTutor)
+    historialTutor(idTutor)
       .then((data) => {
         setSesiones(data);
         const elegibles = data.filter((s) => s.estado === "APROBADA");
