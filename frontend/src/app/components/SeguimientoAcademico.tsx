@@ -269,37 +269,78 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                   className="border-b border-border px-5 py-5 sm:px-6"
                   style={{
                     background:
-                      "linear-gradient(135deg, color-mix(in srgb, var(--brand-blue) 8%, transparent), color-mix(in srgb, var(--brand-blue) 2%, transparent))",
+                      "linear-gradient(135deg, color-mix(in srgb, var(--brand-blue) 10%, transparent), color-mix(in srgb, var(--brand-blue) 2%, transparent))",
                   }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-white"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--brand-blue-dark), var(--brand-blue))",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      {iniciales(sesion.estudianteNombre)}
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div
+                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, var(--brand-blue-dark), var(--brand-blue))",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {iniciales(sesion.estudianteNombre)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-semibold text-card-foreground">
+                          {sesion.estudianteNombre}
+                        </p>
+                        <p className="truncate text-muted-foreground" style={{ fontSize: "0.8rem" }}>
+                          {sesion.asignaturaNombre}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground" style={{ fontSize: "0.72rem" }}>
+                            <Clock size={12} /> {formatFecha(sesion.fechaSesion)}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground" style={{ fontSize: "0.72rem" }}>
+                            <Clock size={12} /> {formatHora(sesion.horaInicio)}
+                          </span>
+                          <span className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground" style={{ fontSize: "0.72rem" }}>
+                            #{sesion.id}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-card-foreground">
-                        {sesion.estudianteNombre}
+
+                    <div className="shrink-0 sm:min-w-[220px]">
+                      <p className="mb-1.5 flex items-center gap-1.5 text-card-foreground" style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                        <User size={13} /> Asistencia <span className="text-destructive">*</span>
+                        <span className="font-normal text-muted-foreground">· Campo obligatorio</span>
                       </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{ fontSize: "0.8rem" }}
-                      >
-                        {sesion.asignaturaNombre}
-                      </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{ fontSize: "0.75rem" }}
-                      >
-                        {formatFecha(sesion.fechaSesion)} ·{" "}
-                        {formatHora(sesion.horaInicio)} · #{sesion.id}
-                      </p>
+                      <div className="grid grid-cols-2 rounded-xl border border-border bg-input-background p-1">
+                        <button
+                          type="button"
+                          onClick={() => setAsistio(true)}
+                          aria-pressed={asistio}
+                          className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 transition-colors"
+                          style={{
+                            background: asistio ? "rgba(16,185,129,0.14)" : "transparent",
+                            color: asistio ? "#10B981" : "var(--muted-foreground)",
+                            fontSize: "0.78rem",
+                            fontWeight: asistio ? 600 : 400,
+                          }}
+                        >
+                          <CheckCircle2 size={14} /> Asistió
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAsistio(false)}
+                          aria-pressed={!asistio}
+                          className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 transition-colors"
+                          style={{
+                            background: !asistio ? "var(--secondary)" : "transparent",
+                            color: !asistio ? "var(--foreground)" : "var(--muted-foreground)",
+                            fontSize: "0.78rem",
+                            fontWeight: !asistio ? 600 : 400,
+                          }}
+                        >
+                          <Circle size={14} /> No asistió
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -322,164 +363,111 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                     </div>
                   )}
 
-                  {/* Asistencia */}
-                  <div className="flex flex-col gap-3 rounded-xl border border-border bg-input-background p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <User size={16} className="text-muted-foreground" />
-                      <div>
-                        <p
-                          className="text-card-foreground"
-                          style={{ fontSize: "0.875rem" }}
-                        >
-                          Asistencia <span style={{ color: "#EF4444" }}>*</span>
-                        </p>
-                        <p
-                          className="text-muted-foreground"
-                          style={{ fontSize: "0.75rem" }}
-                        >
-                          Campo obligatorio
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAsistio(!asistio)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-all"
-                      style={{
-                        background: asistio
-                          ? "rgba(16,185,129,0.12)"
-                          : "var(--secondary)",
-                        color: asistio ? "#10B981" : "var(--muted-foreground)",
-                      }}
-                    >
-                      {asistio ? (
-                        <CheckCircle2 size={16} />
-                      ) : (
-                        <Circle size={16} />
-                      )}
-                      <span style={{ fontSize: "0.82rem" }}>
-                        {asistio ? "Asistió" : "No asistió"}
-                      </span>
-                    </button>
-                  </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-[0.85fr_1.25fr]">
+                    {/* Calificación */}
+                    <section className="min-w-0 space-y-4">
+                      <label className="flex items-center gap-2 text-card-foreground" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                        <TrendingUp size={14} className="text-brand-blue" />
+                        Calificación de progreso <span className="text-destructive">*</span>
+                      </label>
 
-                  {/* Observaciones */}
-                  <div className="space-y-1.5">
-                    <label
-                      className="flex items-center gap-2 text-card-foreground"
-                      style={{ fontSize: "0.875rem" }}
-                    >
-                      <BookOpen size={14} className="text-brand-blue" />{" "}
-                      Observaciones académicas
-                    </label>
-                    <textarea
-                      value={observaciones}
-                      onChange={(e) => setObservaciones(e.target.value)}
-                      rows={4}
-                      placeholder="Describe el desempeño del estudiante, temas abordados, avances y áreas de mejora..."
-                      className="w-full rounded-xl border border-border-strong bg-input-background text-card-foreground px-4 py-3 outline-none focus:border-primary focus:ring-2 focus:ring-ring resize-none placeholder:text-muted-foreground transition-all"
-                    />
-                    <p
-                      className="text-right text-muted-foreground"
-                      style={{ fontSize: "0.73rem" }}
-                    >
-                      {observaciones.length}/1000
-                    </p>
-                  </div>
-
-                  {/* Calificación */}
-                  <div className="space-y-3">
-                    <label
-                      className="flex items-center gap-2 text-card-foreground"
-                      style={{ fontSize: "0.875rem" }}
-                    >
-                      <TrendingUp size={14} className="text-brand-blue" />
-                      Calificación de progreso{" "}
-                      <span style={{ color: "#EF4444" }}>*</span>
-                      <span
-                        className="text-muted-foreground"
-                        style={{ fontSize: "0.75rem" }}
-                      >
-                        (0.0 – 10.0)
-                      </span>
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-300"
-                          style={{
-                            width: `${progressPct}%`,
-                            background:
-                              calificacion >= 7
-                                ? "#10B981"
-                                : calificacion >= 5
-                                  ? "#F59E0B"
-                                  : "#EF4444",
-                          }}
-                        />
+                      <div className="rounded-2xl border border-border bg-input-background px-4 py-3">
+                        <div className="flex items-end justify-between gap-3">
+                          <input
+                            type="number"
+                            min={0}
+                            max={10}
+                            step={0.1}
+                            required
+                            value={calInput}
+                            onChange={(e) => handleCalificacionChange(e.target.value)}
+                            aria-label="Calificación de progreso de 0 a 10"
+                            className="w-32 min-w-0 border-0 bg-transparent p-0 font-semibold leading-none text-emerald-500 outline-none focus:ring-0"
+                            style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontFamily: "var(--font-mono)" }}
+                          />
+                          <div className="pb-1 text-right">
+                            <p className="font-semibold" style={{ fontSize: "0.8rem", color: calificacion >= 9 ? "#3B82F6" : calificacion >= 7 ? "#10B981" : calificacion >= 5 ? "#F59E0B" : "#EF4444" }}>
+                              {calificacion >= 9 ? "Excelente" : calificacion >= 7 ? "Bueno" : calificacion >= 5 ? "Regular" : "Bajo"}
+                            </p>
+                            <p className="text-muted-foreground" style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)" }}>0.0 – 10.0</p>
+                          </div>
+                        </div>
                       </div>
+
                       <input
-                        type="number"
+                        type="range"
                         min={0}
                         max={10}
                         step={0.1}
-                        value={calInput}
-                        onChange={(e) =>
-                          handleCalificacionChange(e.target.value)
-                        }
-                        className="w-20 rounded-xl border border-border-strong bg-input-background text-center text-card-foreground px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-all"
-                        style={{
-                          fontSize: "0.95rem",
-                          fontFamily: "var(--font-mono)",
+                        value={calificacion}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setCalificacion(value);
+                          setCalInput(value.toFixed(1));
                         }}
+                        aria-label="Ajustar calificación de progreso"
+                        className="h-2 w-full cursor-pointer accent-emerald-500"
+                        style={{ accentColor: calificacion >= 7 ? "#10B981" : calificacion >= 5 ? "#F59E0B" : "#EF4444" }}
                       />
-                    </div>
-                    <div className="flex gap-2">
-                      {[
-                        { label: "Bajo", range: "0–4.9", color: "#EF4444" },
-                        { label: "Regular", range: "5–6.9", color: "#F59E0B" },
-                        { label: "Bueno", range: "7–8.9", color: "#10B981" },
-                        { label: "Excelente", range: "9–10", color: "#1E3A8A" },
-                      ].map((t) => (
-                        <div
-                          key={t.label}
-                          className="flex-1 rounded-lg p-2 text-center border border-border bg-input-background"
-                        >
-                          <div
-                            className="w-2 h-2 rounded-full mx-auto mb-1"
-                            style={{ background: t.color }}
-                          />
-                          <p
-                            style={{
-                              fontSize: "0.7rem",
-                              color: "var(--muted-foreground)",
-                            }}
-                          >
-                            {t.label}
-                          </p>
-                          <p
-                            style={{
-                              fontSize: "0.65rem",
-                              color: "var(--muted-foreground)",
-                              fontFamily: "var(--font-mono)",
-                            }}
-                          >
-                            {t.range}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: "Bajo", range: "0 – 4.9", color: "#EF4444", min: 0, max: 4.9 },
+                          { label: "Regular", range: "5 – 6.9", color: "#F59E0B", min: 5, max: 6.9 },
+                          { label: "Bueno", range: "7 – 8.9", color: "#10B981", min: 7, max: 8.9 },
+                          { label: "Excelente", range: "9 – 10", color: "#3B82F6", min: 9, max: 10 },
+                        ].map((t) => {
+                          const activo = calificacion >= t.min && calificacion <= t.max;
+                          return (
+                            <div
+                              key={t.label}
+                              className="rounded-xl border p-2.5 transition-colors"
+                              style={{
+                                borderColor: activo ? t.color : "var(--border)",
+                                background: activo ? `${t.color}18` : "var(--input-background)",
+                              }}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: t.color }} />
+                                <span className="text-card-foreground" style={{ fontSize: "0.78rem", fontWeight: 600 }}>{t.label}</span>
+                              </div>
+                              <p className="mt-1 pl-4 text-muted-foreground" style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono)" }}>{t.range}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    {/* Observaciones académicas */}
+                    <section className="flex min-w-0 flex-col space-y-2">
+                      <label htmlFor="observaciones-seguimiento" className="flex items-center gap-2 text-card-foreground" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                        <BookOpen size={14} className="text-brand-blue" />
+                        Observaciones académicas
+                      </label>
+                      <textarea
+                        id="observaciones-seguimiento"
+                        value={observaciones}
+                        onChange={(e) => setObservaciones(e.target.value.slice(0, 1000))}
+                        maxLength={1000}
+                        rows={10}
+                        placeholder="Describe el desempeño del estudiante, temas abordados, avances y áreas de mejora..."
+                        className="min-h-[220px] w-full flex-1 resize-none rounded-xl border border-border-strong bg-input-background px-4 py-3 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
+                      />
+                      <p className="text-right text-muted-foreground" style={{ fontSize: "0.73rem" }}>
+                        {observaciones.length}/1000
+                      </p>
+                    </section>
                   </div>
 
-                  <div className="flex gap-3 pt-1">
+                  <div className="border-t border-border pt-4">
                     <button
                       type="submit"
-                      disabled={saving}
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-primary-foreground transition-all hover active disabled focus-visible focus-visible focus-visible focus-visible"
-                      style={{ fontSize: "0.875rem" }}
+                      disabled={saving || !calInput.trim() || Number(calInput) < 0 || Number(calInput) > 10 || !Number.isFinite(Number(calInput))}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      style={{ fontSize: "0.9rem" }}
                     >
-                      {saving && <Loader2 size={16} className="animate-spin" />}
-                      {saving ? "Guardando..." : "Guardar seguimiento"}
+                      {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                      {saving ? "Guardando seguimiento..." : "Guardar seguimiento"}
                     </button>
                   </div>
                 </form>
