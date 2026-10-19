@@ -617,12 +617,13 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       type="button"
                       onClick={handleCancel}
                       disabled={saving}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
                       style={{
-                        fontSize: "0.875rem",
+                        fontSize: "0.95rem",
                         borderColor: "rgba(239,68,68,0.28)",
                         background: "rgba(239,68,68,0.08)",
                         color: "#EF4444",
+                        minWidth: "106px",
                       }}
                       onMouseEnter={(e) => {
                         if (!saving) {
@@ -647,16 +648,17 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         Number(calInput) > 10 ||
                         !Number.isFinite(Number(calInput))
                       }
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl px-6 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       style={{
-                        fontSize: "0.9rem",
-                        background: "#60A5FA",
+                        fontSize: "1rem",
+                        background: "#118ab2",
+                        minWidth: "200px",
                       }}
                     >
                       {/* Texto dinámico del botón */}
                       {saving
                         ? "Guardando seguimiento..."
-                        : "Guardar seguimiento"}
+                        : "Guardar información"}
                     </button>
                   </div>
                 </form>
