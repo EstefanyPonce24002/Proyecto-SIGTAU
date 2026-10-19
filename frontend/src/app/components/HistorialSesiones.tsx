@@ -65,7 +65,32 @@ const ESTADO_CONFIG: Record<
 // FUNCIONES AUXILIARES DE FORMATO
 function formatFecha(fechaISO: string): string {
   const [y, m, d] = fechaISO.split("-");
-  return `${d}/${m}/${y}`;
+  const meses = [
+    "",
+    "ene",
+    "feb",
+    "mar",
+    "abr",
+    "may",
+    "jun",
+    "jul",
+    "ago",
+    "sep",
+    "oct",
+    "nov",
+    "dic",
+  ];
+  return `${d} ${meses[Number(m)]} ${y}`;
+}
+
+function iniciales(nombre: string): string {
+  return nombre
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((palabra) => palabra[0])
+    .join("")
+    .toUpperCase();
 }
 
 function formatHora(horaISO: string): string {
@@ -410,7 +435,6 @@ export function HistorialSesiones({ idTutor }: Props) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("Todos");
-  const [filtroAsig, setFiltroAsig] = useState("Todas");
   const [detalle, setDetalle] = useState<Sesion | null>(null);
   const [reprogramar, setReprogramar] = useState<Sesion | null>(null);
 
@@ -435,16 +459,13 @@ export function HistorialSesiones({ idTutor }: Props) {
   }, [cargar]);
 
   // --- SECCIÓN 3: DATOS DERIVADOS ---
-  const asignaturas = [...new Set(sesiones.map((s) => s.asignaturaNombre))];
-
   const filtradas = sesiones.filter((s) => {
     const matchB =
       s.estudianteNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       s.asignaturaNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       String(s.id).includes(busqueda);
     const matchE = filtroEstado === "Todos" || s.estado === filtroEstado;
-    const matchA = filtroAsig === "Todas" || s.asignaturaNombre === filtroAsig;
-    return matchB && matchE && matchA;
+    return matchB && matchE;
   });
 
   // --- SECCIÓN 4: RENDERIZADO CONDICIONAL (LOADING / ERROR) ---
@@ -469,132 +490,74 @@ export function HistorialSesiones({ idTutor }: Props) {
 
   // --- SECCIÓN 5: RENDERIZADO PRINCIPAL ---
   return (
-    <div className="w-full space-y-6">
-      {/* ── Encabezado ── */}
-      <div>
-        <h2 className="text-foreground" style={{ fontSize: "1.5rem", fontWeight: 600 }}>
-          Historial de Sesiones
-        </h2>
-        <p className="text-muted-foreground mt-1" style={{ fontSize: "0.85rem" }}>
-          {sesiones.length} sesiones registradas
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-6xl space-y-3 text-[#F1F5F9]">
+      <h2 className="text-2xl font-semibold tracking-tight text-[#F1F5F9]">
+        Consulta y gestiona tus sesiones
+      </h2>
 
-      {/* ── Tarjetas de Resumen ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {(
-          ["COMPLETADA", "APROBADA", "CANCELADA", "RECHAZADA"] as EstadoSesion[]
-        ).map((e) => {
-          const count = sesiones.filter((s) => s.estado === e).length;
-          const cfg = ESTADO_CONFIG[e];
-          const activo = filtroEstado === e;
-          return (
-            <button
-              key={e}
-              onClick={() => setFiltroEstado(activo ? "Todos" : e)}
-              className={`bg-card rounded-xl border p-4 text-left transition-all hover:shadow-sm ${
-                activo ? "" : "border-border dark:border-[#2A4158]"
-              }`}
-              style={{ borderColor: activo ? cfg.color : undefined }}
-            >
-              <p
-                style={{
-                  fontSize: "1.4rem",
-                  fontFamily: "var(--font-mono)",
-                  color: cfg.color,
-                  lineHeight: 1,
-                }}
-              >
-                {count}
-              </p>
-              <p
-                className="text-muted-foreground mt-1"
-                style={{ fontSize: "0.73rem" }}
-              >
-                {cfg.label}
-              </p>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Filtros ── */}
-      <div className="flex flex-col gap-4 rounded-t-2xl border-b border-[#30465C] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        {/* Buscador con voz */}
-        <VoiceSearchInput
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar..."
-          className="flex-1 border-[#118AB2] dark:border-[#118AB2]"
-          style={{
-            fontSize: "0.875rem",
-            borderColor: "#118AB2",
-          } as React.CSSProperties}
-        />
-
-        {/* Selectores de Estado y Asignatura */}
-        {[
-          {
-            val: filtroEstado,
-            set: setFiltroEstado,
-            opts: ["Todos", ...Object.keys(ESTADO_CONFIG)],
-            label: "Estado",
-          },
-          {
-            val: filtroAsig,
-            set: setFiltroAsig,
-            opts: ["Todas", ...asignaturas],
-            label: "Asignatura",
-          },
-        ].map((f) => (
-          <div key={f.label} className="relative">
-            <select
-              value={f.val}
-              onChange={(e) => f.set(e.target.value)}
-              className="appearance-none rounded-xl border border-[#C9D8E6] bg-card text-foreground px-4 py-2.5 pr-9 outline-none focus:ring-2 transition-all dark:border-[#2A4158] dark:bg-[#1E2F42]"
-              style={
-                {
-                  fontSize: "0.875rem",
-                  "--tw-ring-color": "#118AB2",
-                } as React.CSSProperties
-              }
-            >
-              {f.opts.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
+      <section className="overflow-hidden rounded-2xl border border-[#30465C] bg-[#192B3B]">
+        <div className="flex flex-col gap-4 border-b border-[#30465C] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div>
+            <h3 className="text-base font-semibold text-[#F1F5F9]">
+              Sesiones registradas
+            </h3>
           </div>
-        ))}
-      </div>
 
-      {/* ── Tabla de Sesiones ── */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden dark:border-[#2A4158]">
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "640px" }}>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <div className="w-full sm:w-[260px]">
+              <VoiceSearchInput
+                value={busqueda}
+                onChange={setBusqueda}
+                placeholder="Buscar..."
+                className="min-w-0 flex-1 sm:w-64"
+                style={{
+                  fontSize: "0.8rem",
+                  borderColor: "#118AB2",
+                  "--tw-ring-color": "#118AB2",
+                } as React.CSSProperties}
+              />
+            </div>
+
+            <div className="relative w-full sm:w-[170px]">
+              <select
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+                className="h-[42px] w-full appearance-none rounded-2xl border border-[#30465C] bg-[#1D3043] px-4 py-3 pr-9 text-sm text-[#F1F5F9] outline-none transition-colors hover:border-[#118AB2] focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]/20"
+                style={{ fontSize: "0.8rem" }}
+                aria-label="Filtrar por estado"
+              >
+                <option value="Todos">Todos los estados</option>
+                {(Object.entries(ESTADO_CONFIG) as [EstadoSesion, (typeof ESTADO_CONFIG)[EstadoSesion]][]).map(([estado, config]) => (
+                  <option key={estado} value={estado}>
+                    {config.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A8B7C8]"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse text-left">
             {/* Cabecera de la tabla */}
             <thead>
-              <tr className="border-b border-border bg-amber-50 dark:border-[#2A4158] dark:bg-amber-950/20">
+              <tr className="border-b border-[#30465C] bg-[#192B3B]">
                 {[
                   "Fecha",
+                  "Hora",
                   "Asignatura",
                   "Estudiante",
                   "Calificación",
                   "Estado",
-                  "Ver",
+                  "Acciones",
                 ].map((h) => (
                   <th
                     key={h}
-                    className="text-left px-5 py-3 text-muted-foreground"
-                    style={{
-                      fontSize: "0.72rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                      fontWeight: 500,
-                    }}
+                    className="whitespace-nowrap px-5 py-4 text-xs font-medium text-[#A8B7C8]"
                   >
                     {h}
                   </th>
@@ -603,13 +566,12 @@ export function HistorialSesiones({ idTutor }: Props) {
             </thead>
 
             {/* Cuerpo de la tabla */}
-            <tbody className="divide-y divide-border dark:divide-[#2A4158]">
+            <tbody className="divide-y divide-[#30465C]">
               {filtradas.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
-                    className="text-center py-12 text-muted-foreground"
-                    style={{ fontSize: "0.875rem" }}
+                    colSpan={7}
+                    className="py-12 text-center text-sm text-[#A8B7C8]"
                   >
                     No se encontraron sesiones
                   </td>
@@ -618,53 +580,41 @@ export function HistorialSesiones({ idTutor }: Props) {
                 filtradas.map((s) => (
                   <tr
                     key={s.id}
-                    className="hover:bg-secondary/40 transition-colors cursor-pointer"
+                    className="cursor-pointer bg-[#1D3043] transition-colors hover:bg-[#24394D]"
                     onClick={() => setDetalle(s)}
                   >
-                    <td className="px-5 py-3.5">
-                      <p
-                        className="text-foreground"
-                        style={{ fontSize: "0.875rem" }}
-                      >
-                        {formatFecha(s.fechaSesion)}
-                      </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{
-                          fontSize: "0.73rem",
-                          fontFamily: "var(--font-mono)",
-                        }}
-                      >
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-[#F1F5F9]">
+                      {formatFecha(s.fechaSesion)}
+                    </td>
+
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-[#D5DEE8]">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock size={13} className="text-[#A8B7C8]" />
                         {formatHora(s.horaInicio)}
-                      </p>
+                      </span>
                     </td>
 
-                    <td className="px-5 py-3.5">
-                      <p
-                        className="text-foreground"
-                        style={{ fontSize: "0.875rem" }}
-                      >
+                    <td className="max-w-[220px] px-5 py-4 text-sm text-[#F1F5F9]">
+                      <span className="block truncate" title={s.asignaturaNombre}>
                         {s.asignaturaNombre}
-                      </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{
-                          fontSize: "0.73rem",
-                          fontFamily: "var(--font-mono)",
-                        }}
-                      >
-                        #{s.id}
-                      </p>
+                      </span>
                     </td>
 
-                    <td
-                      className="px-5 py-3.5 text-foreground"
-                      style={{ fontSize: "0.875rem" }}
-                    >
-                      {s.estudianteNombre}
+                    <td className="max-w-[240px] px-5 py-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#118AB2] text-[10px] font-semibold text-white">
+                          {iniciales(s.estudianteNombre)}
+                        </div>
+                        <span
+                          className="truncate text-sm text-[#F1F5F9]"
+                          title={s.estudianteNombre}
+                        >
+                          {s.estudianteNombre}
+                        </span>
+                      </div>
                     </td>
 
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-4">
                       {s.calificacionProgreso !== null &&
                       s.calificacionProgreso !== undefined ? (
                         <span
@@ -683,7 +633,7 @@ export function HistorialSesiones({ idTutor }: Props) {
                         </span>
                       ) : (
                         <span
-                          className="text-muted-foreground"
+                          className="text-[#A8B7C8]"
                           style={{ fontSize: "0.78rem" }}
                         >
                           —
@@ -691,19 +641,21 @@ export function HistorialSesiones({ idTutor }: Props) {
                       )}
                     </td>
 
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-4">
                       <EstadoBadge estado={s.estado} />
                     </td>
 
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-4">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDetalle(s);
                         }}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                        className="inline-flex items-center gap-2 rounded-xl border border-[#118AB2] bg-[#192B3B] px-3.5 py-2 text-xs font-medium text-[#20C5E8] transition-colors hover:bg-[#118AB2]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8]"
                       >
-                        <Eye size={15} />
+                        <Eye size={14} />
+                        Ver
                       </button>
                     </td>
                   </tr>
@@ -714,12 +666,12 @@ export function HistorialSesiones({ idTutor }: Props) {
         </div>
 
         {/* Pie de la tabla */}
-        <div className="px-5 py-3 border-t border-border dark:border-[#2A4158]">
-          <p className="text-muted-foreground" style={{ fontSize: "0.78rem" }}>
+        <div className="border-t border-[#30465C] px-5 py-3">
+          <p className="text-xs text-[#A8B7C8]">
             Mostrando {filtradas.length} de {sesiones.length} sesiones
           </p>
         </div>
-      </div>
+      </section>
 
       {/* ── Modal de Detalle ── */}
       {detalle && (
