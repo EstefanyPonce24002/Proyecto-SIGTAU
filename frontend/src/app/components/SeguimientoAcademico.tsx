@@ -617,24 +617,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       type="button"
                       onClick={handleCancel}
                       disabled={saving}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
-                      style={{
-                        fontSize: "0.95rem",
-                        borderColor: "rgba(239,68,68,0.28)",
-                        background: "rgba(239,68,68,0.08)",
-                        color: "#EF4444",
-                        minWidth: "106px",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!saving) {
-                          e.currentTarget.style.background = "rgba(239,68,68,0.16)";
-                          e.currentTarget.style.borderColor = "rgba(239,68,68,0.45)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(239,68,68,0.08)";
-                        e.currentTarget.style.borderColor = "rgba(239,68,68,0.28)";
-                      }}
+                      className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Cancelar
                     </button>
@@ -648,17 +631,13 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         Number(calInput) > 10 ||
                         !Number.isFinite(Number(calInput))
                       }
-                      className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl px-6 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       style={{
-                        fontSize: "1rem",
+                        fontSize: "0.875rem",
                         background: "#118ab2",
-                        minWidth: "200px",
                       }}
                     >
-                      {/* Texto dinámico del botón */}
-                      {saving
-                        ? "Guardando seguimiento..."
-                        : "Guardar información"}
+                      {saving ? "Guardando seguimiento..." : "Guardar información"}
                     </button>
                   </div>
                 </form>
