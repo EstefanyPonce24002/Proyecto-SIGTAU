@@ -211,23 +211,23 @@ function RechazarModal({
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-3">
-            {/* Botón Cancelar */}
+          <div className="flex items-center justify-end gap-3">
+            {/* Cancelar: botón secundario con rojo sutil */}
             <button
               type="button"
               onClick={onClose}
               disabled={enviando}
-              className="flex-1 rounded-xl border border-[#30465C] py-2.5 text-sm text-[#D5DEE8] hover:bg-[#24394D] disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-400 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 active:bg-red-500/25 active:text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
             >
               Cancelar
             </button>
 
-            {/* Botón Confirmar rechazo (muestra spinner si enviando) */}
+            {/* El rechazo es una acción destructiva, por eso conserva el rojo principal */}
             <button
               type="button"
               onClick={() => onConfirm(justificacion)}
               disabled={enviando}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm text-white hover:bg-red-700 disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-medium text-white transition-colors hover:bg-red-700 active:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
             >
               {enviando && <Loader2 size={15} className="animate-spin" />}
               Confirmar rechazo
