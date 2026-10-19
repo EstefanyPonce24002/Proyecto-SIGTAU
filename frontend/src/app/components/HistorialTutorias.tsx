@@ -394,25 +394,24 @@ function ConfirmarCancelModal({
         </div>
 
         {/* ---------- Botones de acción ---------- */}
-        <div className="flex gap-3 px-6 pb-6">
+        <div className="flex items-center justify-end gap-3 px-6 pb-6">
           {/* Volver: cierra el modal sin cancelar */}
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-border py-2.5 text-sm text-foreground hover:bg-secondary dark:border-[#2A4158]"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
           >
             Volver
           </button>
-          {/* Confirmar: se deshabilita y muestra spinner mientras se envía */}
+          {/* Confirmar cancelación: acción destructiva en rojo */}
           <button
             type="button"
             onClick={onConfirm}
             disabled={enviando}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm text-white disabled:opacity-70"
-            style={{ background: "#EF4444" }}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-medium text-white transition-colors hover:bg-red-700 active:bg-red-800 disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
           >
-            {enviando && <Loader2 size={14} className="animate-spin" />}Sí,
-            cancelar
+            {enviando && <Loader2 size={14} className="animate-spin" />}
+            Sí, cancelar
           </button>
         </div>
       </div>
