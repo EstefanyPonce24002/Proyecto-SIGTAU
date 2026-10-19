@@ -553,10 +553,10 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                             className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 transition-colors"
                             style={{
                               background: !asistio
-                                ? "var(--secondary)"
+                                ? "rgba(239,68,68,0.12)"
                                 : "transparent",
                               color: !asistio
-                                ? "var(--foreground)"
+                                ? "#EF4444"
                                 : "var(--muted-foreground)",
                               fontSize: "0.78rem",
                               fontWeight: !asistio ? 600 : 400,
