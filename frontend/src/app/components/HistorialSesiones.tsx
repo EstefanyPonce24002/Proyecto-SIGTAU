@@ -1,7 +1,6 @@
 // IMPORTACIONES
 import { useState, useEffect, useCallback } from "react";
 import {
-  Eye,
   ChevronDown,
   X,
   FileText,
@@ -402,8 +401,7 @@ export function HistorialSesiones({ idTutor }: Props) {
   const [cargando, setCargando] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("Todos");
-  const [filtroAsig, setFiltroAsig] = useState("Todas");
+  const [filtroEstado, setFiltroEstado] = useState("");
   const [detalle, setDetalle] = useState<Sesion | null>(null);
   const [reprogramar, setReprogramar] = useState<Sesion | null>(null);
 
@@ -428,16 +426,14 @@ export function HistorialSesiones({ idTutor }: Props) {
   }, [cargar]);
 
   // --- SECCIÓN 3: DATOS DERIVADOS ---
-  const asignaturas = [...new Set(sesiones.map((s) => s.asignaturaNombre))];
-
   const filtradas = sesiones.filter((s) => {
-    const matchB =
-      s.estudianteNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      s.asignaturaNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      String(s.id).includes(busqueda);
-    const matchE = filtroEstado === "Todos" || s.estado === filtroEstado;
-    const matchA = filtroAsig === "Todas" || s.asignaturaNombre === filtroAsig;
-    return matchB && matchE && matchA;
+    const textoBusqueda = busqueda.trim().toLocaleLowerCase();
+    const coincideBusqueda =
+      s.estudianteNombre.toLocaleLowerCase().includes(textoBusqueda) ||
+      s.asignaturaNombre.toLocaleLowerCase().includes(textoBusqueda);
+    const matchE =
+      !filtroEstado || filtroEstado === "Todos" || s.estado === filtroEstado;
+    return coincideBusqueda && matchE;
   });
 
   // --- SECCIÓN 4: RENDERIZADO CONDICIONAL (LOADING / ERROR) ---
@@ -466,118 +462,76 @@ export function HistorialSesiones({ idTutor }: Props) {
       {/* ── Encabezado ── */}
       <div>
         <h2 className="text-foreground" style={{ fontSize: "1.5rem", fontWeight: 600 }}>
-          Historial de Sesiones
+          Consulta y gestiona tus sesiones pasadas
         </h2>
-        <p className="text-muted-foreground mt-1" style={{ fontSize: "0.85rem" }}>
-          {sesiones.length} sesiones registradas
-        </p>
-      </div>
-
-      {/* ── Tarjetas de Resumen ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {(
-          ["COMPLETADA", "APROBADA", "CANCELADA", "RECHAZADA"] as EstadoSesion[]
-        ).map((e) => {
-          const count = sesiones.filter((s) => s.estado === e).length;
-          const cfg = ESTADO_CONFIG[e];
-          const activo = filtroEstado === e;
-          return (
-            <button
-              key={e}
-              onClick={() => setFiltroEstado(activo ? "Todos" : e)}
-              className={`bg-card rounded-xl border p-4 text-left transition-all hover:shadow-sm ${
-                activo ? "" : "border-border dark:border-[#2A4158]"
-              }`}
-              style={{ borderColor: activo ? cfg.color : undefined }}
-            >
-              <p
-                style={{
-                  fontSize: "1.4rem",
-                  fontFamily: "var(--font-mono)",
-                  color: cfg.color,
-                  lineHeight: 1,
-                }}
-              >
-                {count}
-              </p>
-              <p
-                className="text-muted-foreground mt-1"
-                style={{ fontSize: "0.73rem" }}
-              >
-                {cfg.label}
-              </p>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Filtros ── */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Buscador con voz */}
-        <VoiceSearchInput
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar..."
-          className="flex-1 border-[#118AB2] dark:border-[#118AB2]"
-          style={{
-            fontSize: "0.875rem",
-            borderColor: "#118AB2",
-          } as React.CSSProperties}
-        />
-
-        {/* Selectores de Estado y Asignatura */}
-        {[
-          {
-            val: filtroEstado,
-            set: setFiltroEstado,
-            opts: ["Todos", ...Object.keys(ESTADO_CONFIG)],
-            label: "Estado",
-          },
-          {
-            val: filtroAsig,
-            set: setFiltroAsig,
-            opts: ["Todas", ...asignaturas],
-            label: "Asignatura",
-          },
-        ].map((f) => (
-          <div key={f.label} className="relative">
-            <select
-              value={f.val}
-              onChange={(e) => f.set(e.target.value)}
-              className="appearance-none rounded-xl border border-[#C9D8E6] bg-card text-foreground px-4 py-2.5 pr-9 outline-none focus:ring-2 transition-all dark:border-[#2A4158] dark:bg-[#1E2F42]"
-              style={
-                {
-                  fontSize: "0.875rem",
-                  "--tw-ring-color": "#118AB2",
-                } as React.CSSProperties
-              }
-            >
-              {f.opts.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
-          </div>
-        ))}
       </div>
 
       {/* ── Tabla de Sesiones ── */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden dark:border-[#2A4158]">
+      <div className="overflow-hidden rounded-2xl border border-[#C9D8E6] bg-card dark:border-[#2A4158]">
         <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "640px" }}>
+          <table className="w-full" style={{ minWidth: "720px" }}>
             {/* Cabecera de la tabla */}
             <thead>
-              <tr className="border-b border-border bg-amber-50 dark:border-[#2A4158] dark:bg-amber-950/20">
+              <tr className="border-b border-[#C9D8E6] bg-[#F8FBFD] dark:border-[#2A4158] dark:bg-[#1E2F42]">
+                <th colSpan={6} className="px-4 py-4 sm:px-5">
+                  <div className="grid grid-cols-6 items-end gap-3">
+                    <div className="col-span-2 flex min-h-10 items-center text-left text-sm font-weight:600 text-[#17365D] dark:text-[#E2E8F0]">
+                      Últimas sesiones
+                    </div>
+                    <div className="col-span-2 col-start-4 min-w-0">
+                      <VoiceSearchInput
+                        value={busqueda}
+                        onChange={setBusqueda}
+                        placeholder="Buscar por estudiante o asignatura..."
+                        showVoice={false}
+                        className="min-w-0 border-[#118AB2] dark:border-[#118AB2]"
+                        style={{
+                          fontSize: "0.875rem",
+                          borderColor: "#118AB2",
+                          "--tw-ring-color": "#118AB2",
+                        } as React.CSSProperties}
+                      />
+                    </div>
+                    <div className="relative col-span-1 col-start-6 w-full">
+                      <select
+                          value={filtroEstado}
+                          onChange={(e) => setFiltroEstado(e.target.value)}
+                          aria-label="Filtrar por estado"
+                          className="w-full appearance-none rounded-xl border border-[#118AB2] bg-white px-4 py-2.5 pr-9 text-[#17365D] outline-none transition-all focus:ring-2 dark:bg-[#182A3A] dark:text-[#E2E8F0]"
+                          style={
+                            {
+                              fontSize: "0.875rem",
+                              "--tw-ring-color": "#118AB2",
+                            } as React.CSSProperties
+                          }
+                        >
+                          <option value="" hidden>
+                            Estado
+                          </option>
+                          {["Todos", ...Object.keys(ESTADO_CONFIG)].map((o) => (
+                            <option key={o} value={o}>
+                              {o !== "Todos"
+                                ? ESTADO_CONFIG[o as EstadoSesion].label
+                                : o}
+                            </option>
+                          ))}
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+              <tr className="border-b border-[#C9D8E6] bg-[#E5EEF6] dark:border-[#2A4158] dark:bg-[#182A3A]">
                 {[
                   "Fecha",
+                  "Hora",
                   "Asignatura",
                   "Estudiante",
                   "Calificación",
                   "Estado",
-                  "Ver",
                 ].map((h) => (
                   <th
                     key={h}
@@ -614,22 +568,15 @@ export function HistorialSesiones({ idTutor }: Props) {
                     className="hover:bg-secondary/40 transition-colors cursor-pointer"
                     onClick={() => setDetalle(s)}
                   >
-                    <td className="px-5 py-3.5">
-                      <p
-                        className="text-foreground"
-                        style={{ fontSize: "0.875rem" }}
-                      >
-                        {formatFecha(s.fechaSesion)}
-                      </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{
-                          fontSize: "0.73rem",
-                          fontFamily: "var(--font-mono)",
-                        }}
-                      >
+                    <td className="whitespace-nowrap px-5 py-3.5 text-foreground" style={{ fontSize: "0.875rem" }}>
+                      {formatFecha(s.fechaSesion)}
+                    </td>
+
+                    <td className="whitespace-nowrap px-5 py-3.5 text-foreground" style={{ fontSize: "0.875rem" }}>
+                      <span className="inline-flex items-center gap-2">
+                        <Clock size={14} className="shrink-0 text-white" />
                         {formatHora(s.horaInicio)}
-                      </p>
+                      </span>
                     </td>
 
                     <td className="px-5 py-3.5">
@@ -638,15 +585,6 @@ export function HistorialSesiones({ idTutor }: Props) {
                         style={{ fontSize: "0.875rem" }}
                       >
                         {s.asignaturaNombre}
-                      </p>
-                      <p
-                        className="text-muted-foreground"
-                        style={{
-                          fontSize: "0.73rem",
-                          fontFamily: "var(--font-mono)",
-                        }}
-                      >
-                        #{s.id}
                       </p>
                     </td>
 
@@ -688,17 +626,6 @@ export function HistorialSesiones({ idTutor }: Props) {
                       <EstadoBadge estado={s.estado} />
                     </td>
 
-                    <td className="px-5 py-3.5">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDetalle(s);
-                        }}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
-                      >
-                        <Eye size={15} />
-                      </button>
-                    </td>
                   </tr>
                 ))
               )}
