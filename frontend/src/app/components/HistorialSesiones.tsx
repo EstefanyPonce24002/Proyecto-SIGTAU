@@ -512,7 +512,7 @@ export function HistorialSesiones({ idTutor }: Props) {
       </div>
 
       {/* ── Filtros ── */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-4 rounded-t-2xl border-b border-[#30465C] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         {/* Buscador con voz */}
         <VoiceSearchInput
           value={busqueda}

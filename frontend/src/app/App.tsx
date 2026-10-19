@@ -184,6 +184,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Mi Perfil",
     icon: User,
     roles: ["estudiante", "tutor", "coordinador"],
+    showInNav: false,
   },
   {
     id: "ajustes",

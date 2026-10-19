@@ -1,3 +1,7 @@
+# IDEs
+.vscode/
+.idea/
+
 # Frontend - React / Vite
 frontend/node_modules/
 frontend/dist/
