@@ -171,6 +171,17 @@ export function SeguimientoAcademico({ idTutor }: Props) {
     }
   };
 
+  // Cancela la edición sin guardar y limpia los datos del formulario
+  const handleCancel = () => {
+    if (saving) return;
+    setObservaciones("");
+    setCalificacion(7.0);
+    setCalInput("7.0");
+    setAsistio(true);
+    setSaveError(null);
+    setSelectedId(null);
+  };
+
   // Render condicional: spinner mientras carga
   if (cargando) {
     return (
@@ -600,8 +611,32 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                     </section>
                   </div>
 
-                  {/* Botón de envío */}
-                  <div className="border-t border-border pt-4">
+                  {/* Acciones del formulario */}
+                  <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-border pt-4 sm:flex-row sm:items-center">
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      disabled={saving}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                      style={{
+                        fontSize: "0.875rem",
+                        borderColor: "rgba(239,68,68,0.28)",
+                        background: "rgba(239,68,68,0.08)",
+                        color: "#EF4444",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!saving) {
+                          e.currentTarget.style.background = "rgba(239,68,68,0.16)";
+                          e.currentTarget.style.borderColor = "rgba(239,68,68,0.45)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+                        e.currentTarget.style.borderColor = "rgba(239,68,68,0.28)";
+                      }}
+                    >
+                      Cancelar
+                    </button>
                     <button
                       type="submit"
                       // Deshabilita si: guardando, input vacío, fuera de rango o no numérico
@@ -612,8 +647,11 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         Number(calInput) > 10 ||
                         !Number.isFinite(Number(calInput))
                       }
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      style={{ fontSize: "0.9rem" }}
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      style={{
+                        fontSize: "0.9rem",
+                        background: "#60A5FA",
+                      }}
                     >
                       {/* Texto dinámico del botón */}
                       {saving
