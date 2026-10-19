@@ -361,7 +361,7 @@ function SaveButton({
   return (
     <button
       type="submit"
-      className="rounded-xl px-5 py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="inline-flex h-10 items-center justify-center rounded-xl px-5 text-sm font-medium text-white transition-colors hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       style={{
         background: "#118ab2",
         fontSize: "0.875rem",
@@ -1142,7 +1142,17 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                   </select>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditOpen(false);
+                      setPerfilError("");
+                    }}
+                    className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                  >
+                    Cancelar
+                  </button>
                   <SaveButton saved={perfilSaved} label="Guardar información" />
                 </div>
               </form>
@@ -1230,24 +1240,20 @@ export function MiPerfil({ rol, nombre, email }: Props) {
             )}
           </div>
 
-          <DialogFooter className="pt-3 flex-row justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => setEditOpen(false)}
-              className="rounded-xl border px-5 py-2.5 bg-red-500/5 transition-colors hover:bg-red-500/15 focus-visible:outline-none
-
-              focus-visible:ring-2 focus-visible:ring-red-400
-
-              text-xs font-medium"
-              style={{
-                color: "#C96F78",
-
-                borderColor: "rgba(201,111,120,0.35)",
-              }}
-            >
-              Cancelar
-            </button>
-          </DialogFooter>
+          {securityOnly && (
+            <DialogFooter className="pt-3 flex-row justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditOpen(false);
+                  setPwdError("");
+                }}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+              >
+                Cancelar
+              </button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
