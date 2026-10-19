@@ -357,13 +357,14 @@ function DetallesModal({
 
           {/* Solo si la solicitud está PENDIENTE se muestran botones de acción */}
           {sesion.estado === "PENDIENTE" && (
-            <div className="flex flex-col gap-3 border-t border-[#30465C] pt-4 sm:flex-row">
-              {/* Botón Aprobar con color #118AB2 */}
+            <div className="flex flex-col items-stretch justify-end gap-3 border-t border-[#30465C] pt-4 sm:flex-row sm:items-center">
+              {/* Aprobar: botón principal en azul turquesa */}
               <button
                 type="button"
                 onClick={onAprobar}
                 disabled={procesando}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#118AB2] py-3 text-sm font-medium text-white transition-colors hover:bg-[#0E6F8F] active:bg-[#0B5A75] disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-colors hover:bg-[#0E6F8F] active:bg-[#0B5A75] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40"
+                style={{ background: "#118AB2" }}
               >
                 {procesando ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -373,12 +374,12 @@ function DetallesModal({
                 Aprobar solicitud
               </button>
 
-              {/* Botón Rechazar */}
+              {/* Rechazar: estilo secundario rojo sutil con estado activo más intenso */}
               <button
                 type="button"
                 onClick={onRechazar}
                 disabled={procesando}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/60 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-400 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 active:bg-red-500/25 active:text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
               >
                 <X size={16} />
                 Rechazar solicitud
