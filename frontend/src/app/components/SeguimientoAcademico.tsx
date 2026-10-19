@@ -631,9 +631,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         Number(calInput) > 10 ||
                         !Number.isFinite(Number(calInput))
                       }
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium text-white transition-colors duration-200 hover:brightness-95 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" 
                       style={{
-                        fontSize: "0.875rem",
                         background: "#118ab2",
                       }}
                     >
