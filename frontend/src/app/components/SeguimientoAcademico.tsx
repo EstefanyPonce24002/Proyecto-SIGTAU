@@ -13,6 +13,7 @@ import {
   TrendingUp, // Icono de tendencia (calificación)
   Clock, // Icono de reloj (fecha del día / fecha de sesión)
   Info, // Icono de información (aviso)
+  X, // Botón para cerrar el aviso informativo
   Loader2, // Icono de spinner de carga
   AlertCircle, // Icono de error
 } from "lucide-react";
@@ -70,6 +71,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   const [loadError, setLoadError] = useState<string | null>(null);
   // ID de la sesión seleccionada en el panel izquierdo
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  // Controla la visibilidad del aviso con las reglas de seguimiento
+  const [showRulesNotice, setShowRulesNotice] = useState(false);
   // Estado booleano de asistencia (true = asistió)
   const [asistio, setAsistio] = useState(true);
   // Texto de observaciones académicas
@@ -213,23 +216,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
         </div>
       </div>
 
-      {/* Aviso informativo sobre las reglas de seguimiento */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-brand-blue/25 bg-brand-blue/5 px-4 py-3">
-        <Info size={14} className="mt-0.5 shrink-0 text-brand-blue" />
-        <p
-          className="text-text-secondary"
-          style={{ fontSize: "0.78rem", lineHeight: 1.5 }}
-        >
-          Solo puedes registrar seguimiento en sesiones{" "}
-          <strong className="text-brand-blue-text">APROBADAS</strong>. Al
-          guardar, el estado cambia a{" "}
-          <strong className="text-emerald-600 dark:text-emerald-400">
-            COMPLETADA
-          </strong>{" "}
-          y las observaciones se envían al estudiante.
-        </p>
-      </div>
-
       {/* Condicional: sin sesiones elegibles o grid con lista + formulario */}
       {elegibles.length === 0 ? (
         // Estado vacío: todas las sesiones ya completadas
@@ -268,7 +254,10 @@ export function SeguimientoAcademico({ idTutor }: Props) {
               return (
                 <button
                   key={s.id}
-                  onClick={() => setSelectedId(s.id)} // Cambia la selección
+                  onClick={() => {
+                    setSelectedId(s.id); // Cambia la sesión seleccionada
+                    setShowRulesNotice(true); // Muestra las reglas al abrir una tarjeta
+                  }}
                   className="w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
                     // Fondo del color de tarjeta si está seleccionada
@@ -636,6 +625,52 @@ export function SeguimientoAcademico({ idTutor }: Props) {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {/* Ventana emergente con las reglas de seguimiento */}
+      {showRulesNotice && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setShowRulesNotice(false)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reglas-seguimiento-titulo"
+            className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 pr-14 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Cerrar aviso informativo"
+              onClick={() => setShowRulesNotice(false)}
+              className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <X size={18} />
+            </button>
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue">
+                <Info size={18} />
+              </div>
+              <div>
+                <h3
+                  id="reglas-seguimiento-titulo"
+                  className="text-base font-semibold text-card-foreground"
+                >
+                  Reglas de seguimiento
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                  Solo puedes registrar seguimiento en sesiones{" "}
+                  <strong className="text-brand-blue-text">APROBADAS</strong>.
+                  Al guardar, el estado cambia a{" "}
+                  <strong className="text-emerald-600 dark:text-emerald-400">
+                    COMPLETADA
+                  </strong>{" "}
+                  y las observaciones se envían al estudiante.
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
       )}
     </div>
