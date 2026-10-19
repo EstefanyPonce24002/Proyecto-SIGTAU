@@ -366,11 +366,6 @@ function DetallesModal({
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-colors hover:bg-[#0E6F8F] active:bg-[#0B5A75] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40"
                 style={{ background: "#118AB2" }}
               >
-                {procesando ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Check size={16} />
-                )}
                 Aprobar solicitud
               </button>
 
@@ -381,7 +376,6 @@ function DetallesModal({
                 disabled={procesando}
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-400 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 active:bg-red-500/25 active:text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
               >
-                <X size={16} />
                 Rechazar solicitud
               </button>
             </div>

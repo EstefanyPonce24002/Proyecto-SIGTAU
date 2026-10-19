@@ -205,7 +205,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
   // Render principal
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       {/* Cabecera con título y fecha actual */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -214,16 +214,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
               Documenta la asistencia y el progreso académico de cada estudiante
             </h2>
           </div>
-        </div>
-        {/* Badge con la fecha actual */}
-        <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm">
-          <Clock size={14} className="text-muted-foreground" />
-          <span
-            className="text-muted-foreground"
-            style={{ fontSize: "0.82rem" }}
-          >
-            {new Date().toLocaleDateString("es-SV")}
-          </span>
         </div>
       </div>
 
@@ -386,7 +376,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
                             style={{ fontSize: "0.72rem" }}
                           >
-                            <Clock size={12} />{" "}
                             {formatFecha(sesion.fechaSesion)}
                           </span>
                           <span
