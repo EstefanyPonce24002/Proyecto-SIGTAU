@@ -205,7 +205,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
   // Render principal
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       {/* Cabecera con título y fecha actual */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -222,7 +222,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
         // Estado vacío: todas las sesiones ya completadas
         <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <CheckCircle2 size={32} className="mx-auto mb-3 text-brand-blue" />
-          <p className="text-foreground" style={{ fontSize: "0.95rem" }}>
+          <p className="text-foreground" style={{ fontSize: "1rem" }}>
             Sin sesiones pendientes de cierre
           </p>
           <p
@@ -233,15 +233,16 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </p>
         </div>
       ) : (
-        // Grid de 5 columnas: 2 para lista, 3 para formulario
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+        // Grid de 6 columnas: 2 para lista, 4 para formulario
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 lg:grid-cols-6">
           {/* Columna izquierda: Lista de sesiones pendientes */}
-          <div className="lg:col-span-2 space-y-2">
+          {/* Columna izquierda: Lista de sesiones pendientes */}
+          <div className="lg:col-span-2 space-y-2 lg:pr-5">
             {/* Etiqueta de la lista */}
             <p
               className="text-muted-foreground px-1"
               style={{
-                fontSize: "0.72rem",
+                fontSize: "0.75rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
               }}
@@ -332,7 +333,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </div>
 
           {/* Columna derecha: Panel del formulario */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4 min-w-0">
             {sesion && (
               <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                 {/* Cabecera del panel con datos del estudiante y toggle de asistencia */}
@@ -376,6 +377,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
                             style={{ fontSize: "0.72rem" }}
                           >
+                            <Clock size={12} />{" "}
                             {formatFecha(sesion.fechaSesion)}
                           </span>
                           <span
@@ -620,12 +622,14 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         Number(calInput) > 10 ||
                         !Number.isFinite(Number(calInput))
                       }
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium text-white transition-colors duration-200 hover:brightness-95 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" 
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium text-white transition-colors duration-200 hover:brightness-95 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       style={{
                         background: "#118ab2",
                       }}
                     >
-                      {saving ? "Guardando seguimiento..." : "Guardar información"}
+                      {saving
+                        ? "Guardando seguimiento..."
+                        : "Guardar información"}
                     </button>
                   </div>
                 </form>
