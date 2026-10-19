@@ -55,15 +55,20 @@ function NuevaAsignaturaModal({ onCreated, onClose }: { onCreated: () => void; o
               className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
               style={{ fontSize: "0.875rem", "--tw-ring-color": "#10B981" } as React.CSSProperties} />
           </div>
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 rounded-xl border border-border py-2.5 text-foreground hover:bg-secondary transition-all"
-              style={{ fontSize: "0.875rem" }}>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+            >
               Cancelar
             </button>
-            <button type="submit" disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-70"
-              style={{ background: "linear-gradient(135deg, #1E3A8A, #3B82F6)", fontSize: "0.875rem" }}>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-colors hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              style={{ background: "#118AB2" }}
+            >
               {saving && <Loader2 size={14} className="animate-spin" />}
               Crear
             </button>
