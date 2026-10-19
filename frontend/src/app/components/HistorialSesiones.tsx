@@ -379,13 +379,20 @@ function ReprogramarModal({
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
-        <div className="flex gap-3 mt-6">
-          <button onClick={onClose} className="flex-1 rounded-xl border border-border py-2.5 text-sm">Cancelar</button>
+        <div className="flex items-center justify-end gap-3 mt-6">
           <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
             onClick={guardar}
             disabled={guardando || !seleccionado}
-            className="flex-1 rounded-xl py-2.5 text-sm font-medium text-white disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg, #1E3A8A, #3B82F6)" }}
+            className="inline-flex h-10 items-center justify-center rounded-xl px-5 text-sm font-medium text-white transition-colors hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            style={{ background: "#118AB2" }}
           >
             {guardando ? "Guardando..." : "Reprogramar"}
           </button>
