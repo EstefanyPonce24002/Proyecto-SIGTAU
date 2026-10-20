@@ -1,24 +1,19 @@
-// Importación de hooks de React
 import { useCallback, useEffect, useMemo, useState } from "react";
-// Importación de iconos de lucide-react
 import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  CalendarDays,
-  Clock3,
 } from "lucide-react";
-// Importación de funciones de la API y tipos
 import { historialTutor, type Sesion } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
 
-// Interfaz de propiedades del componente
 interface Props {
-  idTutor: number; // ID del tutor
-  compact?: boolean; // Define si se muestra en modo compacto (sin cabecera grande)
+  idTutor: number;
+  compact?: boolean;
+  diaSemanaEnfocado?: number | null;
+  onDiaSemanaEnfocado?: (dia: number | null) => void;
 }
 
-// Array con los nombres de los meses en español
 const MESES = [
   "Enero",
   "Febrero",
@@ -34,49 +29,29 @@ const MESES = [
   "Diciembre",
 ];
 
-// Función que convierte un objeto Date a string "YYYY-MM-DD"
 function isoDate(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
-// 👇 CORRECCIÓN: Función mejorada para agregar a.m. / p.m. a la hora
-function formatHora(horaISO: string): string {
-  if (!horaISO) return "";
-
-  try {
-    // Separa la hora y los minutos del string (ej. "14:30:00" -> ["14", "30"])
-    const [horas, minutos] = horaISO.split(":");
-
-    // Crea un objeto Date temporal
-    const fecha = new Date();
-    fecha.setHours(Number(horas), Number(minutos), 0, 0);
-
-    // Utiliza Intl.DateTimeFormat para formatear con hour12: true
-    return new Intl.DateTimeFormat("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(fecha);
-  } catch (error) {
-    // Si hay un error de formato, devuelve los primeros 5 caracteres (ej. "14:30")
-    return horaISO.slice(0, 5);
-  }
+function formatHora(hora: string) {
+  return hora.slice(0, 5);
 }
 
-// Componente principal del Calendario
-export function CalendarioTutor({ idTutor, compact = false }: Props) {
-  // Estado para el mes que se está visualizando
+export function CalendarioTutor({
+  idTutor,
+  compact = false,
+  diaSemanaEnfocado = null,
+  onDiaSemanaEnfocado,
+}: Props) {
   const [mes, setMes] = useState(() => new Date());
-  // Estado para guardar las sesiones del tutor
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
-  // Estado de carga
   const [cargando, setCargando] = useState(true);
-  // Estado para errores de carga
   const [error, setError] = useState<string | null>(null);
-  // Estado para el día seleccionado en el calendario
   const [diaSeleccionado, setDiaSeleccionado] = useState<string | null>(null);
 
-  // Función memorizada para cargar las sesiones del tutor
   const cargar = useCallback(() => {
     setCargando(true);
     setError(null);
@@ -93,30 +68,23 @@ export function CalendarioTutor({ idTutor, compact = false }: Props) {
       .finally(() => setCargando(false));
   }, [idTutor]);
 
-  // Carga las sesiones al montar el componente
   useEffect(() => {
     cargar();
   }, [cargar]);
 
-  // Memoriza el cálculo de los días del mes para la cuadrícula
   const dias = useMemo(() => {
     const year = mes.getFullYear();
     const month = mes.getMonth();
     const first = new Date(year, month, 1);
-    // Calcula en qué día de la semana empieza el mes (0 = Lunes, 6 = Domingo)
     const start = (first.getDay() + 6) % 7;
-    // Obtiene el último día del mes
     const total = new Date(year, month + 1, 0).getDate();
 
-    // Crea un array con los espacios vacíos al inicio
     const cells: (number | null)[] = Array(start).fill(null);
 
-    // Agrega los días del 1 al total
     for (let d = 1; d <= total; d++) {
       cells.push(d);
     }
 
-    // Rellena con nulos hasta completar las semanas (múltiplos de 7)
     while (cells.length % 7) {
       cells.push(null);
     }
@@ -124,260 +92,202 @@ export function CalendarioTutor({ idTutor, compact = false }: Props) {
     return cells;
   }, [mes]);
 
-  // Filtra las sesiones que pertenecen al mes actual
-  const sesionesMes = sesiones.filter((s) => {
-    const d = new Date(s.fechaSesion + "T12:00:00");
-    return (
-      d.getFullYear() === mes.getFullYear() && d.getMonth() === mes.getMonth()
-    );
-  });
-
-  // Filtra las sesiones del día seleccionado
   const sesionesDia = diaSeleccionado
-    ? sesiones.filter((s) => s.fechaSesion === diaSeleccionado)
+    ? sesiones
+        .filter((s) => s.fechaSesion === diaSeleccionado)
+        .sort((a, b) => a.horaInicio.localeCompare(b.horaInicio))
     : [];
+  const hoy = isoDate(new Date());
+  const etiquetasDias = compact
+    ? ["L", "M", "M", "J", "V", "S", "D"]
+    : ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-  // Render de carga
   if (cargando) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-muted-foreground" />
+      <div className={`flex justify-center ${compact ? "py-12" : "py-20"}`}>
+        <Loader2 size={24} className={`animate-spin ${compact ? "text-[#20C5E8]" : "text-muted-foreground"}`} />
       </div>
     );
   }
 
-  // Render de error
   if (error) {
     return (
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-sm text-destructive">
+      <div className={`p-6 text-sm ${compact ? "text-red-400" : "rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive"}`}>
         {error}
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-4">
-      {/* Cabecera (solo si no es modo compacto) */}
-      {!compact && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Mi calendario
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Consulta tus tutorías programadas y revisa cada jornada.
-            </p>
-          </div>
-          <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm">
-            <Clock3 size={16} className="text-brand-blue" />
-            <span>
-              <strong className="text-foreground">{sesionesMes.length}</strong>{" "}
-              sesiones este mes
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Cabecera compacta */}
+    <div className={compact ? "min-w-0 p-3 sm:p-4" : "w-full space-y-5"}>
+      {!compact && <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mi calendario</h2><p className="mt-1 text-sm text-muted-foreground">Consulta tus tutorías programadas y revisa cada jornada.</p></div></div>}
       {compact && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue">
-              <CalendarDays size={20} />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-foreground">
-                Visualiza tus tutorías por día y fecha
-              </h3>
-            </div>
-          </div>
-          <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs text-muted-foreground shadow-sm sm:text-sm">
-            <Clock3 size={14} className="text-brand-blue" />
-            <span>
-              <strong className="text-foreground">{sesionesMes.length}</strong>{" "}
-              sesiones este mes
-            </span>
+        <div className="-mx-3 -mt-3 mb-3 flex min-h-14 items-center justify-between gap-3 border-b border-[#30465C] bg-[#192B3B] px-4 py-2 sm:-mx-4 sm:-mt-4 sm:px-5">
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold text-[#F1F5F9]">Calendario</h3>
+            <p className="text-xs text-[#A8B7C8]">Visualiza tus tutorías por día y fecha</p>
           </div>
         </div>
       )}
 
-      {/* Contenedor principal del calendario */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        {/* Encabezado con navegación de mes */}
+      <div className={compact ? "w-full min-w-0 overflow-hidden rounded-lg border border-[#30465C] bg-[#1D3043]" : "overflow-hidden rounded-2xl border border-border bg-card shadow-sm"}>
+        {/* Encabezado del calendario */}
         <div
-          className="flex items-center justify-between border-b border-border px-2 py-2 sm:px-4 sm:py-3"
+          className={`flex h-11 items-center justify-center gap-4 border-b px-2 ${compact ? "border-[#30465C] bg-[#1D3043]" : "border-border px-4 sm:px-5"}`}
           style={{
-            background:
-              "color-mix(in srgb, var(--brand-blue) 10%, var(--card))",
-            color: "var(--foreground)",
+            ...(!compact ? {
+              background: "color-mix(in srgb, var(--brand-blue) 10%, var(--card))",
+              color: "var(--foreground)",
+            } : {}),
           }}
         >
           <button
             onClick={() => {
-              // Retrocede un mes
               setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1));
               setDiaSeleccionado(null);
             }}
             aria-label="Mes anterior"
-            className="rounded-lg border border-border bg-card p-1.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-2"
+            className={`rounded-md p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 ${compact ? "text-[#A8B7C8] hover:bg-[#24394D] focus-visible:ring-[#20C5E8]" : "border border-border bg-card text-foreground hover:bg-secondary focus-visible:ring-ring"}`}
           >
-            <ChevronLeft size={16} className="sm:hidden" />
-            <ChevronLeft size={18} className="hidden sm:block" />
+            <ChevronLeft size={18} />
           </button>
 
           <h3
-            className="text-sm font-semibold sm:text-base"
-            style={{ color: "var(--foreground)" }}
+            className={`text-sm font-semibold ${compact ? "text-[#F1F5F9]" : "text-base text-foreground sm:text-lg"}`}
           >
             {MESES[mes.getMonth()]} {mes.getFullYear()}
           </h3>
 
           <button
             onClick={() => {
-              // Avanza un mes
               setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1));
               setDiaSeleccionado(null);
             }}
             aria-label="Mes siguiente"
-            className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-2"
+            className={`rounded-md p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 ${compact ? "text-[#A8B7C8] hover:bg-[#24394D] focus-visible:ring-[#20C5E8]" : "text-foreground hover:bg-secondary focus-visible:ring-ring"}`}
           >
-            <ChevronRight size={16} className="sm:hidden" />
-            <ChevronRight size={18} className="hidden sm:block" />
+            <ChevronRight size={18} />
           </button>
         </div>
 
-        {/* Días de la semana (Lun - Dom) */}
-        <div className="grid grid-cols-7 border-b border-border">
-          {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) => (
+        {/* Días de la semana */}
+        <div className={`grid grid-cols-7 border-b ${compact ? "border-[#30465C] bg-[#202B3A]" : "border-border"}`}>
+          {etiquetasDias.map((d, index) => (
             <div
-              key={d}
-              className="px-1 py-1 text-center text-[0.6rem] font-medium text-muted-foreground sm:px-2 sm:py-1.5 sm:text-[0.7rem]"
+              key={`${d}-${index}`}
+              onMouseEnter={() => onDiaSemanaEnfocado?.(index)}
+              title={["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][index]}
+              className={`px-1 py-1.5 text-center text-[11px] font-medium transition-colors ${compact ? (diaSemanaEnfocado === index ? "bg-[#20C5E8]/10 text-[#20C5E8]" : "text-[#A8B7C8]") : (diaSemanaEnfocado === index ? "bg-brand-blue/10 text-brand-blue" : "text-muted-foreground")}`}
             >
               {d}
             </div>
           ))}
         </div>
 
-        {/* Cuadrícula de días */}
-        <div className="grid grid-cols-7">
+        {/* Cuadrícula del calendario */}
+        <div className={`grid grid-cols-7 ${compact ? "gap-px bg-[#3A4656]" : ""}`}>
           {dias.map((dia, i) => {
-            // Renderiza un espacio vacío si no hay día (inicio o fin de mes)
             if (!dia) {
               return (
                 <div
                   key={i}
-                  className="min-h-[52px] border-b border-r border-border bg-secondary/20 sm:min-h-[72px]"
+                  className={compact ? "h-12 bg-[#293646] sm:h-14" : "min-h-20 border-b border-r border-border bg-secondary/20 sm:min-h-28"}
                 />
               );
             }
 
-            // Fecha en formato ISO del día actual de la iteración
             const fecha = isoDate(
               new Date(mes.getFullYear(), mes.getMonth(), dia),
             );
 
-            // Filtra las sesiones que coinciden con este día
             const eventos = sesiones.filter((s) => s.fechaSesion === fecha);
+
             const seleccionado = diaSeleccionado === fecha;
+            const fechaDiaSemana = (new Date(mes.getFullYear(), mes.getMonth(), dia).getDay() + 6) % 7;
+            const esHoy = fecha === hoy;
+            const diaEnfocado = diaSemanaEnfocado === fechaDiaSemana;
 
             return (
               <button
                 key={fecha}
                 onClick={() => setDiaSeleccionado(fecha)}
+                onMouseEnter={() => onDiaSemanaEnfocado?.(fechaDiaSemana)}
                 aria-pressed={seleccionado}
-                className={`min-h-[52px] border-b border-r border-border p-1 text-left align-top transition-colors hover:bg-secondary/50 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:min-h-[72px] sm:p-1.5 ${
-                  seleccionado
-                    ? "bg-brand-blue/10 ring-1 ring-inset ring-brand-blue/40"
-                    : "bg-card"
-                }`}
+                aria-label={`${new Date(mes.getFullYear(), mes.getMonth(), dia).toLocaleDateString("es-SV")}${eventos.length ? `, ${eventos.length} sesiones` : ""}`}
+                className={`relative ${compact ? "h-12 p-1 sm:h-14 sm:p-1.5" : "min-h-20 p-1.5 sm:min-h-28 sm:p-2.5"} text-left align-top transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${compact ? "focus-visible:ring-[#20C5E8]" : "border-b border-r border-border focus-visible:ring-ring"} ${seleccionado ? (compact ? "bg-[#118AB2]/30 ring-1 ring-inset ring-[#20C5E8]" : "bg-brand-blue/10 ring-1 ring-inset ring-brand-blue/50") : diaEnfocado ? (compact ? "bg-[#2A3A4E]" : "bg-brand-blue/5") : compact ? "bg-[#202B3A]" : "bg-card"} ${compact ? (seleccionado ? "hover:bg-[#118AB2]/30" : "hover:bg-[#2A3A4E]") : (seleccionado ? "hover:bg-brand-blue/10" : "hover:bg-secondary/50")}`}
               >
                 {/* Número del día */}
                 <span
-                  className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full text-[0.65rem] font-semibold sm:h-6 sm:min-w-6 sm:text-xs ${
-                    seleccionado ? "text-white" : "text-foreground"
+                  className={`relative z-[1] inline-flex h-6 min-w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                    esHoy ? "text-white" : compact ? "text-[#F1F5F9]" : "text-foreground"
                   }`}
-                  style={
-                    seleccionado ? { backgroundColor: "#118AB2" } : undefined
-                  }
+                  style={esHoy ? { backgroundColor: "#118AB2" } : undefined}
                 >
                   {dia}
                 </span>
 
-                {/* Lista de eventos (máximo 2 visibles) */}
-                <div className="mt-0.5 space-y-0.5">
-                  {eventos.slice(0, 2).map((s) => (
-                    <div
-                      key={s.id}
-                      className="truncate rounded px-1 py-0.5 text-[0.55rem] font-medium sm:text-[0.6rem]"
-                      style={{
-                        border: "1px solid rgba(17,138,178,0.28)",
-                        backgroundColor: "rgba(17,138,178,0.14)",
-                        color: "var(--foreground)",
-                      }}
-                    >
-                      {/* Muestra la hora formateada y el nombre de la asignatura */}
-                      {formatHora(s.horaInicio)} · {s.asignaturaNombre}
-                    </div>
-                  ))}
-
-                  {/* Indicador si hay más de 2 eventos */}
-                  {eventos.length > 2 && (
-                    <p className="text-[0.55rem] text-muted-foreground sm:text-[0.6rem]">
-                      +{eventos.length - 2} más
-                    </p>
-                  )}
-                </div>
+                {eventos.length > 0 && (
+                  <span className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1" aria-hidden="true">
+                    {compact ? (
+                      <>
+                        {eventos.slice(0, 3).map((s) => <span key={s.id} className="h-1.5 w-1.5 rounded-full bg-[#20C5E8]" />)}
+                        {eventos.length > 3 && <span className="text-[9px] leading-none text-[#A8B7C8]">+{eventos.length - 3}</span>}
+                      </>
+                    ) : <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Panel de detalle del día seleccionado */}
-      <div className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
-        <h3 className="mb-2 text-xs font-semibold text-foreground sm:text-sm">
-          {diaSeleccionado
-            ? `Sesiones del ${new Date(
-                diaSeleccionado + "T12:00:00",
-              ).toLocaleDateString("es-SV")}`
-            : "Selecciona un día para ver sus detalles completos"}
+      {/* Detalle del día seleccionado */}
+      {diaSeleccionado && <div className={compact ? "mt-3 w-full border-t border-[#30465C] pt-3" : "rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"}>
+        <h3 className={`mb-2 text-sm font-semibold sm:text-base ${compact ? "text-[#F1F5F9]" : "text-foreground"}`}>
+          Sesiones del {new Date(diaSeleccionado + "T12:00:00").toLocaleDateString("es-SV")}
         </h3>
 
         {diaSeleccionado && sesionesDia.length === 0 ? (
-          <p className="text-xs text-muted-foreground sm:text-sm">
+          <p className={`text-sm ${compact ? "text-[#A8B7C8]" : "text-muted-foreground"}`}>
             No hay sesiones para este día.
           </p>
         ) : diaSeleccionado ? (
-          <div className="space-y-1.5 sm:space-y-2">
+          <div className="space-y-2">
             {sesionesDia.map((s) => (
               <div
                 key={s.id}
-                className="flex flex-col gap-1 rounded-xl border border-border bg-secondary/50 p-2 sm:flex-row sm:items-center sm:justify-between sm:p-2.5"
+                className={`flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${compact ? "border-[#30465C] bg-[#1D3043]" : "border-border bg-secondary/50"}`}
               >
                 <div>
-                  <p className="text-xs font-medium text-foreground sm:text-sm">
+                  <p className={`text-sm font-medium ${compact ? "text-[#F1F5F9]" : "text-foreground"}`}>
                     {s.asignaturaNombre}
                   </p>
 
-                  <p className="text-[0.65rem] text-muted-foreground sm:text-xs">
-                    {/* Muestra el estudiante y el rango de horas con a.m./p.m. */}
+                  <p className={`text-xs ${compact ? "text-[#A8B7C8]" : "text-muted-foreground"}`}>
                     {s.estudianteNombre} · {formatHora(s.horaInicio)}–
                     {formatHora(s.horaFin)}
                   </p>
+                  {s.descripcionDificultades && (
+                    <p className={`mt-1 text-xs ${compact ? "text-[#A8B7C8]" : "text-muted-foreground"}`}>
+                      {s.descripcionDificultades}
+                    </p>
+                  )}
+                  {s.observacionesTutor && (
+                    <p className={`mt-1 text-xs ${compact ? "text-[#A8B7C8]" : "text-muted-foreground"}`}>
+                      Observaciones: {s.observacionesTutor}
+                    </p>
+                  )}
                 </div>
 
-                <span className="w-fit rounded-full border border-border bg-card px-2 py-0.5 text-[0.65rem] font-medium text-muted-foreground sm:px-2.5 sm:py-1 sm:text-xs">
+                <span className={`w-fit rounded-full border px-2.5 py-1 text-xs font-medium ${compact ? "border-[#30465C] bg-[#192B3B] text-[#A8B7C8]" : "border-border bg-card text-muted-foreground"}`}>
                   {s.estado}
                 </span>
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground sm:text-sm">
-            {sesionesMes.length} sesiones en este mes.
-          </p>
-        )}
-      </div>
+        ) : null}
+      </div>}
     </div>
   );
 }
