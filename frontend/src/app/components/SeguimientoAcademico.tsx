@@ -538,7 +538,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         maxLength={1000}
                         rows={10}
                         placeholder="Describe el desempeño del estudiante, temas abordados, avances y áreas de mejora..."
-                        className="min-h-[220px] w-full flex-1 resize-none rounded-xl border border-border-strong bg-input-background px-4 py-3 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
+                        className="min-h-[220px] w-full flex-1 resize-none rounded-xl border border-border-strong bg-input-background px-4 py-3 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[#118ab2] focus:ring-2 focus:ring-[#118ab2]/30"
                       />
                       <p
                         className="text-right text-muted-foreground"
