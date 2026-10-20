@@ -129,7 +129,8 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
       </div>
 
       {/* PANEL IZQUIERDO: Identidad visual y branding (solo pantallas grandes) */}
-      <div className="relative z-20 hidden min-h-screen flex-col justify-between overflow-hidden p-10 lg:flex lg:w-[52%]">
+      {/* pointer-events-none: este panel queda encima del formulario y bloqueaba los clics en los campos */}
+      <div className="pointer-events-none relative z-20 hidden min-h-screen flex-col justify-between overflow-hidden p-10 lg:flex lg:w-[52%]">
         {/* Logotipo y título institucional superior */}
         <div className="relative flex flex-col items-start">
           <span
