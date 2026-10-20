@@ -1,27 +1,17 @@
-// Importación de hooks de React
-// useState: maneja estado local del componente
-// useEffect: ejecuta efectos secundarios (carga inicial de datos)
-// useCallback: memoriza funciones para evitar recrearlas en cada render
 import { useState, useEffect, useCallback } from "react";
 
 // Importación de iconos SVG desde la librería lucide-react
 import {
-  CheckCircle2, // Icono de check dentro de círculo (éxito/asistencia)
-  Circle, // Icono de círculo vacío (inasistencia)
-  User, // Icono de usuario
-  BookOpen, // Icono de libro (observaciones académicas)
-  TrendingUp, // Icono de tendencia (calificación)
-  Clock, // Icono de reloj (fecha del día / fecha de sesión)
-  Info, // Icono de información (aviso)
-  X, // Botón para cerrar el aviso informativo
-  Loader2, // Icono de spinner de carga
-  AlertCircle, // Icono de error
+  CheckCircle2,
+  Circle,
+  Clock,
+  Info,
+  X,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 // Importación de funciones de la API de sesiones
-// historialTutor: obtiene el historial completo del tutor
-// registrarSeguimiento: guarda la asistencia, observaciones y calificación
-// Sesion: tipo TypeScript que describe la forma de una solicitud
 import {
   historialTutor,
   registrarSeguimiento,
@@ -37,113 +27,102 @@ interface Props {
 }
 
 // Función que extrae las iniciales de un nombre completo
-// Ejemplo: "Carlos Pineda" → "CP"
 function iniciales(nombreCompleto: string): string {
   return nombreCompleto
-    .split(" ") // Divide el nombre por espacios
-    .filter(Boolean) // Elimina elementos vacíos
-    .slice(0, 2) // Toma solo las 2 primeras palabras
-    .map((w) => w[0]) // Extrae la primera letra de cada una
-    .join("") // Une las letras
-    .toUpperCase(); // Convierte a mayúsculas
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 }
 
 // Función que formatea una fecha ISO a formato DD/MM/YYYY
-// Ejemplo: "2026-03-15" → "15/03/2026"
 function formatFecha(fechaISO: string): string {
-  const [y, m, d] = fechaISO.split("-"); // Separa año, mes, día
-  return `${d}/${m}/${y}`; // Retorna día/mes/año
+  const [y, m, d] = fechaISO.split("-");
+  return `${d}/${m}/${y}`;
 }
 
-// Función que recorta una hora a formato HH:MM
-// Ejemplo: "14:30:00" → "14:30"
+// 👇 CORRECCIÓN: Función mejorada para agregar a.m. / p.m.
 function formatHora(horaISO: string): string {
-  return horaISO.slice(0, 5); // Toma solo los primeros 5 caracteres
+  if (!horaISO) return "";
+
+  try {
+    // Separamos horas y minutos (ej. "14:30:00" -> ["14", "30", "00"])
+    const [horas, minutos] = horaISO.split(":");
+
+    // Creamos un objeto Date temporal para aprovechar el formateador nativo
+    const fecha = new Date();
+    fecha.setHours(Number(horas), Number(minutos), 0, 0);
+
+    // Formateamos usando Intl con hour12: true para obtener a.m. / p.m.
+    return new Intl.DateTimeFormat("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(fecha);
+  } catch (error) {
+    // Si falla, devolvemos el string original recortado
+    return horaISO.slice(0, 5);
+  }
 }
 
 // Componente principal de Seguimiento Académico
 export function SeguimientoAcademico({ idTutor }: Props) {
-  // Lista completa de sesiones del tutor
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
-  // Indicador de carga inicial
   const [cargando, setCargando] = useState(true);
-  // Mensaje de error al cargar
   const [loadError, setLoadError] = useState<string | null>(null);
-  // ID de la sesión seleccionada en el panel izquierdo
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  // Controla la visibilidad del aviso con las reglas de seguimiento
   const [showRulesNotice, setShowRulesNotice] = useState(false);
-  // Estado booleano de asistencia (true = asistió)
   const [asistio, setAsistio] = useState(true);
-  // Texto de observaciones académicas
   const [observaciones, setObservaciones] = useState("");
-  // Valor numérico de la calificación (para sliders y barras)
   const [calificacion, setCalificacion] = useState(7.0);
-  // Valor del input como string (permite escribir decimales)
   const [calInput, setCalInput] = useState("7.0");
-  // Indicador de guardado en proceso
   const [saving, setSaving] = useState(false);
-  // Mensaje de error al guardar
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Función memorizada para cargar el historial del tutor
   const cargar = useCallback(() => {
-    setCargando(true); // Activa spinner
-    setLoadError(null); // Limpia error previo
+    setCargando(true);
+    setLoadError(null);
 
-    historialTutor(idTutor) // Llama a la API
+    historialTutor(idTutor)
       .then((data) => {
-        setSesiones(data); // Guarda las sesiones en estado
-
-        // Filtra solo las sesiones APROBADAS (elegibles para seguimiento)
+        setSesiones(data);
         const elegibles = data.filter((s) => s.estado === "APROBADA");
-
-        // Selecciona automáticamente la primera elegible si no hay ninguna seleccionada
         setSelectedId((prev) => prev ?? elegibles[0]?.id ?? null);
       })
       .catch((err) =>
-        // Maneja el error mostrando mensaje adecuado
         setLoadError(
           err instanceof ApiError
             ? err.message
             : "No se pudo cargar el listado.",
         ),
       )
-      .finally(() => setCargando(false)); // Desactiva spinner
-  }, [idTutor]); // Se recrea solo si cambia idTutor
+      .finally(() => setCargando(false));
+  }, [idTutor]);
 
-  // Carga el historial al montar el componente (o si cambia idTutor)
   useEffect(() => {
     cargar();
   }, [cargar]);
 
-  // Lista filtrada de sesiones elegibles (solo APROBADAS)
   const elegibles = sesiones.filter((s) => s.estado === "APROBADA");
-
-  // Sesión actualmente seleccionada para el formulario
   const sesion = elegibles.find((s) => s.id === selectedId);
-
-  // Porcentaje de la calificación para la barra de progreso (0–100%)
   const progressPct = (calificacion / 10) * 100;
 
-  // Maneja el cambio en el input de calificación
   const handleCalificacionChange = (val: string) => {
-    setCalInput(val); // Actualiza el string del input
-    const num = parseFloat(val); // Convierte a número
-    // Solo actualiza el valor numérico si es válido (0–10)
+    setCalInput(val);
+    const num = parseFloat(val);
     if (!isNaN(num) && num >= 0 && num <= 10) setCalificacion(num);
   };
 
-  // Maneja el envío del formulario de seguimiento
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita recarga de página
-    if (!sesion) return; // Salida si no hay sesión seleccionada
+    e.preventDefault();
+    if (!sesion) return;
 
-    setSaving(true); // Activa estado de guardado
-    setSaveError(null); // Limpia error previo
+    setSaving(true);
+    setSaveError(null);
 
     try {
-      // Llama a la API para registrar el seguimiento
       await registrarSeguimiento(
         sesion.id,
         asistio,
@@ -151,27 +130,24 @@ export function SeguimientoAcademico({ idTutor }: Props) {
         calificacion,
       );
 
-      // Limpia el formulario tras guardar
       setObservaciones("");
       setCalificacion(7.0);
       setCalInput("7.0");
       setAsistio(true);
 
-      cargar(); // Recarga el historial (la sesión pasa a COMPLETADA)
-      setSelectedId(null); // Deselecciona la sesión actual
+      cargar();
+      setSelectedId(null);
     } catch (err) {
-      // Muestra error de la acción
       setSaveError(
         err instanceof ApiError
           ? err.message
           : "No se pudo guardar el seguimiento.",
       );
     } finally {
-      setSaving(false); // Desactiva estado de guardado
+      setSaving(false);
     }
   };
 
-  // Cancela la edición sin guardar y limpia los datos del formulario
   const handleCancel = () => {
     if (saving) return;
     setObservaciones("");
@@ -182,7 +158,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
     setSelectedId(null);
   };
 
-  // Render condicional: spinner mientras carga
   if (cargando) {
     return (
       <div className="w-full flex items-center justify-center py-20">
@@ -191,7 +166,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
     );
   }
 
-  // Render condicional: mensaje de error de carga
   if (loadError) {
     return (
       <div className="w-full rounded-2xl border border-border bg-card p-8 text-center">
@@ -203,7 +177,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
     );
   }
 
-  // Render principal
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       {/* Cabecera con título y fecha actual */}
@@ -219,7 +192,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
       {/* Condicional: sin sesiones elegibles o grid con lista + formulario */}
       {elegibles.length === 0 ? (
-        // Estado vacío: todas las sesiones ya completadas
         <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
           <CheckCircle2 size={32} className="mx-auto mb-3 text-brand-blue" />
           <p className="text-foreground" style={{ fontSize: "1rem" }}>
@@ -233,12 +205,11 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </p>
         </div>
       ) : (
-        // Grid de 6 columnas: 2 para lista, 4 para formulario
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 lg:grid-cols-6">
+        // 👇 AJUSTE OPCIONAL: Cambié lg:grid-cols-6 a proporciones [1fr_2fr] para darle
+        // un poco más de ancho a la lista de la izquierda si lo necesitas.
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr]">
           {/* Columna izquierda: Lista de sesiones pendientes */}
-          {/* Columna izquierda: Lista de sesiones pendientes */}
-          <div className="lg:col-span-2 space-y-2 lg:pr-5">
-            {/* Etiqueta de la lista */}
+          <div className="space-y-2">
             <p
               className="text-muted-foreground px-1"
               style={{
@@ -250,32 +221,27 @@ export function SeguimientoAcademico({ idTutor }: Props) {
               Sesiones pendientes de cierre
             </p>
 
-            {/* Iteración sobre las sesiones elegibles */}
             {elegibles.map((s) => {
-              const isSelected = s.id === selectedId; // ¿Está seleccionada?
+              const isSelected = s.id === selectedId;
               return (
                 <button
                   key={s.id}
                   onClick={() => {
-                    setSelectedId(s.id); // Cambia la sesión seleccionada
-                    setShowRulesNotice(true); // Muestra las reglas al abrir una tarjeta
+                    setSelectedId(s.id);
+                    setShowRulesNotice(true);
                   }}
                   className="w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
-                    // Fondo del color de tarjeta si está seleccionada
                     background: isSelected ? "var(--card)" : "transparent",
-                    // Borde azul si está seleccionada, gris si no
                     borderColor: isSelected
                       ? "var(--brand-blue)"
                       : "var(--border)",
-                    // Anillo azul si está seleccionada
                     boxShadow: isSelected
                       ? "0 0 0 1px var(--brand-blue)"
                       : "none",
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    {/* Avatar con iniciales */}
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white"
                       style={{
@@ -289,30 +255,28 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       {iniciales(s.estudianteNombre)}
                     </div>
 
-                    {/* Información de la sesión */}
                     <div className="flex-1 min-w-0">
-                      {/* Nombre del estudiante truncado */}
                       <p
                         className="text-foreground truncate"
                         style={{ fontSize: "0.875rem" }}
                       >
                         {s.estudianteNombre}
                       </p>
-                      {/* Nombre de la asignatura truncado */}
                       <p
                         className="text-muted-foreground truncate"
                         style={{ fontSize: "0.78rem" }}
                       >
                         {s.asignaturaNombre}
                       </p>
-                      {/* Badge de estado y fecha/hora */}
-                      <div className="flex items-center gap-2 mt-1.5">
+
+                      {/* 👇 AJUSTE: Añadido pb-1 para que el texto no quede tan pegado al fondo de la tarjeta */}
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 pb-1">
                         <span
                           className="rounded-full px-2 py-0.5"
                           style={{
                             fontSize: "0.68rem",
-                            color: "#3B82F6", // Azul
-                            background: "rgba(59,130,246,0.12)", // Azul translúcido
+                            color: "#3B82F6",
+                            background: "rgba(59,130,246,0.12)",
                           }}
                         >
                           Aprobada
@@ -321,7 +285,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                           className="text-muted-foreground"
                           style={{ fontSize: "0.72rem" }}
                         >
-                          {formatFecha(s.fechaSesion)} ·{" "}
+                          {/* Aquí ya se imprimirá automáticamente el a.m. o p.m. */}
+                          {formatFecha(s.fechaSesion)} -{" "}
                           {formatHora(s.horaInicio)}
                         </span>
                       </div>
@@ -333,21 +298,18 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </div>
 
           {/* Columna derecha: Panel del formulario */}
-          <div className="lg:col-span-4 min-w-0">
+          <div className="min-w-0">
             {sesion && (
               <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                {/* Cabecera del panel con datos del estudiante y toggle de asistencia */}
                 <div
                   className="border-b border-border px-5 py-5 sm:px-6"
                   style={{
-                    // Degradado sutil azul de fondo
                     background:
                       "linear-gradient(135deg, color-mix(in srgb, var(--brand-blue) 10%, transparent), color-mix(in srgb, var(--brand-blue) 2%, transparent))",
                   }}
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
-                      {/* Avatar grande con iniciales */}
                       <div
                         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white"
                         style={{
@@ -360,30 +322,27 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         {iniciales(sesion.estudianteNombre)}
                       </div>
                       <div className="min-w-0">
-                        {/* Nombre del estudiante */}
                         <p className="truncate text-base font-semibold text-card-foreground">
                           {sesion.estudianteNombre}
                         </p>
-                        {/* Asignatura */}
                         <p
                           className="truncate text-muted-foreground"
                           style={{ fontSize: "0.8rem" }}
                         >
                           {sesion.asignaturaNombre}
                         </p>
-                        {/* Badges con fecha, hora e ID de la sesión */}
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           <span
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
                             style={{ fontSize: "0.72rem" }}
                           >
-                            <Clock size={12} />{" "}
                             {formatFecha(sesion.fechaSesion)}
                           </span>
                           <span
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
                             style={{ fontSize: "0.72rem" }}
                           >
+                            {/* Aquí también se imprimirá el a.m./p.m. automáticamente */}
                             <Clock size={12} /> {formatHora(sesion.horaInicio)}
                           </span>
                           <span
@@ -403,7 +362,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                   onSubmit={handleSave}
                   className="space-y-5 px-5 py-5 sm:px-6"
                 >
-                  {/* Aviso de error al guardar */}
                   {saveError && (
                     <div
                       className="rounded-xl px-4 py-3"
@@ -421,9 +379,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                     </div>
                   )}
 
-                  {/* Grid de 2 columnas: calificación (izquierda) y observaciones (derecha) */}
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-[0.85fr_1.25fr]">
-                    {/* Sección: Calificación */}
                     <section className="min-w-0 space-y-4">
                       <label
                         className="flex items-center gap-2 text-card-foreground"
@@ -433,10 +389,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         <span className="text-destructive">*</span>
                       </label>
 
-                      {/* Tarjeta con input numérico grande y clasificación */}
                       <div className="rounded-2xl border border-border bg-input-background px-4 py-3">
                         <div className="flex items-end justify-between gap-3">
-                          {/* Input numérico principal */}
                           <input
                             type="number"
                             min={0}
@@ -454,7 +408,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                               fontFamily: "var(--font-mono)",
                             }}
                           />
-                          {/* Etiqueta dinámica según el valor */}
                           <div className="pb-1 text-right">
                             <p
                               className="font-semibold"
@@ -462,12 +415,12 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                                 fontSize: "0.8rem",
                                 color:
                                   calificacion >= 9
-                                    ? "#3B82F6" // Azul
+                                    ? "#3B82F6"
                                     : calificacion >= 7
-                                      ? "#10B981" // Verde
+                                      ? "#10B981"
                                       : calificacion >= 5
-                                        ? "#F59E0B" // Naranja
-                                        : "#EF4444", // Rojo
+                                        ? "#F59E0B"
+                                        : "#EF4444",
                               }}
                             >
                               {calificacion >= 9
@@ -491,7 +444,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         </div>
                       </div>
 
-                      {/* Slider para ajustar la calificación */}
                       <input
                         type="range"
                         min={0}
@@ -517,7 +469,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         }}
                       />
 
-                      {/* Asistencia debajo del slider */}
                       <div className="mt-5 space-y-2">
                         <p
                           className="flex flex-wrap items-center gap-1.5 text-card-foreground"
@@ -526,7 +477,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                           Asistencia <span className="text-destructive">*</span>
                         </p>
 
-                        {/* Grupo de botones segmentados */}
                         <div className="grid grid-cols-2 rounded-xl border border-border bg-input-background p-1">
                           <button
                             type="button"
@@ -571,7 +521,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       </div>
                     </section>
 
-                    {/* Sección: Observaciones académicas */}
                     <section className="flex min-w-0 flex-col space-y-2">
                       <label
                         htmlFor="observaciones-seguimiento"
@@ -580,7 +529,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       >
                         Observaciones académicas
                       </label>
-                      {/* Textarea con límite de 1000 caracteres */}
                       <textarea
                         id="observaciones-seguimiento"
                         value={observaciones}
@@ -592,7 +540,6 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         placeholder="Describe el desempeño del estudiante, temas abordados, avances y áreas de mejora..."
                         className="min-h-[220px] w-full flex-1 resize-none rounded-xl border border-border-strong bg-input-background px-4 py-3 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
                       />
-                      {/* Contador de caracteres */}
                       <p
                         className="text-right text-muted-foreground"
                         style={{ fontSize: "0.73rem" }}
@@ -602,34 +549,24 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                     </section>
                   </div>
 
-                  {/* Acciones del formulario */}
-                  <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-border pt-4 sm:flex-row sm:items-center">
+                  <div className="flex justify-end items-center gap-3 pt-2">
                     <button
                       type="button"
                       onClick={handleCancel}
-                      disabled={saving}
-                      className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-700 active:bg-red-500/25 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-500/15 active:bg-red-500/25"
                     >
                       Cancelar
                     </button>
+
                     <button
                       type="submit"
-                      // Deshabilita si: guardando, input vacío, fuera de rango o no numérico
-                      disabled={
-                        saving ||
-                        !calInput.trim() ||
-                        Number(calInput) < 0 ||
-                        Number(calInput) > 10 ||
-                        !Number.isFinite(Number(calInput))
-                      }
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium text-white transition-colors duration-200 hover:brightness-95 active:brightness-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-white transition-colors"
                       style={{
+                        fontSize: "0.875rem",
                         background: "#118ab2",
                       }}
                     >
-                      {saving
-                        ? "Guardando seguimiento..."
-                        : "Guardar información"}
+                      Guardar información
                     </button>
                   </div>
                 </form>
@@ -638,6 +575,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
           </div>
         </div>
       )}
+
       {/* Ventana emergente con las reglas de seguimiento */}
       {showRulesNotice && (
         <div
