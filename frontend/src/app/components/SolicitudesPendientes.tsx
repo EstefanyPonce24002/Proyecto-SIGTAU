@@ -358,6 +358,15 @@ function DetallesModal({
           {/* Solo si la solicitud está PENDIENTE se muestran botones de acción */}
           {sesion.estado === "PENDIENTE" && (
             <div className="flex flex-col items-stretch justify-end gap-3 border-t border-[#30465C] pt-4 sm:flex-row sm:items-center">
+               {/* Rechazar: estilo secundario rojo sutil con estado activo más intenso */}
+              <button
+                type="button"
+                onClick={onRechazar}
+                disabled={procesando}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-400 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 active:bg-red-500/25 active:text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+              >
+                Rechazar solicitud
+              </button>
               {/* Aprobar: botón principal en azul turquesa */}
               <button
                 type="button"
@@ -367,16 +376,6 @@ function DetallesModal({
                 style={{ background: "#118AB2" }}
               >
                 Aprobar solicitud
-              </button>
-
-              {/* Rechazar: estilo secundario rojo sutil con estado activo más intenso */}
-              <button
-                type="button"
-                onClick={onRechazar}
-                disabled={procesando}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-400 transition-colors duration-200 hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 active:bg-red-500/25 active:text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
-              >
-                Rechazar solicitud
               </button>
             </div>
           )}

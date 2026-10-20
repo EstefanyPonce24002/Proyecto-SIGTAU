@@ -305,7 +305,7 @@ export function GestionHorarios({ idTutor }: Props) {
             className="flex min-w-0 flex-col border-b border-[#30465C] bg-[#1D3043] lg:border-b-0 lg:border-r"
           >
             <div className="flex h-14 items-center border-b border-[#30465C] bg-[#192B3B] px-4 sm:px-5">
-              <h3 className="text-base font-semibold text-[#F1F5F9]">Disponibilidad semanal</h3>
+              <h3 className="text-base font-semibold text-[#F1F5F9]">Disponibilidad semanal de horarios</h3>
             </div>
             <div>
               {DIAS.map((dia, index) => {
