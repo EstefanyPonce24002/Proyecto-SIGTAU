@@ -11,6 +11,7 @@ import { ApiError } from "../lib/api";
 
 interface Props {
   idTutor: number;
+  compact?: boolean;
 }
 
 const MESES = [
@@ -36,7 +37,7 @@ function formatHora(hora: string) {
   return hora.slice(0, 5);
 }
 
-export function CalendarioTutor({ idTutor }: Props) {
+export function CalendarioTutor({ idTutor, compact = false }: Props) {
   const [mes, setMes] = useState(() => new Date());
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -112,34 +113,17 @@ export function CalendarioTutor({ idTutor }: Props) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Mi calendario
-          </h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Consulta tus tutorías programadas y revisa cada jornada.
-          </p>
-        </div>
-
-        <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm">
-          <Clock3 size={16} className="text-brand-blue" />
-          <span>
-            <strong className="text-foreground">{sesionesMes.length}</strong>{" "}
-            sesiones este mes
-          </span>
-        </div>
-      </div>
+    <div className="w-full space-y-5">
+      {!compact && <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Mi calendario</h2><p className="mt-1 text-sm text-muted-foreground">Consulta tus tutorías programadas y revisa cada jornada.</p></div><div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm"><Clock3 size={16} className="text-brand-blue" /><span><strong className="text-foreground">{sesionesMes.length}</strong>{" "}sesiones este mes</span></div></div>}
+      {compact && <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue"><CalendarDays size={22} /></div><div><h3 className="text-lg font-semibold text-foreground">Calendario</h3><p className="text-sm text-muted-foreground">Visualiza tus tutorías por día y fecha.</p></div></div><div className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm"><Clock3 size={16} className="text-brand-blue" /><span><strong className="text-foreground">{sesionesMes.length}</strong> sesiones este mes</span></div></div>}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* Encabezado del calendario */}
         <div
           className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-5"
           style={{
-            background: "#1E3343",
-            color: "#FFFFFF",
+            background: "color-mix(in srgb, var(--brand-blue) 10%, var(--card))",
+            color: "var(--foreground)",
           }}
         >
           <button
@@ -148,14 +132,14 @@ export function CalendarioTutor({ idTutor }: Props) {
               setDiaSeleccionado(null);
             }}
             aria-label="Mes anterior"
-            className="rounded-xl border border-white/20 bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="rounded-xl border border-border bg-card p-2.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronLeft size={18} />
           </button>
 
           <h3
             className="text-base font-semibold sm:text-lg"
-            style={{ color: "#FFFFFF" }}
+            style={{ color: "var(--foreground)" }}
           >
             {MESES[mes.getMonth()]} {mes.getFullYear()}
           </h3>
@@ -166,7 +150,7 @@ export function CalendarioTutor({ idTutor }: Props) {
               setDiaSeleccionado(null);
             }}
             aria-label="Mes siguiente"
-            className="rounded-xl p-2.5 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="rounded-xl p-2.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronRight size={18} />
           </button>
