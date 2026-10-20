@@ -18,6 +18,7 @@ import {
   type HorarioOption,
 } from "../lib/catalogo";
 import { ApiError } from "../lib/api";
+import { CalendarioTutor } from "./CalendarioTutor";
 
 interface Props {
   idTutor: number;
@@ -261,7 +262,7 @@ export function GestionHorarios({ idTutor }: Props) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-7">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div>
@@ -315,7 +316,7 @@ export function GestionHorarios({ idTutor }: Props) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {DIAS.map((dia) => {
             const bloques = horarios.filter((h) => h.diaSemana === dia);
             if (bloques.length === 0) return null;
@@ -387,6 +388,8 @@ export function GestionHorarios({ idTutor }: Props) {
           })}
         </div>
       )}
+
+      <CalendarioTutor idTutor={idTutor} compact />
 
       {modalOpen && (
         <NuevoHorarioModal
