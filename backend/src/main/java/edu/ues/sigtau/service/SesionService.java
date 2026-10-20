@@ -279,22 +279,37 @@ public class SesionService {
 
                 sesion = sesionRepository.save(sesion);
 
+                if (coordinator && !participante) {
+                        // Cancelación administrativa: se avisa al estudiante y al tutor
+                        String mensaje = "La coordinación académica canceló la tutoría de "
+                                        + sesion.getAsignatura().getNombre() + " programada para el "
+                                        + sesion.getFechaSesion() + ".";
+                        notificarCancelacion(sesion, sesion.getEstudiante().getUsuario(), mensaje);
+                        notificarCancelacion(sesion, sesion.getTutor().getUsuario(), mensaje);
+                        return SesionResponse.from(sesion);
+                }
+
                 String actorNombre = sesion.getEstudiante().getUsuario().getId().equals(actorId)
                                 ? sesion.getEstudiante().getUsuario().getNombres()
                                 : sesion.getTutor().getUsuario().getNombres();
 
-                notificacionRepository.save(Notificacion.builder()
-                                .usuario(sesion.getEstudiante().getUsuario().getId().equals(actorId)
+                notificarCancelacion(sesion,
+                                sesion.getEstudiante().getUsuario().getId().equals(actorId)
                                                 ? sesion.getTutor().getUsuario()
-                                                : sesion.getEstudiante().getUsuario())
-                                .sesion(sesion)
-                                .tipo(TipoNotificacion.CANCELACION)
-                                .mensaje(actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre()
-                                                + ".")
-                                .leida(false)
-                                .build());
+                                                : sesion.getEstudiante().getUsuario(),
+                                actorNombre + " canceló la tutoría de " + sesion.getAsignatura().getNombre() + ".");
 
                 return SesionResponse.from(sesion);
+        }
+
+        private void notificarCancelacion(Sesion sesion, edu.ues.sigtau.model.Usuario destinatario, String mensaje) {
+                notificacionRepository.save(Notificacion.builder()
+                                .usuario(destinatario)
+                                .sesion(sesion)
+                                .tipo(TipoNotificacion.CANCELACION)
+                                .mensaje(mensaje)
+                                .leida(false)
+                                .build());
         }
 
         /**

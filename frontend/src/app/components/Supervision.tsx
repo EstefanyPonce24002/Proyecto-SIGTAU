@@ -83,10 +83,16 @@ function EstadoBadge({ estado }: { estado: Estado }) {
 function DetalleModal({
   sesion,
   onClose,
+  onCancelar,
 }: {
   sesion: Sesion;
   onClose: () => void;
+  onCancelar: () => void;
 }) {
+  // Solo las sesiones activas pueden cancelarse (igual que en el backend)
+  const cancelable =
+    sesion.estado === "PENDIENTE" || sesion.estado === "APROBADA";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -177,10 +183,25 @@ function DetalleModal({
             </p>
           </div>
         </div>
-        <div className="px-6 pb-5">
+        <div className="flex gap-3 px-6 pb-5">
+          {cancelable && (
+            <button
+              onClick={onCancelar}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 transition-all hover:opacity-90 active:scale-95"
+              style={{
+                fontSize: "0.875rem",
+                color: "#EF4444",
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.25)",
+              }}
+            >
+              <Trash2 size={14} />
+              Cancelar sesión
+            </button>
+          )}
           <button
             onClick={onClose}
-            className="w-full rounded-xl py-2.5 text-white hover:opacity-90 transition-all"
+            className="flex-1 rounded-xl py-2.5 text-white hover:opacity-90 transition-all"
             style={{
               background: "linear-gradient(135deg, #1E3A8A, #3B82F6)",
               fontSize: "0.875rem",
@@ -642,7 +663,15 @@ export function Supervision() {
       </div>
 
       {detalle && (
-        <DetalleModal sesion={detalle} onClose={() => setDetalle(null)} />
+        <DetalleModal
+          sesion={detalle}
+          onClose={() => setDetalle(null)}
+          onCancelar={() => {
+            // Cierra el detalle y pide confirmación antes de cancelar
+            setCancelando(detalle);
+            setDetalle(null);
+          }}
+        />
       )}
       {cancelando && (
         <ConfirmCancelModal
