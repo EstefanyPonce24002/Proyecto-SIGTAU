@@ -340,7 +340,7 @@ export function CalendarioTutor({ idTutor, compact = false }: Props) {
             ? `Sesiones del ${new Date(
                 diaSeleccionado + "T12:00:00",
               ).toLocaleDateString("es-SV")}`
-            : "Selecciona un día"}
+            : "Selecciona un día para ver sus detalles completos"}
         </h3>
 
         {diaSeleccionado && sesionesDia.length === 0 ? (
