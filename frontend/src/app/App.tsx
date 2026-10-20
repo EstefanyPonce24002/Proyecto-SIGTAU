@@ -16,7 +16,6 @@ import {
   History,
   BookOpen,
   Shield,
-  BellRing,
   LogOut,
   Settings,
   MessageCircle,
@@ -44,7 +43,6 @@ import { NotificacionesBell } from "./components/NotificacionesBell";
 import { DashboardCoord } from "./components/DashboardCoord";
 import { Asignaturas } from "./components/Asignaturas";
 import { Supervision } from "./components/Supervision";
-import { Notificaciones } from "./components/Notificaciones";
 import { ProximosEventos } from "./components/ProximosEventos";
 import { VoiceSearchInput } from "./components/VoiceSearchInput";
 import { Mensajes } from "./components/Mensajes";
@@ -162,13 +160,6 @@ const NAV_ITEMS: NavItem[] = [
     path: "supervision",
     label: "Supervisión",
     icon: Shield,
-    roles: ["coordinador"],
-  },
-  {
-    id: "notificaciones",
-    path: "notificaciones",
-    label: "Notificaciones",
-    icon: BellRing,
     roles: ["coordinador"],
   },
   {
@@ -375,7 +366,8 @@ export default function App() {
         );
         return texto.includes(normalizarBusqueda(busquedaGlobal.trim()));
       })
-        .filter((item) => item.roles.includes(rol))
+        // Mi Perfil y Ajustes solo se abren desde el menú superior derecho
+        .filter((item) => item.roles.includes(rol) && item.showInNav !== false)
         .slice(0, 6)
     : [];
 
@@ -768,7 +760,6 @@ export default function App() {
             {activeTab === "reportes" && <DashboardReportes />}
             {activeTab === "asignaturas" && <Asignaturas />}
             {activeTab === "supervision" && <Supervision />}
-            {activeTab === "notificaciones" && <Notificaciones />}
 
             {activeTab === "mensajes" && <Mensajes idUsuario={idUsuario} />}
 
