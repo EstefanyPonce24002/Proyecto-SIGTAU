@@ -25,11 +25,15 @@ export function listarAsignaturas(): Promise<Asignatura[]> {
   return apiFetch<Asignatura[]>("/asignaturas");
 }
 
-export function listarTutoresPorAsignatura(idAsignatura: number): Promise<TutorOption[]> {
+export function listarTutoresPorAsignatura(
+  idAsignatura: number,
+): Promise<TutorOption[]> {
   return apiFetch<TutorOption[]>(`/asignaturas/${idAsignatura}/tutores`);
 }
 
-export function listarHorariosDisponibles(idTutor: number): Promise<HorarioOption[]> {
+export function listarHorariosDisponibles(
+  idTutor: number,
+): Promise<HorarioOption[]> {
   return apiFetch<HorarioOption[]>(`/tutores/${idTutor}/horarios`);
 }
 
@@ -48,7 +52,9 @@ export function formatHora(hora: string): string {
 
 /* ── Gestión de horarios (RF-06) ─────────────────────────────────────── */
 
-export function listarHorariosDelTutor(idTutor: number): Promise<HorarioOption[]> {
+export function listarHorariosDelTutor(
+  idTutor: number,
+): Promise<HorarioOption[]> {
   return apiFetch<HorarioOption[]>(`/horarios/tutor/${idTutor}`);
 }
 
@@ -59,7 +65,9 @@ export interface CrearHorarioPayload {
   horaFin: string;
 }
 
-export function crearHorario(payload: CrearHorarioPayload): Promise<HorarioOption> {
+export function crearHorario(
+  payload: CrearHorarioPayload,
+): Promise<HorarioOption> {
   return apiFetch<HorarioOption>("/horarios", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -76,12 +84,22 @@ export function listarTodosLosTutores(): Promise<TutorOption[]> {
   return apiFetch<TutorOption[]>("/tutores");
 }
 
-export function asignarTutorAAsignatura(idAsignatura: number, idTutor: number): Promise<void> {
-  return apiFetch<void>(`/asignaturas/${idAsignatura}/tutores/${idTutor}`, { method: "POST" });
+export function asignarTutorAAsignatura(
+  idAsignatura: number,
+  idTutor: number,
+): Promise<void> {
+  return apiFetch<void>(`/asignaturas/${idAsignatura}/tutores/${idTutor}`, {
+    method: "POST",
+  });
 }
 
-export function quitarTutorDeAsignatura(idAsignatura: number, idTutor: number): Promise<void> {
-  return apiFetch<void>(`/asignaturas/${idAsignatura}/tutores/${idTutor}`, { method: "DELETE" });
+export function quitarTutorDeAsignatura(
+  idAsignatura: number,
+  idTutor: number,
+): Promise<void> {
+  return apiFetch<void>(`/asignaturas/${idAsignatura}/tutores/${idTutor}`, {
+    method: "DELETE",
+  });
 }
 
 /* ── Administración de asignaturas (RF-12) ───────────────────────────── */
@@ -90,13 +108,38 @@ export function listarTodasLasAsignaturas(): Promise<Asignatura[]> {
   return apiFetch<Asignatura[]>("/asignaturas/todas");
 }
 
-export function crearAsignatura(nombre: string, codigo: string, descripcion?: string): Promise<Asignatura> {
+export function crearAsignatura(
+  nombre: string,
+  codigo: string,
+  descripcion?: string,
+): Promise<Asignatura> {
   return apiFetch<Asignatura>("/asignaturas", {
     method: "POST",
     body: JSON.stringify({ nombre, codigo, descripcion }),
   });
 }
 
-export function cambiarEstadoAsignatura(id: number, activa: boolean): Promise<Asignatura> {
-  return apiFetch<Asignatura>(`/asignaturas/${id}/estado?activa=${activa}`, { method: "PATCH" });
+export function cambiarEstadoAsignatura(
+  id: number,
+  activa: boolean,
+): Promise<Asignatura> {
+  return apiFetch<Asignatura>(`/asignaturas/${id}/estado?activa=${activa}`, {
+    method: "PATCH",
+  });
+}
+
+export function actualizarAsignaturasDelTutor(
+  idTutor: number,
+  idAsignaturas: number[],
+): Promise<void> {
+  return apiFetch<void>(`/usuarios/${idTutor}/asignaturas`, {
+    method: "PUT",
+    body: JSON.stringify({ idAsignaturas }),
+  });
+}
+
+export function listarAsignaturasDelTutor(
+  idTutor: number,
+): Promise<Asignatura[]> {
+  return apiFetch<Asignatura[]>(`/tutores/${idTutor}/asignaturas`);
 }

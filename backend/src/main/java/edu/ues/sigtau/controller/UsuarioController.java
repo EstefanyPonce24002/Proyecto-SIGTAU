@@ -1,6 +1,7 @@
 package edu.ues.sigtau.controller;
 
 import edu.ues.sigtau.dto.UsuarioAdminResponse;
+import edu.ues.sigtau.dto.ActualizarAsignaturasTutorRequest;
 import edu.ues.sigtau.dto.ActualizarUsuarioRequest;
 import edu.ues.sigtau.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,17 @@ public class UsuarioController {
             @PathVariable Integer id,
             @Valid @RequestBody ActualizarUsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.actualizar(id, request));
+    }
+
+    @PutMapping("/{id}/asignaturas")
+    public ResponseEntity<Void> actualizarAsignaturasTutor(
+            @PathVariable Integer id,
+            @Valid @RequestBody ActualizarAsignaturasTutorRequest request) {
+
+        usuarioService.actualizarAsignaturasTutor(
+                id,
+                request.idAsignaturas());
+
+        return ResponseEntity.noContent().build();
     }
 }

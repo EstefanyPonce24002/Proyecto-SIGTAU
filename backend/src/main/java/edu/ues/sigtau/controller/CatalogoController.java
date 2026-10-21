@@ -49,6 +49,22 @@ public class CatalogoController {
         return ResponseEntity.ok(resultado);
     }
 
+    @GetMapping("/api/tutores/{idTutor}/asignaturas")
+    public ResponseEntity<List<AsignaturaResponse>> asignaturasPorTutor(
+            @PathVariable Integer idTutor) {
+
+        tutorRepository.findById(idTutor)
+                .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
+
+        List<AsignaturaResponse> resultado = tutorAsignaturaRepository.findByTutor_Id(idTutor)
+                .stream()
+                .map(TutorAsignatura::getAsignatura)
+                .map(AsignaturaResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
     /** RF-12: asignar un tutor a una asignatura. */
     @PostMapping("/api/asignaturas/{idAsignatura}/tutores/{idTutor}")
     @Transactional
@@ -84,7 +100,10 @@ public class CatalogoController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Lista completa de tutores (para el selector de "agregar tutor" en Asignaturas.tsx). */
+    /**
+     * Lista completa de tutores (para el selector de "agregar tutor" en
+     * Asignaturas.tsx).
+     */
     @GetMapping("/api/tutores")
     public ResponseEntity<List<TutorResponse>> listarTodosLosTutores() {
         List<TutorResponse> resultado = tutorRepository.findAll().stream()
@@ -102,4 +121,3 @@ public class CatalogoController {
         return ResponseEntity.ok(resultado);
     }
 }
-
