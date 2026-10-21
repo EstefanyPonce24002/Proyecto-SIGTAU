@@ -37,6 +37,8 @@ type EventoExtendido = Sesion & {
   enlaceVirtual?: string;
 };
 
+type Modalidad = "VIRTUAL" | "PRESENCIAL" | undefined;
+
 const ESTADO_CONFIG: Record<
   EstadoSesion,
   { label: string; color: string; bg: string }
@@ -70,14 +72,40 @@ const ESTADO_CONFIG: Record<
 
 // FUNCIONES AUXILIARES
 
-// Convierte YYYY-MM-DD a fecha local para evitar desfases de zona horaria.
+// Convierte YYYY-MM-DD a una fecha local para evitar desfases de zona horaria.
 function fechaLocal(value: string): Date {
   const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return new Date(Number.NaN);
+  }
+
+  const fecha = new Date(year, month - 1, day);
+
+  // Evita aceptar fechas inválidas que JavaScript normaliza automáticamente.
+  if (
+    fecha.getFullYear() !== year ||
+    fecha.getMonth() !== month - 1 ||
+    fecha.getDate() !== day
+  ) {
+    return new Date(Number.NaN);
+  }
+
+  return fecha;
 }
 
 // Convierte HH:mm o HH:mm:ss a formato de 12 horas con a. m. / p. m.
 function formatHora(value: string): string {
+  if (!value) return "";
+
   const [horas, minutos] = value.split(":").map(Number);
 
   if (
@@ -100,14 +128,31 @@ function formatHora(value: string): string {
   });
 }
 
-function getModalidad(evento: Sesion): "VIRTUAL" | "PRESENCIAL" {
-  return (evento as EventoExtendido).modalidad ?? "PRESENCIAL";
+// No se presupone que la sesión sea presencial si no se conoce la modalidad.
+function getModalidad(evento: Sesion): Modalidad {
+  return (evento as EventoExtendido).modalidad;
 }
 
 // Devuelve los minutos restantes hasta el inicio de la sesión.
 function minutosHasta(evento: Sesion): number {
   const inicio = fechaLocal(evento.fechaSesion);
+
+  if (Number.isNaN(inicio.getTime())) {
+    return Number.NaN;
+  }
+
   const [horas, minutos] = evento.horaInicio.split(":").map(Number);
+
+  if (
+    !Number.isInteger(horas) ||
+    !Number.isInteger(minutos) ||
+    horas < 0 ||
+    horas > 23 ||
+    minutos < 0 ||
+    minutos > 59
+  ) {
+    return Number.NaN;
+  }
 
   inicio.setHours(horas, minutos, 0, 0);
 
@@ -118,6 +163,15 @@ function minutosHasta(evento: Sesion): number {
 function FechaEvento({ fecha }: { fecha: string }) {
   const date = fechaLocal(fecha);
 
+  if (Number.isNaN(date.getTime())) {
+    return (
+      <div className="flex w-full shrink-0 items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-sm text-muted-foreground sm:w-16 sm:flex-col">
+        <CalendarDays size={18} />
+        <span>Fecha no disponible</span>
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex w-full shrink-0 items-center gap-3 rounded-xl px-3 py-2 sm:w-16 sm:flex-col sm:gap-0 sm:px-2 sm:py-2.5"
@@ -127,7 +181,9 @@ function FechaEvento({ fecha }: { fecha: string }) {
       }}
     >
       <span className="text-xs font-semibold uppercase">
-        {date.toLocaleDateString("es-SV", { month: "short" }).replace(".", "")}
+        {date
+          .toLocaleDateString("es-SV", { month: "short" })
+          .replace(".", "")}
       </span>
 
       <strong
@@ -165,6 +221,7 @@ function TarjetaEvento({
     evento.estado === "APROBADA" &&
     modalidad === "VIRTUAL" &&
     Boolean(enlace) &&
+    Number.isFinite(minutosRestantes) &&
     minutosRestantes >= 0 &&
     minutosRestantes < 10;
 
@@ -177,7 +234,7 @@ function TarjetaEvento({
         <FechaEvento fecha={evento.fechaSesion} />
 
         <div className="min-w-0 flex-1">
-                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
             <h3
               className="min-w-0 truncate font-semibold text-foreground"
               title={evento.asignaturaNombre}
@@ -202,19 +259,26 @@ function TarjetaEvento({
               <span className="truncate">{evento.tutorNombre}</span>
             </span>
 
-            {/* Horario con formato de 12 horas */}
             <span className="flex items-center gap-1.5">
               <Clock3 size={14} className="shrink-0" />
-              {formatHora(evento.horaInicio)} – {formatHora(evento.horaFin)}
+              {formatHora(evento.horaInicio)} –{" "}
+              {formatHora(evento.horaFin)}
             </span>
 
             <span className="flex items-center gap-1.5">
               {modalidad === "VIRTUAL" ? (
-                <Video size={14} />
+                <Video size={14} className="shrink-0" />
+              ) : modalidad === "PRESENCIAL" ? (
+                <MapPin size={14} className="shrink-0" />
               ) : (
-                <MapPin size={14} />
+                <CalendarDays size={14} className="shrink-0" />
               )}
-              {modalidad === "VIRTUAL" ? "Virtual" : "Presencial"}
+
+              {modalidad === "VIRTUAL"
+                ? "Virtual"
+                : modalidad === "PRESENCIAL"
+                  ? "Presencial"
+                  : "Modalidad no especificada"}
             </span>
           </div>
         </div>
@@ -243,6 +307,7 @@ function TarjetaEvento({
               {cancelando && (
                 <Loader2 size={15} className="animate-spin" />
               )}
+
               {cancelando ? "Cancelando..." : "Cancelar"}
             </button>
           ) : null}
@@ -264,41 +329,61 @@ export function ProximosEventos({
   const [error, setError] = useState<string | null>(null);
   const [cancelando, setCancelando] = useState<number | null>(null);
 
-  const cargar = useCallback(() => {
+  // Carga inicial y recarga manual de la agenda.
+  const cargar = useCallback(async () => {
     setCargando(true);
     setError(null);
 
-    historialEstudiante(idEstudiante)
-      .then(setSesiones)
-      .catch((err: unknown) => {
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo cargar la agenda.",
-        );
-      })
-      .finally(() => setCargando(false));
+    try {
+      const data = await historialEstudiante(idEstudiante);
+      setSesiones(data);
+    } catch (err: unknown) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No se pudo cargar la agenda.",
+      );
+    } finally {
+      setCargando(false);
+    }
   }, [idEstudiante]);
 
   useEffect(() => {
-    cargar();
+    void cargar();
   }, [cargar]);
 
   const { proximas, vencidas } = sesionesAgenda(sesiones);
   const vacia = proximas.length === 0 && vencidas.length === 0;
 
+  // Cancela la sesión y después actualiza la agenda sin activar
+  // el estado de carga de pantalla completa.
   const cancelar = async (evento: Sesion) => {
+    if (cancelando !== null) return;
+
     setCancelando(evento.id);
     setError(null);
 
     try {
       await cancelarSesion(evento.id);
-      await cargar();
     } catch (err: unknown) {
       setError(
         err instanceof ApiError
           ? err.message
           : "No se pudo cancelar la sesión.",
+      );
+      setCancelando(null);
+      return;
+    }
+
+    // La cancelación ya fue confirmada por la API.
+    // La actualización de la agenda se maneja por separado para
+    // no informar erróneamente que falló la cancelación.
+    try {
+      const sesionesActualizadas = await historialEstudiante(idEstudiante);
+      setSesiones(sesionesActualizadas);
+    } catch {
+      setError(
+        "La sesión se canceló, pero no se pudo actualizar la agenda. Pulsa Reintentar.",
       );
     } finally {
       setCancelando(null);
@@ -326,7 +411,10 @@ export function ProximosEventos({
 
       {cargando && (
         <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-16">
-          <Loader2 size={25} className="animate-spin text-muted-foreground" />
+          <Loader2
+            size={25}
+            className="animate-spin text-muted-foreground"
+          />
         </div>
       )}
 
@@ -335,15 +423,21 @@ export function ProximosEventos({
           role="alert"
           className="rounded-2xl border border-border bg-card p-7 text-center"
         >
-          <AlertTriangle size={24} className="mx-auto mb-2 text-destructive" />
+          <AlertTriangle
+            size={24}
+            className="mx-auto mb-2 text-destructive"
+          />
 
-          <p className="text-destructive" style={{ fontSize: "0.9rem" }}>
+          <p
+            className="text-destructive"
+            style={{ fontSize: "0.9rem" }}
+          >
             {error}
           </p>
 
           <button
             type="button"
-            onClick={cargar}
+            onClick={() => void cargar()}
             className="mt-4 min-h-11 rounded-xl border border-[#118AB2] px-4 py-2.5 text-sm font-medium text-[#118AB2] transition-all hover:bg-[#118AB2] hover:text-white"
           >
             Reintentar
@@ -363,7 +457,10 @@ export function ProximosEventos({
             <CalendarDays size={38} />
           </div>
 
-          <h2 className="mt-5 text-foreground" style={{ fontSize: "1.15rem" }}>
+          <h2
+            className="mt-5 text-foreground"
+            style={{ fontSize: "1.15rem" }}
+          >
             ¡Todo al día!
           </h2>
 
@@ -402,7 +499,7 @@ export function ProximosEventos({
             <TarjetaEvento
               key={evento.id}
               evento={evento}
-              onCancel={() => cancelar(evento)}
+              onCancel={() => void cancelar(evento)}
               cancelando={cancelando === evento.id}
             />
           ))}
@@ -410,14 +507,14 @@ export function ProximosEventos({
           {vencidas.length > 0 && (
             <>
               <p className="pt-4 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Pendientes de realizar
+                Sesiones con horario vencido
               </p>
 
               {vencidas.map((evento) => (
                 <TarjetaEvento
                   key={evento.id}
                   evento={evento}
-                  onCancel={() => cancelar(evento)}
+                  onCancel={() => void cancelar(evento)}
                   cancelando={cancelando === evento.id}
                 />
               ))}

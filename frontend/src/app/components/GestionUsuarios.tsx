@@ -439,7 +439,7 @@ export function GestionUsuarios() {
     <div className="mx-auto w-full max-w-7xl space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-foreground">Gestión de Usuarios</h2>
+          <h2 className="text-foreground">Administra, edita y gestiona los usuarios del sistema</h2>
         </div>
         <button
           onClick={() => setModalOpen(true)}
