@@ -1,3 +1,4 @@
+
 package edu.ues.sigtau.config;
 
 import edu.ues.sigtau.security.CustomUserDetailsService;
@@ -7,6 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+// CAMBIO: estos imports permiten comprobar si el perfil dev está activo,
+// para no permitir el acceso a H2 indiscriminadamente en todos los perfiles.
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,6 +38,10 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
+    // CAMBIO: se inyecta el entorno para comprobar el perfil activo
+    // antes de autorizar la ruta de la consola H2.
+    private final Environment environment;
+
     @Value("${sigtau.cors.allowed-origins}")
     private String allowedOrigins;
 
@@ -49,7 +60,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/registro").hasRole("COORDINADOR")
                         .requestMatchers("/api/usuarios/**").hasRole("COORDINADOR")
                         .requestMatchers("/api/reportes/**").hasRole("COORDINADOR")
-                        .requestMatchers("/h2-console/**").permitAll() // solo perfil dev
+
+                        // CAMBIO: H2 solo se permite cuando el perfil dev está activo.
+                        // En otros perfiles, la regla deniega el acceso explícitamente.
+                        .requestMatchers("/h2-console/**")
+                        .access((authentication, context) ->
+                                new org.springframework.security.authorization.AuthorizationDecision(
+                                        environment.acceptsProfiles(Profiles.of("dev"))
+                                ))
 
                         // Catálogos de lectura para solicitar tutoría.
                         .requestMatchers(HttpMethod.GET, "/api/asignaturas", "/api/asignaturas/*/tutores",
@@ -105,7 +123,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // para H2 console en dev
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // se conserva sin cambios
 
         return http.build();
     }
