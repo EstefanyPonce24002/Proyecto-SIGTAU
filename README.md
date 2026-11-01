@@ -365,7 +365,14 @@ Se recomienda organizar las evidencias de la siguiente manera:
 
 **Equipo 6**
 
-Proyecto académico desarrollado en la Universidad de El Salvador, Facultad Multidisciplinaria de Occidente.
+| Carnet             | Nombre completo                                       |
+| ------------------ | ----------------------------------------------------- |
+| **CM22118**        | Erick Lissandro Campos Magaña                         |
+| **NR24002**        | Marlon Alexis Núñez Ramos                             |
+| **PJ23001**        | Irving Vladimir Pérez Javier                          |
+| **PB24007**        | José Wilfredo Ponce Barahona                          |
+| **QP24002**        | Ana Estefany Quintanilla de Ponce                     |
+| **VE24006**        | Diana Judith Ventura Erazo                            |
 
 ---
 
