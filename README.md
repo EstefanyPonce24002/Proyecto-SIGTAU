@@ -221,8 +221,6 @@ El backend utiliza configuración externa para los datos sensibles y los paráme
 | `SIGTAU_UPLOAD_DIR`    | Directorio de almacenamiento de documentos.                                   |
 | Variables SMTP         | Configuración del servidor de correo cuando se habilita el envío de mensajes. |
 
-Los nombres indicados deben contrastarse con la configuración vigente antes de iniciar el sistema. No deben publicarse contraseñas, tokens ni secretos reales en el repositorio.
-
 ---
 
 ## 🔌 API REST
@@ -246,7 +244,6 @@ Los controladores del backend constituyen el punto de entrada de las solicitudes
 | **Mensajería**              | Comunicación entre los participantes autorizados.                                     |
 | **Reportes**                | Consulta de indicadores e información para la supervisión administrativa.             |
 
-Los endpoints, métodos HTTP, parámetros y permisos específicos deben documentarse a partir de los controladores vigentes. No se incluyen rutas de ejemplo que no hayan sido verificadas en el código fuente.
 
 ---
 
@@ -291,7 +288,6 @@ Frontend (React)                Backend (Spring Boot)
 - Configuración de CORS.
 - Uso de variables de entorno para secretos y credenciales.
 
-La configuración de seguridad debe revisarse para confirmar que las rutas públicas, las rutas protegidas y los permisos asignados correspondan al comportamiento esperado.
 
 ---
 
@@ -329,8 +325,6 @@ La validación integral debe incluir:
 - Pruebas de notificaciones, mensajería y recuperación de contraseñas.
 - Validación de los procesos de respaldo y restauración.
 
-**Estado de validación:** la revisión estática del código no equivale a una compilación exitosa ni demuestra que todas las pruebas hayan pasado. Los resultados deben registrarse después de ejecutar las verificaciones en un entorno con las dependencias y servicios necesarios.
-
 ---
 
 ## 📸 Evidencias de funcionamiento
@@ -364,8 +358,6 @@ Se recomienda organizar las evidencias de la siguiente manera:
 - Dashboard del coordinador.
 - Supervisión global de sesiones.
 - Reportes e indicadores.
-
-Las imágenes deben añadirse cuando las capturas estén disponibles y correspondan a funcionalidades verificadas.
 
 ---
 
