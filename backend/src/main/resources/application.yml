@@ -1,3 +1,4 @@
+
 # Configuración de la aplicación Spring Boot para el proyecto SIGTAU.
 spring:
   application:
@@ -61,10 +62,12 @@ spring:
     username: ${DB_USER:sigtau_user}
     password: ${DB_PASSWORD}
 
-  #h2:
-    #console:
-    #enabled: true
-    #path: /h2-console
+  # Consola H2 deshabilitada porque SIGTAU utiliza PostgreSQL como base de datos.
+  # Se conserva comentada como referencia por si se necesita H2 para pruebas futuras.
+  # h2:
+  #   console:
+  #     enabled: true
+  #     path: /h2-console
 
   jpa:
     hibernate:
@@ -80,6 +83,12 @@ spring:
   config:
     activate:
       on-profile: prod
+
+  # Se declara explícitamente deshabilitada para evitar habilitar accidentalmente
+  # la consola H2 en producción; SIGTAU utiliza PostgreSQL.
+  h2:
+    console:
+      enabled: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/sigtau
