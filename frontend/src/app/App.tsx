@@ -750,7 +750,9 @@ export default function App() {
             {activeTab === "asignaturas" && <Asignaturas />}
             {activeTab === "supervision" && <Supervision />}
 
-            {activeTab === "mensajes" && <Mensajes idUsuario={idUsuario} />}
+            {activeTab === "mensajes" && (
+              <Mensajes idUsuario={idUsuario} rol={rol} />
+            )}
 
             {/* VISTAS COMUNES (TODOS LOS ROLES) */}
             {activeTab === "perfil" && (
