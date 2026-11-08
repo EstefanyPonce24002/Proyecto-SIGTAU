@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  Download,
   FileSpreadsheet,
   FileText,
   Filter,
@@ -30,6 +29,9 @@ import {
   type ReporteGenerado,
 } from "../lib/reportes";
 import { ApiError } from "../lib/api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
   {
@@ -68,32 +70,27 @@ const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
 const KPI_COLORS = ["#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
 
 /* ── Exportación real de lo que devolvió el backend ──────────────────── */
-function downloadCSV(
+function downloadExcel(
   reporte: ReporteGenerado,
   label: string,
   fechaInicio: string,
   fechaFin: string,
 ) {
-  const meta = [
-    `SIGTAU - Reporte: ${label}`,
-    `Período: ${fechaInicio} — ${fechaFin}`,
-    `Generado: ${new Date().toLocaleDateString("es-SV")}`,
-    "",
+  const worksheetData = [
+    [`SIGTAU - Reporte: ${label}`],
+    [`Período: ${fechaInicio} — ${fechaFin}`],
+    [`Generado: ${new Date().toLocaleString("es-SV")}`],
+    [],
+    reporte.headers,
+    ...reporte.rows,
   ];
-  const csvRows = [
-    ...meta,
-    reporte.headers.join(","),
-    ...reporte.rows.map((r) => r.map((c) => `"${c}"`).join(",")),
-  ];
-  const blob = new Blob([csvRows.join("\n")], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+  XLSX.writeFile(
+    workbook,
+    `SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.xlsx`,
+  );
 }
 
 function downloadPDF(
@@ -102,35 +99,24 @@ function downloadPDF(
   fechaInicio: string,
   fechaFin: string,
 ) {
-  const sep = "=".repeat(70);
-  const dash = "-".repeat(70);
-  const lines = [
-    sep,
-    `  SIGTAU — REPORTE: ${label.toUpperCase()}`,
-    sep,
-    `  Período     : ${fechaInicio} — ${fechaFin}`,
-    `  Generado    : ${new Date().toLocaleString("es-SV")}`,
-    dash,
-    "",
-    `  DATOS DEL REPORTE`,
-    dash,
-    "  " + reporte.headers.join("  |  "),
-    "  " + "-".repeat(60),
-    ...reporte.rows.map((r) => "  " + r.join("  |  ")),
-    "",
-    dash,
-    `  Total registros: ${reporte.rows.length}`,
-    sep,
-  ];
-  const blob = new Blob([lines.join("\n")], {
-    type: "application/octet-stream",
+  const doc = new jsPDF({ orientation: "landscape" });
+  doc.setFontSize(16);
+  doc.text(`SIGTAU - Reporte: ${label}`, 14, 18);
+  doc.setFontSize(10);
+  doc.text(`Período: ${fechaInicio} — ${fechaFin}`, 14, 27);
+  doc.text(
+    `Generado: ${new Date().toLocaleString("es-SV")}`,
+    14,
+    34,
+  );
+  autoTable(doc, {
+    head: [reporte.headers],
+    body: reporte.rows,
+    startY: 42,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [17, 138, 178] },
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.pdf`;
-  a.click();
-  URL.revokeObjectURL(url);
+  doc.save(`SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.pdf`);
 }
 
 export function DashboardReportes() {
@@ -199,7 +185,7 @@ export function DashboardReportes() {
             </button>
             <button
               onClick={() =>
-                downloadCSV(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
               }
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
               style={{ fontSize: "0.82rem" }}
@@ -597,7 +583,7 @@ export function DashboardReportes() {
                 </button>
                 <button
                   onClick={() =>
-                    downloadCSV(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                    downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
                   }
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}

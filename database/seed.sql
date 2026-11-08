@@ -15,21 +15,21 @@ INSERT INTO usuarios (
 VALUES (
 		'María Alejandra',
 		'Gómez',
-		'maria.gomez@universidad.edu.sv',
+		'maria.gomez@sigtau.edu.sv',
 		'$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS',
 		'ESTUDIANTE'
 	),
 	(
 		'Andrés',
 		'Ramírez',
-		'andres.ramirez@universidad.edu.sv',
+		'andres.ramirez@sigtau.edu.sv',
 		'$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS',
 		'TUTOR'
 	),
 	(
 		'Coordinación',
 		'Académica',
-		'coordinacion@universidad.edu.sv',
+		'coordinacion@sigtau.edu.sv',
 		'$2a$10$g1wQxR.e8qldknzbAC4.N.oDSfQVELa56lCgCfQ1ZXH86rea5P0KS',
 		'COORDINADOR'
 	);
