@@ -108,16 +108,19 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
     <div className="relative min-h-screen overflow-hidden bg-background transition-colors duration-300">
       {/* FONDO PRINCIPAL: Imagen panorámica institucional */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
-        {/* Capa de imagen de fondo */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "url('Colaboracion_uni.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        />
+    
+{/* Capa de imagen de fondo difuminada */}
+<div
+  className="absolute inset-[-8px]"
+  style={{
+    backgroundImage: "url('Colaboracion_uni.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    filter: "blur(5px)",
+  }}
+/>
+
 
         {/* Capa de oscurecimiento dependiente del tema para legibilidad */}
         <div
