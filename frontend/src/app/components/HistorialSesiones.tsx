@@ -229,7 +229,6 @@ function DetalleModal({
       >
         <header className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <FileText size={17} className="text-emerald-500" />
             <h3
               id="detalle-sesion-titulo"
               className="font-semibold text-card-foreground"
@@ -379,29 +378,23 @@ function DetalleModal({
                 {cancelando ? "Cancelando..." : "Cancelar"}
               </button>
 
-              
-
-<button
-  type="button"
-  onClick={() => onReprogramar(sesion)}
-  disabled={cancelando}
-  className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#0F789B] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40 focus-visible:ring-offset-2"
->
-  Reprogramar tutoría
-</button>
-
-
+              <button
+                type="button"
+                onClick={() => onReprogramar(sesion)}
+                disabled={cancelando}
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#0F789B] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40 focus-visible:ring-offset-2"
+              >
+                Reprogramar tutoría
+              </button>
             </>
           ) : (
-            
-<button
-  type="button"
-  onClick={onClose}
-  className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#0F789B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40 focus-visible:ring-offset-2"
->
-  Cerrar
-</button>
-
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#0F789B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/40 focus-visible:ring-offset-2"
+            >
+              Cerrar
+            </button>
           )}
         </footer>
       </section>
@@ -885,15 +878,16 @@ export function HistorialSesiones({ idTutor }: Props) {
                     <td className="px-5 py-4">
                       <button
                         type="button"
+                        aria-label={`Ver detalle de la sesión ${s.id}`}
+                        title="Ver detalle"
                         onClick={(e) => {
                           e.stopPropagation();
 
                           setDetalle(s);
                         }}
-                        className="inline-flex items-center gap-2 rounded-xl border border-[#118AB2] bg-[#192B3B] px-3.5 py-2 text-xs font-medium text-[#20C5E8] transition-colors hover:bg-[#118AB2]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[#F1F5F9] transition-colors hover:bg-[#118AB2]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8]"
                       >
                         <Eye size={14} />
-                        Ver
                       </button>
                     </td>
                   </tr>

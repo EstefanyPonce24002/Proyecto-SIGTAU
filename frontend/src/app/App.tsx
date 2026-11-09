@@ -225,6 +225,7 @@ export default function App() {
   // Persistir el tema en localStorage
   useEffect(() => {
     localStorage.setItem("sigtau_theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
   // Cerrar el menú de perfil al cambiar de ruta
@@ -665,9 +666,9 @@ export default function App() {
 
             {activeTab === "solicitud" && solicitudOk && (
               <div className="w-full max-w-lg mx-auto">
-                <div className="bg-card rounded-2xl border border-border p-10 text-center space-y-5">
+                <div className="space-y-5 rounded-2xl border border-border bg-card p-10 text-center dark:border-[#374151] dark:bg-[#1F2937]">
                   <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
+                    className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl dark:bg-[rgba(16,185,129,0.12)]"
                     style={{ background: "rgba(16,185,129,0.12)" }}
                   >
                     <CheckCircle2
@@ -676,11 +677,11 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <h2 className="text-foreground mb-2">
+                    <h2 className="mb-2 text-foreground dark:text-[#F9FAFB]">
                       ¡Solicitud enviada!
                     </h2>
                     <p
-                      className="text-muted-foreground"
+                      className="text-muted-foreground dark:text-[#D1D5DB]"
                       style={{ fontSize: "0.875rem" }}
                     >
                       Tu tutoría fue registrada como{" "}
@@ -688,9 +689,9 @@ export default function App() {
                       Recibirás una notificación cuando el tutor la confirme.
                     </p>
                   </div>
-                  <div className="rounded-xl border border-border bg-secondary p-4 text-left space-y-1">
+                  <div className="space-y-1 rounded-xl border border-border bg-secondary p-4 text-left dark:border-[#4B5563] dark:bg-[#374151]">
                     <p
-                      className="text-muted-foreground"
+                      className="text-muted-foreground dark:text-[#E5E7EB]"
                       style={{
                         fontSize: "0.75rem",
                         textTransform: "uppercase",
@@ -712,14 +713,14 @@ export default function App() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleNavigate("historial")}
-                      className="flex-1 rounded-xl border border-border py-2.5 text-foreground hover:bg-secondary transition-all"
+                      className="flex-1 rounded-xl border border-border py-2.5 text-foreground transition-all hover:bg-secondary dark:border-[#118AB2] dark:text-[#F9FAFB] dark:hover:bg-[#374151]"
                       style={{ fontSize: "0.875rem" }}
                     >
                       Ver historial
                     </button>
                     <button
                       onClick={() => setSolicitudOk(false)}
-                      className="sigtau-primary-button flex-1 rounded-xl py-2.5 text-white hover:opacity-90 transition-all"
+                      className="flex-1 rounded-xl bg-[#118AB2] py-2.5 text-white transition-all hover:opacity-90"
                       style={{ fontSize: "0.875rem" }}
                     >
                       Nueva solicitud

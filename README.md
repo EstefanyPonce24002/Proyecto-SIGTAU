@@ -2,7 +2,7 @@
 
 ## 📋 Descripción del Proyecto
 
-**SIGTAU** es una aplicación web diseñada para optimizar la gestión de tutorías académicas universitarias en la Universidad de El Salvador. Permite centralizar las solicitudes de tutoría, la asignación de tutores y asignaturas, la programación de sesiones y el seguimiento del progreso académico, mediante funcionalidades específicas para estudiantes, tutores y coordinadores.
+**SIGTAU** es una aplicación web diseñada para optimizar la gestión de tutorías académicas universitarias. Permite centralizar las solicitudes de tutoría, la asignación de tutores y asignaturas, la programación de sesiones y el seguimiento del progreso académico, mediante funcionalidades específicas para estudiantes, tutores y coordinadores.
 
 El sistema integra autenticación, control de acceso por roles, notificaciones, mensajería, reportes y herramientas de administración para facilitar la organización y supervisión de las tutorías.
 
@@ -75,19 +75,6 @@ El modelo de datos contempla usuarios, perfiles, asignaturas, horarios, sesiones
 | **Documentos adjuntos**     | Referencias y datos asociados a los archivos de apoyo.                  |
 | **Mensajes**                | Información de la comunicación entre los participantes.                 |
 
-_La tabla anterior es una descripción funcional de las áreas del modelo de datos, no una lista literal de nombres de tablas o columnas._
-
-### Integridad y restricciones
-
-El esquema contempla relaciones, índices y restricciones de integridad para mantener la consistencia de los datos.
-
-En la tabla de sesiones se debe conservar la validación que garantiza que la hora de finalización sea posterior a la hora de inicio:
-
-```sql
-CHECK (hora_fin > hora_inicio)
-```
-
-Los tipos enumerados de PostgreSQL deben permanecer sincronizados con los valores definidos en el backend. Cualquier modificación de estados o tipos de notificación debe ser compatible con el código fuente y los datos existentes.
 
 ---
 
@@ -169,7 +156,6 @@ Incluye:
 - documentos adjuntos y mensajes;
 - índices y restricciones de integridad.
 
-`database/seed.sql` contiene datos de desarrollo con contraseñas de prueba `password123` mediante BCrypt y fechas compatibles con los horarios definidos.
 
 ## Seguridad
 
@@ -199,25 +185,28 @@ Las variables sensibles de producción deben configurarse mediante entorno, entr
 
 Las instrucciones específicas de frontend y backend se mantienen en sus respectivos directorios.
 
-## Estado de pruebas
+## 👥 Equipo de Desarrollo
 
-Las pruebas automatizadas existentes y las nuevas pruebas de servicios están incorporadas al repositorio.
-
-**La ejecución local de Maven/Vite no se realizó en esta revisión porque el entorno de ejecución disponible no tiene acceso de red para clonar/obtener el proyecto y sus dependencias.** Por tanto, no se declara aquí una compilación o suite de pruebas exitosa.
-
-## Documentación de referencia
-
-Consultar los documentos del proyecto relacionados con:
-- requisitos funcionales;
-- matriz de trazabilidad;
-- diccionario de datos;
-- correcciones técnicas del informe de avance.
+| Nombre                              |   Carnet  |
+| ----------------------------------- | --------- |
+| Erick Lissandro Campos Magaña 	  |  CM22118  |
+| Marlon Alexis Núñez Ramos           |	 NR24002  |
+| Irving Vladimir Pérez Javier	      |  PJ23001  |
+| José Wilfredo Ponce Barahona        |  PB24007  |
+| Ana Estefany Quintanilla de Ponce   |  QP24002  |
+| Ventura Erazo, Diana Judith 	      |  VE24006  |
 
 
-## Respaldo de datos
+---
 
-Los scripts de database/backup.sh, database/restore.sh y database/backup.ps1 permiten crear y restaurar respaldos PostgreSQL en formato custom. Requieren las variables de conexión y DB_PASSWORD; la contraseña no se almacena en el repositorio.
+## 📜 Licencia
 
-## Nota sobre validación final
+Este proyecto fue desarrollado con fines académicos para la asignatura **Análisis y Diseño de Software II (ADS235)** de la Universidad de El Salvador.
 
-La revisión de código y trazabilidad de requisitos se realizó de forma estática. La compilación, ejecución de pruebas automatizadas, validación de PostgreSQL/H2 y pruebas manuales de frontend quedan para la etapa final de validación local.
+---
+
+## 👥 Tutor Asignado
+
+**| GT02 Licdo. Edwin Aristondo Monzón González |**
+
+---

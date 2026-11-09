@@ -442,7 +442,7 @@ export function DashboardCoord() {
                       <button
                         type="button"
                         aria-label={`Ver detalle de la sesión ${actividad.idSesion}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#118AB2] bg-transparent px-2.5 py-1.5 text-[10px] font-medium text-[#118AB2] transition-colors hover:bg-[#118AB2]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8] dark:text-[#20C5E8]"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         onClick={() => {
                           const detalle = sesiones.find(
                             (sesion) => sesion.id === actividad.idSesion,

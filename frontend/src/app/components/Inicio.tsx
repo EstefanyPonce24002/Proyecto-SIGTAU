@@ -36,7 +36,7 @@ export function Inicio({ onNavigate, nombre }: Props) {
       {/* --- SECCIÓN 2: Título Principal (Hero) --- */}
       <div className="mb-7">
         <h1
-          className="max-w-[1050px] text-3xl leading-[1.12] text-foreground sm:text-[2rem]"
+          className="max-w-[1050px] text-2xl leading-[1.12] text-foreground sm:text-[1.75rem]"
           style={{ fontWeight: 500 }}
         >
           Explora nuevas oportunidades de aprendizaje, mantente al día con tus
@@ -50,12 +50,12 @@ export function Inicio({ onNavigate, nombre }: Props) {
         <img
           src="/tutores.jpg"
           alt="Estudiantes trabajando con su tutor"
-          className="block aspect-[3/1] w-full object-cover object-center sm:aspect-[16/6]"
+          className="block aspect-[3/1] w-full object-cover object-center sm:aspect-[16/5]"
         />
 
      {/* Capa de degradado y texto superpuesto */}
         <div className="absolute inset-0 flex items-start justify-end bg-gradient-to-l from-black/80 via-black/40 to-transparent p-5 sm:p-8">
-          <p className="max-w-[min(90%,30rem)] text-right text-lg leading-tight sm:text-2xl md:text-3xl">
+          <p className="max-w-[min(90%,30rem)] text-right text-base leading-tight sm:text-xl md:text-2xl">
             <span 
               className="block font-semibold text-white" 
               style={{ textShadow: "1px 1px 4px rgba(0,0,0,0.5)" }}
@@ -85,7 +85,7 @@ export function Inicio({ onNavigate, nombre }: Props) {
           <h2
             id="destacados-title"
             className="text-foreground"
-            style={{ fontSize: "2.25rem" }}
+            style={{ fontSize: "1.85rem" }}
           >
             Tu camino de aprendizaje
           </h2>
