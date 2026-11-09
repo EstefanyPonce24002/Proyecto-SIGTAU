@@ -451,7 +451,6 @@ export function DashboardCoord() {
                         }}
                       >
                         <Eye size={13} />
-                        Ver
                       </button>
                     </td>
                   </tr>

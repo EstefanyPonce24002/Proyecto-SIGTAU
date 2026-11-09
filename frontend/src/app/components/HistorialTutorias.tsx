@@ -297,6 +297,26 @@ function DetalleModal({
                 "Aún no hay observaciones registradas para esta sesión."}
             </p>
           </div>
+
+          {sesion.estado === "COMPLETADA" && (
+            <div className="rounded-xl bg-secondary p-3">
+              <p
+                className="mb-1 text-muted-foreground"
+                style={{ fontSize: "0.82rem", textTransform: "uppercase" }}
+              >
+                Nota obtenida
+              </p>
+              <p
+                className="text-card-foreground"
+                style={{ fontSize: "1.1rem", fontWeight: 600 }}
+              >
+                {sesion.calificacionProgreso !== null &&
+                sesion.calificacionProgreso !== undefined
+                  ? sesion.calificacionProgreso.toFixed(1)
+                  : "Aún no registrada"}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ---------- Pie del modal: botón de cerrar ---------- */}

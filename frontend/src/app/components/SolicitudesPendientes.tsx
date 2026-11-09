@@ -16,11 +16,16 @@ import {
   Search,
   ChevronDown,
   Eye,
+  Download,
+  FileText,
 } from "lucide-react";
 
 import {
   pendientesTutor,
   resolverSolicitud,
+  listarAdjuntos,
+  descargarAdjunto,
+  type DocumentoAdjunto,
   type Sesion,
 } from "../lib/sesiones";
 
@@ -87,9 +92,13 @@ function formatFecha(fecha: string): string {
   } ${y}`; // Retorna día + mes abreviado + año
 }
 
-// Función que recorta una hora a formato HH:MM
+// Convierte una hora de 24 horas a formato de 12 horas.
 function formatHora(hora: string): string {
-  return hora.slice(0, 5); // Toma solo los primeros 5 caracteres
+  const [horas, minutos] = hora.slice(0, 5).split(":").map(Number);
+  const periodo = horas >= 12 ? "p. m." : "a. m.";
+  const hora12 = horas % 12 || 12;
+
+  return `${String(hora12).padStart(2, "0")}:${String(minutos).padStart(2, "0")} ${periodo}`;
 }
 
 // Función que traduce el estado técnico a texto mostrable
@@ -257,6 +266,61 @@ function DetallesModal({
   onAprobar: () => void;
   onRechazar: () => void;
 }) {
+  const [documentos, setDocumentos] = useState<DocumentoAdjunto[]>([]);
+  const [cargandoDocumentos, setCargandoDocumentos] = useState(true);
+  const [errorDocumentos, setErrorDocumentos] = useState<string | null>(null);
+  const [descargandoDocumento, setDescargandoDocumento] = useState<
+    number | null
+  >(null);
+
+  useEffect(() => {
+    let activo = true;
+    setCargandoDocumentos(true);
+    setErrorDocumentos(null);
+
+    listarAdjuntos(sesion.id)
+      .then((resultado) => {
+        if (activo) setDocumentos(resultado);
+      })
+      .catch((error: unknown) => {
+        if (activo) {
+          setErrorDocumentos(
+            error instanceof ApiError
+              ? error.message
+              : "No se pudieron cargar los documentos.",
+          );
+        }
+      })
+      .finally(() => {
+        if (activo) setCargandoDocumentos(false);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [sesion.id]);
+
+  const descargarDocumento = async (documento: DocumentoAdjunto) => {
+    setDescargandoDocumento(documento.id);
+    try {
+      const archivo = await descargarAdjunto(documento.id);
+      const url = URL.createObjectURL(archivo);
+      const enlace = document.createElement("a");
+      enlace.href = url;
+      enlace.download = documento.nombreOriginal;
+      enlace.click();
+      URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      setErrorDocumentos(
+        error instanceof ApiError
+          ? error.message
+          : "No se pudo descargar el documento.",
+      );
+    } finally {
+      setDescargandoDocumento(null);
+    }
+  };
+
   // Definición de los campos básicos a mostrar en tarjetas
   const campos = [
     { icon: ClipboardList, label: "Código", valor: `#${sesion.id}` },
@@ -355,10 +419,45 @@ function DetallesModal({
             </div>
           </div>
 
+          <div className="rounded-xl border border-[#30465C] bg-[#1D3043] p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <FileText size={14} className="text-[#20C5E8]" />
+              <span className="text-xs uppercase tracking-wide text-[#A8B7C8]">
+                Documentos adjuntos
+              </span>
+            </div>
+            {cargandoDocumentos ? (
+              <p className="text-sm text-[#A8B7C8]">Cargando documentos...</p>
+            ) : errorDocumentos ? (
+              <p className="text-sm text-red-400">{errorDocumentos}</p>
+            ) : documentos.length === 0 ? (
+              <p className="text-sm text-[#A8B7C8]">
+                El estudiante no adjuntó documentos.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {documentos.map((documento) => (
+                  <button
+                    key={documento.id}
+                    type="button"
+                    onClick={() => void descargarDocumento(documento)}
+                    disabled={descargandoDocumento === documento.id}
+                    className="flex w-full items-center justify-between gap-3 rounded-lg bg-[#24394D] px-3 py-2 text-left text-sm text-[#F1F5F9] transition-colors hover:bg-[#30465C] disabled:opacity-60"
+                  >
+                    <span className="min-w-0 truncate">
+                      {documento.nombreOriginal}
+                    </span>
+                    <Download size={15} className="shrink-0 text-[#20C5E8]" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Solo si la solicitud está PENDIENTE se muestran botones de acción */}
           {sesion.estado === "PENDIENTE" && (
             <div className="flex flex-col items-stretch justify-end gap-3 border-t border-[#30465C] pt-4 sm:flex-row sm:items-center">
-               {/* Rechazar: estilo secundario rojo sutil con estado activo más intenso */}
+              {/* Rechazar: estilo secundario rojo sutil con estado activo más intenso */}
               <button
                 type="button"
                 onClick={onRechazar}
@@ -808,10 +907,9 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                       <button
                         type="button"
                         onClick={() => setDetalleAbierto(sesion)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-[#118AB2] bg-[#192B3B] px-3.5 py-2 text-xs font-medium text-[#20C5E8] transition-colors hover:bg-[#118AB2]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8]"
+                        className="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                       >
                         <Eye size={14} />
-                        Detalles
                       </button>
                     </td>
                   </tr>

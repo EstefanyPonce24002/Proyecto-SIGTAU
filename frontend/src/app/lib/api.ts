@@ -79,3 +79,29 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   const text = await response.text();
   return (text ? JSON.parse(text) : undefined) as T;
 }
+
+export async function apiFetchBlob(
+  path: string,
+  options: ApiFetchOptions = {},
+): Promise<Blob> {
+  const { auth = true, headers, ...rest } = options;
+  const finalHeaders: Record<string, string> = {
+    ...(headers as Record<string, string> | undefined),
+  };
+
+  if (auth) {
+    const token = getToken();
+    if (token) finalHeaders["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...rest,
+    headers: finalHeaders,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(`Error ${response.status}`, response.status);
+  }
+
+  return response.blob();
+}

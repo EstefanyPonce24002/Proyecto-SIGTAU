@@ -1,6 +1,14 @@
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchBlob } from "./api";
 
 export type EstadoSesion = "PENDIENTE" | "APROBADA" | "RECHAZADA" | "COMPLETADA" | "CANCELADA";
+
+export interface DocumentoAdjunto {
+  id: number;
+  nombreOriginal: string;
+  tipoMime: string;
+  tamanio: number;
+  fechaSubida: string;
+}
 
 export interface Sesion {
   id: number;
@@ -105,4 +113,12 @@ export function historialTutor(idTutor: number): Promise<Sesion[]> {
 
 export function pendientesTutor(idTutor: number): Promise<Sesion[]> {
   return apiFetch<Sesion[]>(`/sesiones/tutor/${idTutor}/pendientes`);
+}
+
+export function listarAdjuntos(idSesion: number): Promise<DocumentoAdjunto[]> {
+  return apiFetch<DocumentoAdjunto[]>(`/sesiones/${idSesion}/adjuntos`);
+}
+
+export function descargarAdjunto(idDocumento: number): Promise<Blob> {
+  return apiFetchBlob(`/sesiones/adjuntos/${idDocumento}/descarga`);
 }
