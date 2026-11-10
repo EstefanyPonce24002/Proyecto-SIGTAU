@@ -39,6 +39,12 @@ const ROL_LABEL: Record<Rol, string> = {
   COORDINADOR: "Coordinador",
 };
 
+const ROL_STYLE: Record<Rol, { color: string; background: string }> = {
+  ESTUDIANTE: { color: "#60A5FA", background: "rgba(59,130,246,0.12)" },
+  TUTOR: { color: "#4ADE80", background: "rgba(34,197,94,0.12)" },
+  COORDINADOR: { color: "#C084FC", background: "rgba(168,85,247,0.12)" },
+};
+
 function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
@@ -702,74 +708,76 @@ export function GestionUsuarios() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground">
-            Administra, edita y gestiona los usuarios del sistema
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Consulta las cuentas y administra sus asignaciones.
-          </p>
-        </div>
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
+        <header className="space-y-4 border-b border-border px-4 py-4 dark:border-[#30465C] sm:px-5">
+          <div>
+            <div>
+              <h2 className="text-sm font-semibold text-card-foreground">
+                Usuarios
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Administra las cuentas y sus asignaciones.
+              </p>
+            </div>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setActionError(null);
-            setModalOpen(true);
-          }}
-          className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-white transition-opacity hover:opacity-90"
-          style={{ background: "#10B981" }}
-        >
-          <Plus size={15} />
-          Nuevo usuario
-        </button>
-      </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <VoiceSearchInput
+              value={busqueda}
+              onChange={setBusqueda}
+              placeholder="Buscar por nombre o correo..."
+              className="min-w-0 flex-1"
+              style={{ fontSize: "0.875rem" }}
+            />
 
-      {actionError && (
-        <div
-          role="alert"
-          className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3"
-        >
-          <p className="text-sm text-destructive">{actionError}</p>
-        </div>
-      )}
+            <div className="relative sm:w-52 sm:shrink-0">
+              <select
+                value={filtroRol}
+                onChange={(e) => setFiltroRol(e.target.value)}
+                aria-label="Filtrar usuarios por rol"
+                className="w-full appearance-none rounded-lg border border-border bg-card px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring dark:bg-[#1F2937]"
+              >
+                <option value="Todos">Todos los roles</option>
+                <option value="ESTUDIANTE">Estudiante</option>
+                <option value="TUTOR">Tutor</option>
+                <option value="COORDINADOR">Coordinador</option>
+              </select>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <VoiceSearchInput
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar por nombre o correo..."
-          className="flex-1"
-          style={{ fontSize: "0.875rem" }}
-        />
+              <ChevronDown
+                size={14}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+            </div>
 
-        <div className="relative">
-          <select
-            value={filtroRol}
-            onChange={(e) => setFiltroRol(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-border bg-card px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring sm:w-auto"
-          >
-            <option value="Todos">Todos los roles</option>
-            <option value="ESTUDIANTE">Estudiante</option>
-            <option value="TUTOR">Tutor</option>
-            <option value="COORDINADOR">Coordinador</option>
-          </select>
+            <button
+              type="button"
+              onClick={() => {
+                setActionError(null);
+                setModalOpen(true);
+              }}
+              className="flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
+              style={{ background: "#10B981" }}
+            >
+              <Plus size={15} />
+              Nuevo usuario
+            </button>
+          </div>
 
-          <ChevronDown
-            size={14}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          />
-        </div>
-      </div>
+          {actionError && (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3"
+            >
+              <p className="text-sm text-destructive">{actionError}</p>
+            </div>
+          )}
+        </header>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full" style={{ minWidth: "680px" }}>
             <thead>
               <tr
-                className="border-b border-border"
-                style={{ background: "rgba(245,158,11,0.1)" }}
+                className="border-b border-border bg-secondary dark:border-[#30465C] dark:bg-[#1F2937]"
               >
                 {[
                   "Usuario",
@@ -789,21 +797,23 @@ export function GestionUsuarios() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border dark:divide-[#30465C]">
               {filtrados.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="py-12 text-center text-sm text-muted-foreground"
+                    className="bg-card py-12 text-center text-sm text-muted-foreground dark:bg-[#1F2937]"
                   >
-                    No se encontraron usuarios.
+                    {usuarios.length === 0
+                      ? "Sin usuarios registrados."
+                      : "No se encontraron usuarios."}
                   </td>
                 </tr>
               ) : (
                 filtrados.map((usuario) => (
                   <tr
                     key={usuario.id}
-                    className="transition-colors hover:bg-secondary/40"
+                    className="bg-card transition-colors hover:bg-secondary/40 dark:bg-[#1F2937]"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5">
@@ -828,7 +838,10 @@ export function GestionUsuarios() {
                     </td>
 
                     <td className="px-5 py-3.5">
-                      <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs text-blue-500">
+                      <span
+                        className="rounded-full px-2.5 py-1 text-xs"
+                        style={ROL_STYLE[usuario.rol]}
+                      >
                         {ROL_LABEL[usuario.rol]}
                       </span>
                     </td>
@@ -904,14 +917,7 @@ export function GestionUsuarios() {
             Mostrando {filtrados.length} de {usuarios.length} usuarios
           </p>
         </div>
-      </div>
-
-      {usuarios.length === 0 && (
-        <div className="rounded-2xl border border-border bg-card py-16 text-center">
-          <Users size={32} className="mx-auto mb-3 text-muted-foreground" />
-          <p className="text-sm text-foreground">Sin usuarios registrados</p>
-        </div>
-      )}
+      </section>
 
       {modalOpen && (
         <NuevoUsuarioModal
