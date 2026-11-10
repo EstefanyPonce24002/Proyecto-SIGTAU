@@ -142,24 +142,94 @@ function downloadPDF(
   label: string,
   fechaInicio: string,
   fechaFin: string,
+  carrera: string,
 ) {
   const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(16);
-  doc.text(`SIGTAU - Reporte: ${label}`, 14, 18);
-  doc.setFontSize(10);
-  doc.text(`Período: ${fechaInicio} — ${fechaFin}`, 14, 27);
+  const ancho = doc.internal.pageSize.getWidth();
+  const alto = doc.internal.pageSize.getHeight();
+  const margen = 14;
+  const azul: [number, number, number] = [30, 58, 138]; // #1E3A8A, color institucional
+  const turquesa: [number, number, number] = [17, 138, 178]; // #118AB2
+
+  // Encabezado institucional (banda azul)
+  doc.setFillColor(...azul);
+  doc.rect(0, 0, ancho, 24, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.text("SIGTAU", margen, 11);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("Sistema Integral de Gestión de Tutorías Académicas", margen, 17);
+  doc.text("Universidad de El Salvador · Coordinación académica", ancho - margen, 11, { align: "right" });
+  doc.text(`Generado: ${new Date().toLocaleString("es-SV")}`, ancho - margen, 17, { align: "right" });
+
+  // Título y filtros aplicados
+  doc.setTextColor(17, 24, 39);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text(`Reporte: ${label}`, margen, 34);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.setTextColor(75, 85, 99);
   doc.text(
-    `Generado: ${new Date().toLocaleString("es-SV")}`,
-    14,
-    34,
+    `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}   ·   Carrera: ${carrera || "Todas las carreras"}   ·   Registros: ${reporte.rows.length}`,
+    margen,
+    41,
   );
-  autoTable(doc, {
-    head: [reporte.headers],
-    body: reporte.rows,
-    startY: 42,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [17, 138, 178] },
-  });
+
+  // Indicadores (KPIs) en tarjetas
+  let y = 48;
+  if (reporte.kpis.length > 0) {
+    const sep = 4;
+    const n = reporte.kpis.length;
+    const anchoKpi = (ancho - margen * 2 - sep * (n - 1)) / n;
+    reporte.kpis.forEach((k, i) => {
+      const x = margen + i * (anchoKpi + sep);
+      doc.setDrawColor(209, 213, 219);
+      doc.setFillColor(243, 246, 251);
+      doc.roundedRect(x, y, anchoKpi, 18, 2, 2, "FD");
+      doc.setTextColor(...azul);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(k.value, x + 4, y + 8);
+      doc.setTextColor(75, 85, 99);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(k.label, x + 4, y + 14);
+    });
+    y += 24;
+  }
+
+  // Tabla de datos (o aviso si está vacía)
+  if (reporte.rows.length === 0) {
+    doc.setTextColor(180, 83, 9);
+    doc.setFontSize(10);
+    doc.text("Sin datos para el período y la carrera seleccionados.", margen, y + 6);
+  } else {
+    autoTable(doc, {
+      head: [reporte.headers],
+      body: reporte.rows,
+      startY: y,
+      margin: { left: margen, right: margen, bottom: 16 },
+      styles: { fontSize: 8.5, cellPadding: 2.5, textColor: [31, 41, 55] },
+      headStyles: { fillColor: turquesa, textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+    });
+  }
+
+  // Pie de página en todas las páginas
+  const paginas = doc.getNumberOfPages();
+  for (let p = 1; p <= paginas; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(209, 213, 219);
+    doc.line(margen, alto - 11, ancho - margen, alto - 11);
+    doc.setFontSize(8);
+    doc.setTextColor(107, 114, 128);
+    doc.text("Documento generado por SIGTAU · Uso académico", margen, alto - 6);
+    doc.text(`Página ${p} de ${paginas}`, ancho - margen, alto - 6, { align: "right" });
+  }
+
   doc.save(`SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.pdf`);
 }
 
@@ -234,7 +304,13 @@ export function DashboardReportes() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() =>
-                downloadPDF(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                downloadPDF(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
               }
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{ fontSize: "0.82rem" }}
@@ -670,7 +746,13 @@ export function DashboardReportes() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    downloadPDF(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                    downloadPDF(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
                   }
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
