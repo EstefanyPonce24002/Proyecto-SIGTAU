@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import {
   generarReporte,
+  listarCarreras,
   type TipoReporte,
   type ReporteGenerado,
 } from "../lib/reportes";
@@ -126,11 +127,20 @@ export function DashboardReportes() {
     new Date().toISOString().split("T")[0],
   );
   const [carrera, setCarrera] = useState("");
+  const [carreras, setCarreras] = useState<string[]>([]);
+  const [carrerasError, setCarrerasError] = useState(false);
   const [generando, setGenerando] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
   const [reporte, setReporte] = useState<ReporteGenerado | null>(null);
 
   const tipoInfo = TIPO_OPCIONES.find((t) => t.valor === tipo)!;
+
+  // Carga las carreras reales para el selector (evita errores al escribir el nombre)
+  useEffect(() => {
+    listarCarreras()
+      .then(setCarreras)
+      .catch(() => setCarrerasError(true));
+  }, []);
 
   const handleGenerar = async () => {
     setGenerando(true);
@@ -306,18 +316,32 @@ export function DashboardReportes() {
             >
               Filtro por carrera
             </label>
-            <input
+            <select
               value={carrera}
-              onChange={(e) => setCarrera(e.target.value)}
-              placeholder="Todas las carreras"
-              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
+              onChange={(e) => {
+                setCarrera(e.target.value);
+                setReporte(null);
+              }}
+              title={
+                carrerasError
+                  ? "No se pudieron cargar las carreras; se usará Todas las carreras."
+                  : undefined
+              }
+              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
               style={
                 {
                   fontSize: "0.85rem",
                   "--tw-ring-color": "#10B981",
                 } as React.CSSProperties
               }
-            />
+            >
+              <option value="">Todas las carreras</option>
+              {carreras.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="space-y-1">
             <label
