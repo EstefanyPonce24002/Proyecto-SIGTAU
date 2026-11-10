@@ -77,21 +77,58 @@ const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
 const KPI_COLORS = ["#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
 
 /* ── Exportación real de lo que devolvió el backend ──────────────────── */
+/** Convierte "12" o "8.5" en número para que Excel pueda sumar y ordenar. */
+function celdaExcel(valor: string): string | number {
+  return /^-?\d+(\.\d+)?$/.test(valor.trim()) ? Number(valor) : valor;
+}
+
 function downloadExcel(
   reporte: ReporteGenerado,
   label: string,
   fechaInicio: string,
   fechaFin: string,
+  carrera: string,
 ) {
-  const worksheetData = [
-    [`SIGTAU - Reporte: ${label}`],
-    [`Período: ${fechaInicio} — ${fechaFin}`],
+  const columnas = Math.max(reporte.headers.length, 2);
+  const filaVacia: string[] = [];
+
+  // Encabezado institucional, filtros aplicados e indicadores (KPIs)
+  const encabezado: (string | number)[][] = [
+    ["Universidad de El Salvador · SIGTAU"],
+    [`Reporte: ${label}`],
+    [`Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}`],
+    [`Carrera: ${carrera || "Todas las carreras"}`],
     [`Generado: ${new Date().toLocaleString("es-SV")}`],
-    [],
-    reporte.headers,
-    ...reporte.rows,
+    filaVacia,
+    ["Indicadores"],
+    ...reporte.kpis.map((k) => [k.label, celdaExcel(k.value)]),
+    filaVacia,
   ];
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const cuerpo =
+    reporte.rows.length > 0
+      ? reporte.rows.map((r) => r.map(celdaExcel))
+      : [["Sin datos para el período y la carrera seleccionados"]];
+
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    ...encabezado,
+    reporte.headers,
+    ...cuerpo,
+  ]);
+
+  // Títulos combinados a lo ancho de la tabla
+  worksheet["!merges"] = [0, 1, 2, 3, 4, 6].map((fila) => ({
+    s: { r: fila, c: 0 },
+    e: { r: fila, c: columnas - 1 },
+  }));
+
+  // Ancho de cada columna según su contenido más largo (entre 12 y 45 caracteres)
+  const filasTabla = [reporte.headers, ...reporte.rows];
+  worksheet["!cols"] = Array.from({ length: columnas }, (_, c) => {
+    const largos = filasTabla.map((f) => String(f[c] ?? "").length);
+    if (c === 0) largos.push(...reporte.kpis.map((k) => k.label.length));
+    return { wch: Math.min(45, Math.max(12, ...largos) + 2) };
+  });
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
   XLSX.writeFile(
@@ -207,7 +244,13 @@ export function DashboardReportes() {
             </button>
             <button
               onClick={() =>
-                downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                downloadExcel(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
               }
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
               style={{ fontSize: "0.82rem" }}
@@ -637,7 +680,13 @@ export function DashboardReportes() {
                 </button>
                 <button
                   onClick={() =>
-                    downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                    downloadExcel(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
                   }
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
