@@ -67,6 +67,12 @@ const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
   },
 ];
 
+/** Convierte "2026-01-31" en "31/01/2026" (formato DD/MM/AAAA, RNF 10.4.2). */
+function fmtFecha(iso: string): string {
+  const [a, m, d] = iso.split("-");
+  return d && m && a ? `${d}/${m}/${a}` : iso;
+}
+
 const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
 const KPI_COLORS = ["#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
 
@@ -164,6 +170,12 @@ export function DashboardReportes() {
       setGenerando(false);
     }
   };
+
+  // Mensaje claro cuando el reporte no trae filas (indica período y carrera usados)
+  const sinDatos = !!reporte && reporte.rows.length === 0;
+  const mensajeSinDatos = carrera
+    ? `No hay sesiones de estudiantes de ${carrera} entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con otro período o con «Todas las carreras».`
+    : `No hay sesiones registradas entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con un período más amplio.`;
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -393,28 +405,46 @@ export function DashboardReportes() {
       {/* Resultados */}
       {reporte && (
         <>
+          {/* Aviso: verde si hay datos, ámbar si el reporte salió vacío */}
           <div
             className="flex items-center gap-3 rounded-xl px-4 py-3"
             style={{
-              background: "rgba(16,185,129,0.08)",
-              border: "1px solid rgba(16,185,129,0.25)",
+              background: sinDatos
+                ? "rgba(245,158,11,0.08)"
+                : "rgba(16,185,129,0.08)",
+              border: sinDatos
+                ? "1px solid rgba(245,158,11,0.3)"
+                : "1px solid rgba(16,185,129,0.25)",
             }}
           >
-            <CheckCircle2
-              size={16}
-              style={{ color: "#10B981", flexShrink: 0 }}
-            />
+            {sinDatos ? (
+              <AlertCircle
+                size={16}
+                style={{ color: "#F59E0B", flexShrink: 0 }}
+              />
+            ) : (
+              <CheckCircle2
+                size={16}
+                style={{ color: "#10B981", flexShrink: 0 }}
+              />
+            )}
             <div className="flex-1">
-              <p style={{ fontSize: "0.85rem", color: "#10B981" }}>
-                Reporte generado — <strong>{tipoInfo.label}</strong>
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: sinDatos ? "#F59E0B" : "#10B981",
+                }}
+              >
+                {sinDatos ? "Reporte sin resultados" : "Reporte generado"} —{" "}
+                <strong>{tipoInfo.label}</strong>
               </p>
               <p
                 className="text-muted-foreground"
                 style={{ fontSize: "0.73rem" }}
               >
-                Período: {fechaInicio} · {fechaFin} ·{" "}
-                {carrera || "Todas las carreras"} · {reporte.totalRegistros}{" "}
-                registros
+                {sinDatos
+                  ? mensajeSinDatos
+                  : `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)} · ${carrera || "Todas las carreras"} · ${reporte.totalRegistros} registros`}
               </p>
             </div>
           </div>
@@ -469,7 +499,7 @@ export function DashboardReportes() {
                 className="text-muted-foreground mb-4"
                 style={{ fontSize: "0.78rem" }}
               >
-                Período {fechaInicio} al {fechaFin}
+                Período {fmtFecha(fechaInicio)} al {fmtFecha(fechaFin)}
               </p>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={reporte.chart} barSize={32}>
@@ -553,7 +583,7 @@ export function DashboardReportes() {
                         className="text-center py-10 text-muted-foreground"
                         style={{ fontSize: "0.875rem" }}
                       >
-                        Sin datos para el período seleccionado
+                        {mensajeSinDatos}
                       </td>
                     </tr>
                   ) : (
