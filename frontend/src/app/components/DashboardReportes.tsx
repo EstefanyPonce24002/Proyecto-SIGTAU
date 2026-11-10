@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import {
   generarReporte,
+  listarCarreras,
   type TipoReporte,
   type ReporteGenerado,
 } from "../lib/reportes";
@@ -66,25 +67,68 @@ const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
   },
 ];
 
+/** Convierte "2026-01-31" en "31/01/2026" (formato DD/MM/AAAA, RNF 10.4.2). */
+function fmtFecha(iso: string): string {
+  const [a, m, d] = iso.split("-");
+  return d && m && a ? `${d}/${m}/${a}` : iso;
+}
+
 const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
 const KPI_COLORS = ["#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
 
 /* ── Exportación real de lo que devolvió el backend ──────────────────── */
+/** Convierte "12" o "8.5" en número para que Excel pueda sumar y ordenar. */
+function celdaExcel(valor: string): string | number {
+  return /^-?\d+(\.\d+)?$/.test(valor.trim()) ? Number(valor) : valor;
+}
+
 function downloadExcel(
   reporte: ReporteGenerado,
   label: string,
   fechaInicio: string,
   fechaFin: string,
+  carrera: string,
 ) {
-  const worksheetData = [
-    [`SIGTAU - Reporte: ${label}`],
-    [`Período: ${fechaInicio} — ${fechaFin}`],
+  const columnas = Math.max(reporte.headers.length, 2);
+  const filaVacia: string[] = [];
+
+  // Encabezado institucional, filtros aplicados e indicadores (KPIs)
+  const encabezado: (string | number)[][] = [
+    ["Universidad de El Salvador · SIGTAU"],
+    [`Reporte: ${label}`],
+    [`Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}`],
+    [`Carrera: ${carrera || "Todas las carreras"}`],
     [`Generado: ${new Date().toLocaleString("es-SV")}`],
-    [],
-    reporte.headers,
-    ...reporte.rows,
+    filaVacia,
+    ["Indicadores"],
+    ...reporte.kpis.map((k) => [k.label, celdaExcel(k.value)]),
+    filaVacia,
   ];
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const cuerpo =
+    reporte.rows.length > 0
+      ? reporte.rows.map((r) => r.map(celdaExcel))
+      : [["Sin datos para el período y la carrera seleccionados"]];
+
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    ...encabezado,
+    reporte.headers,
+    ...cuerpo,
+  ]);
+
+  // Títulos combinados a lo ancho de la tabla
+  worksheet["!merges"] = [0, 1, 2, 3, 4, 6].map((fila) => ({
+    s: { r: fila, c: 0 },
+    e: { r: fila, c: columnas - 1 },
+  }));
+
+  // Ancho de cada columna según su contenido más largo (entre 12 y 45 caracteres)
+  const filasTabla = [reporte.headers, ...reporte.rows];
+  worksheet["!cols"] = Array.from({ length: columnas }, (_, c) => {
+    const largos = filasTabla.map((f) => String(f[c] ?? "").length);
+    if (c === 0) largos.push(...reporte.kpis.map((k) => k.label.length));
+    return { wch: Math.min(45, Math.max(12, ...largos) + 2) };
+  });
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
   XLSX.writeFile(
@@ -98,24 +142,94 @@ function downloadPDF(
   label: string,
   fechaInicio: string,
   fechaFin: string,
+  carrera: string,
 ) {
   const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(16);
-  doc.text(`SIGTAU - Reporte: ${label}`, 14, 18);
-  doc.setFontSize(10);
-  doc.text(`Período: ${fechaInicio} — ${fechaFin}`, 14, 27);
+  const ancho = doc.internal.pageSize.getWidth();
+  const alto = doc.internal.pageSize.getHeight();
+  const margen = 14;
+  const azul: [number, number, number] = [30, 58, 138]; // #1E3A8A, color institucional
+  const turquesa: [number, number, number] = [17, 138, 178]; // #118AB2
+
+  // Encabezado institucional (banda azul)
+  doc.setFillColor(...azul);
+  doc.rect(0, 0, ancho, 24, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.text("SIGTAU", margen, 11);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("Sistema Integral de Gestión de Tutorías Académicas", margen, 17);
+  doc.text("Universidad de El Salvador · Coordinación académica", ancho - margen, 11, { align: "right" });
+  doc.text(`Generado: ${new Date().toLocaleString("es-SV")}`, ancho - margen, 17, { align: "right" });
+
+  // Título y filtros aplicados
+  doc.setTextColor(17, 24, 39);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text(`Reporte: ${label}`, margen, 34);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.setTextColor(75, 85, 99);
   doc.text(
-    `Generado: ${new Date().toLocaleString("es-SV")}`,
-    14,
-    34,
+    `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}   ·   Carrera: ${carrera || "Todas las carreras"}   ·   Registros: ${reporte.rows.length}`,
+    margen,
+    41,
   );
-  autoTable(doc, {
-    head: [reporte.headers],
-    body: reporte.rows,
-    startY: 42,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [17, 138, 178] },
-  });
+
+  // Indicadores (KPIs) en tarjetas
+  let y = 48;
+  if (reporte.kpis.length > 0) {
+    const sep = 4;
+    const n = reporte.kpis.length;
+    const anchoKpi = (ancho - margen * 2 - sep * (n - 1)) / n;
+    reporte.kpis.forEach((k, i) => {
+      const x = margen + i * (anchoKpi + sep);
+      doc.setDrawColor(209, 213, 219);
+      doc.setFillColor(243, 246, 251);
+      doc.roundedRect(x, y, anchoKpi, 18, 2, 2, "FD");
+      doc.setTextColor(...azul);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(k.value, x + 4, y + 8);
+      doc.setTextColor(75, 85, 99);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(k.label, x + 4, y + 14);
+    });
+    y += 24;
+  }
+
+  // Tabla de datos (o aviso si está vacía)
+  if (reporte.rows.length === 0) {
+    doc.setTextColor(180, 83, 9);
+    doc.setFontSize(10);
+    doc.text("Sin datos para el período y la carrera seleccionados.", margen, y + 6);
+  } else {
+    autoTable(doc, {
+      head: [reporte.headers],
+      body: reporte.rows,
+      startY: y,
+      margin: { left: margen, right: margen, bottom: 16 },
+      styles: { fontSize: 8.5, cellPadding: 2.5, textColor: [31, 41, 55] },
+      headStyles: { fillColor: turquesa, textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+    });
+  }
+
+  // Pie de página en todas las páginas
+  const paginas = doc.getNumberOfPages();
+  for (let p = 1; p <= paginas; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(209, 213, 219);
+    doc.line(margen, alto - 11, ancho - margen, alto - 11);
+    doc.setFontSize(8);
+    doc.setTextColor(107, 114, 128);
+    doc.text("Documento generado por SIGTAU · Uso académico", margen, alto - 6);
+    doc.text(`Página ${p} de ${paginas}`, ancho - margen, alto - 6, { align: "right" });
+  }
+
   doc.save(`SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.pdf`);
 }
 
@@ -126,11 +240,20 @@ export function DashboardReportes() {
     new Date().toISOString().split("T")[0],
   );
   const [carrera, setCarrera] = useState("");
+  const [carreras, setCarreras] = useState<string[]>([]);
+  const [carrerasError, setCarrerasError] = useState(false);
   const [generando, setGenerando] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
   const [reporte, setReporte] = useState<ReporteGenerado | null>(null);
 
   const tipoInfo = TIPO_OPCIONES.find((t) => t.valor === tipo)!;
+
+  // Carga las carreras reales para el selector (evita errores al escribir el nombre)
+  useEffect(() => {
+    listarCarreras()
+      .then(setCarreras)
+      .catch(() => setCarrerasError(true));
+  }, []);
 
   const handleGenerar = async () => {
     setGenerando(true);
@@ -155,6 +278,12 @@ export function DashboardReportes() {
     }
   };
 
+  // Mensaje claro cuando el reporte no trae filas (indica período y carrera usados)
+  const sinDatos = !!reporte && reporte.rows.length === 0;
+  const mensajeSinDatos = carrera
+    ? `No hay sesiones de estudiantes de ${carrera} entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con otro período o con «Todas las carreras».`
+    : `No hay sesiones registradas entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con un período más amplio.`;
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
       {/* Header */}
@@ -175,7 +304,13 @@ export function DashboardReportes() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() =>
-                downloadPDF(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                downloadPDF(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
               }
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{ fontSize: "0.82rem" }}
@@ -185,7 +320,13 @@ export function DashboardReportes() {
             </button>
             <button
               onClick={() =>
-                downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                downloadExcel(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
               }
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
               style={{ fontSize: "0.82rem" }}
@@ -306,18 +447,32 @@ export function DashboardReportes() {
             >
               Filtro por carrera
             </label>
-            <input
+            <select
               value={carrera}
-              onChange={(e) => setCarrera(e.target.value)}
-              placeholder="Todas las carreras"
-              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
+              onChange={(e) => {
+                setCarrera(e.target.value);
+                setReporte(null);
+              }}
+              title={
+                carrerasError
+                  ? "No se pudieron cargar las carreras; se usará Todas las carreras."
+                  : undefined
+              }
+              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
               style={
                 {
                   fontSize: "0.85rem",
                   "--tw-ring-color": "#10B981",
                 } as React.CSSProperties
               }
-            />
+            >
+              <option value="">Todas las carreras</option>
+              {carreras.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="space-y-1">
             <label
@@ -369,28 +524,46 @@ export function DashboardReportes() {
       {/* Resultados */}
       {reporte && (
         <>
+          {/* Aviso: verde si hay datos, ámbar si el reporte salió vacío */}
           <div
             className="flex items-center gap-3 rounded-xl px-4 py-3"
             style={{
-              background: "rgba(16,185,129,0.08)",
-              border: "1px solid rgba(16,185,129,0.25)",
+              background: sinDatos
+                ? "rgba(245,158,11,0.08)"
+                : "rgba(16,185,129,0.08)",
+              border: sinDatos
+                ? "1px solid rgba(245,158,11,0.3)"
+                : "1px solid rgba(16,185,129,0.25)",
             }}
           >
-            <CheckCircle2
-              size={16}
-              style={{ color: "#10B981", flexShrink: 0 }}
-            />
+            {sinDatos ? (
+              <AlertCircle
+                size={16}
+                style={{ color: "#F59E0B", flexShrink: 0 }}
+              />
+            ) : (
+              <CheckCircle2
+                size={16}
+                style={{ color: "#10B981", flexShrink: 0 }}
+              />
+            )}
             <div className="flex-1">
-              <p style={{ fontSize: "0.85rem", color: "#10B981" }}>
-                Reporte generado — <strong>{tipoInfo.label}</strong>
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: sinDatos ? "#F59E0B" : "#10B981",
+                }}
+              >
+                {sinDatos ? "Reporte sin resultados" : "Reporte generado"} —{" "}
+                <strong>{tipoInfo.label}</strong>
               </p>
               <p
                 className="text-muted-foreground"
                 style={{ fontSize: "0.73rem" }}
               >
-                Período: {fechaInicio} · {fechaFin} ·{" "}
-                {carrera || "Todas las carreras"} · {reporte.totalRegistros}{" "}
-                registros
+                {sinDatos
+                  ? mensajeSinDatos
+                  : `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)} · ${carrera || "Todas las carreras"} · ${reporte.totalRegistros} registros`}
               </p>
             </div>
           </div>
@@ -445,7 +618,7 @@ export function DashboardReportes() {
                 className="text-muted-foreground mb-4"
                 style={{ fontSize: "0.78rem" }}
               >
-                Período {fechaInicio} al {fechaFin}
+                Período {fmtFecha(fechaInicio)} al {fmtFecha(fechaFin)}
               </p>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={reporte.chart} barSize={32}>
@@ -529,7 +702,7 @@ export function DashboardReportes() {
                         className="text-center py-10 text-muted-foreground"
                         style={{ fontSize: "0.875rem" }}
                       >
-                        Sin datos para el período seleccionado
+                        {mensajeSinDatos}
                       </td>
                     </tr>
                   ) : (
@@ -573,7 +746,13 @@ export function DashboardReportes() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    downloadPDF(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                    downloadPDF(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
                   }
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
@@ -583,7 +762,13 @@ export function DashboardReportes() {
                 </button>
                 <button
                   onClick={() =>
-                    downloadExcel(reporte, tipoInfo.label, fechaInicio, fechaFin)
+                    downloadExcel(
+                  reporte,
+                  tipoInfo.label,
+                  fechaInicio,
+                  fechaFin,
+                  carrera,
+                )
                   }
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
