@@ -39,12 +39,6 @@ const ROL_LABEL: Record<Rol, string> = {
   COORDINADOR: "Coordinador",
 };
 
-const ROL_STYLE: Record<Rol, { color: string; background: string }> = {
-  ESTUDIANTE: { color: "#60A5FA", background: "rgba(59,130,246,0.12)" },
-  TUTOR: { color: "#4ADE80", background: "rgba(34,197,94,0.12)" },
-  COORDINADOR: { color: "#C084FC", background: "rgba(168,85,247,0.12)" },
-};
-
 function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
@@ -68,6 +62,7 @@ function NuevoUsuarioModal({
     nombres: usuario?.nombres ?? "",
     apellidos: usuario?.apellidos ?? "",
     correo: usuario?.correo ?? "",
+    telefono: usuario?.telefono ?? "",
     contrasena: "",
     rol: usuario?.rol ?? "ESTUDIANTE",
     carnet: usuario?.carnet ?? "",
@@ -224,6 +219,7 @@ function NuevoUsuarioModal({
         await actualizarUsuario(usuario!.id, {
           nombres: form.nombres.trim(),
           apellidos: form.apellidos.trim(),
+          telefono: form.telefono,
           carnet: form.carnet,
           carrera: form.carrera,
           especialidad: form.especialidad,
@@ -363,6 +359,21 @@ function NuevoUsuarioModal({
             />
           </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="telefono" className="text-sm">
+              Teléfono
+            </label>
+            <input
+              id="telefono"
+              type="tel"
+              value={form.telefono ?? ""}
+              onChange={set("telefono")}
+              disabled={saving}
+              placeholder="+503 7000 0000"
+              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
           {!editando && (
             <div className="space-y-1.5">
               <label htmlFor="contrasena" className="text-sm">
@@ -406,6 +417,12 @@ function NuevoUsuarioModal({
                 className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
             </div>
+            {!editando && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                El ID se genera automáticamente al crear el usuario. Los
+                tutores también reciben un ID propio.
+              </p>
+            )}
           </div>
 
           {form.rol === "ESTUDIANTE" && (
@@ -425,34 +442,32 @@ function NuevoUsuarioModal({
                 />
               </div>
 
-<div className="space-y-1.5">
-  <label htmlFor="carrera" className="text-sm">
-    Carrera
-  </label>
+              <div className="space-y-1.5">
+                <label htmlFor="carrera" className="text-sm">
+                  Carrera
+                </label>
 
-  <select
-    id="carrera"
-    value={form.carrera ?? ""}
-    onChange={set("carrera")}
-    disabled={saving}
-    required
-    className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-  >
-    <option value="" disabled>
-      Selecciona una carrera
-    </option>
-    <option value="Ingeniería de Sistemas">
-      Ingeniería de Sistemas
-    </option>
-    <option value="Ingeniería Civil">
-      Ingeniería Civil
-    </option>
-    <option value="Matemáticas">Matemáticas</option>
-    <option value="Física">Física</option>
-    <option value="Estadística">Estadística</option>
-    <option value="Economía">Economía</option>
-  </select>
-</div>
+                <select
+                  id="carrera"
+                  value={form.carrera ?? ""}
+                  onChange={set("carrera")}
+                  disabled={saving}
+                  required
+                  className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="" disabled>
+                    Selecciona una carrera
+                  </option>
+                  <option value="Ingeniería de Sistemas">
+                    Ingeniería de Sistemas
+                  </option>
+                  <option value="Ingeniería Civil">Ingeniería Civil</option>
+                  <option value="Matemáticas">Matemáticas</option>
+                  <option value="Física">Física</option>
+                  <option value="Estadística">Estadística</option>
+                  <option value="Economía">Economía</option>
+                </select>
+              </div>
             </div>
           )}
 
@@ -613,12 +628,21 @@ function NuevoUsuarioModal({
    Gestión de usuarios
    ───────────────────────────────────────────────────────────── */
 
+type FiltroEstado = "Todos" | "ACTIVO" | "INACTIVO";
+
 export function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([]);
+  // null = no se pudieron cargar las asignaturas de los tutores
+  const [materiasPorTutor, setMateriasPorTutor] = useState<Record<
+    number,
+    string[]
+  > | null>({});
   const [cargando, setCargando] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroRol, setFiltroRol] = useState<string>("Todos");
+  const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("Todos");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioAdmin | null>(
     null,
@@ -633,6 +657,27 @@ export function GestionUsuarios() {
     try {
       const datos = await listarUsuarios();
       setUsuarios(datos);
+
+      // Asignaturas por tutor (para la columna Detalle).
+      try {
+        const catalogo = await listarTodasLasAsignaturas();
+        const vinculos = await Promise.all(
+          catalogo.map(async (asignatura) => ({
+            nombre: asignatura.nombre,
+            tutores: await listarTutoresPorAsignatura(asignatura.id),
+          })),
+        );
+
+        const mapa: Record<number, string[]> = {};
+        for (const { nombre, tutores } of vinculos) {
+          for (const tutor of tutores) {
+            (mapa[tutor.id] ??= []).push(nombre);
+          }
+        }
+        setMateriasPorTutor(mapa);
+      } catch {
+        setMateriasPorTutor(null);
+      }
     } catch (err) {
       setLoadError(
         err instanceof ApiError
@@ -673,13 +718,83 @@ export function GestionUsuarios() {
     const texto = busqueda.trim().toLowerCase();
 
     const coincideBusqueda =
+      !texto ||
       nombreCompleto.includes(texto) ||
-      usuario.correo.toLowerCase().includes(texto);
+      usuario.correo.toLowerCase().includes(texto) ||
+      Boolean(usuario.carnet?.toLowerCase().includes(texto));
 
     const coincideRol = filtroRol === "Todos" || usuario.rol === filtroRol;
 
-    return coincideBusqueda && coincideRol;
+    const coincideEstado =
+      filtroEstado === "Todos" ||
+      (filtroEstado === "ACTIVO" && usuario.activo) ||
+      (filtroEstado === "INACTIVO" && !usuario.activo);
+
+    return coincideBusqueda && coincideRol && coincideEstado;
   });
+
+  const renderDetalle = (usuario: UsuarioAdmin) => {
+    if (usuario.rol === "ESTUDIANTE") {
+      return <span className="text-sm text-[#A8B7C8]">—</span>;
+    }
+
+    if (usuario.rol === "TUTOR") {
+      // No se pudieron cargar las materias: no afirmar "Sin materias".
+      if (materiasPorTutor === null) {
+        return <span className="text-sm text-[#A8B7C8]">—</span>;
+      }
+
+      const materias = materiasPorTutor[usuario.id] ?? [];
+
+      if (materias.length === 0) {
+        return (
+          <span
+            className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
+            style={{
+              background: "rgba(245,158,11,0.12)",
+              color: "#F59E0B",
+            }}
+          >
+            Sin materias
+          </span>
+        );
+      }
+
+      const visibles = materias.slice(0, 2);
+      const restantes = materias.length - visibles.length;
+
+      return (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {visibles.map((nombre) => (
+            <span
+              key={nombre}
+              className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
+              style={{
+                background: "rgba(16,185,129,0.12)",
+                color: "#059669",
+              }}
+            >
+              {nombre}
+            </span>
+          ))}
+          {restantes > 0 && (
+            <span
+              title={materias.join(", ")}
+              className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
+              style={{
+                background: "rgba(100,116,139,0.12)",
+                color: "#A8B7C8",
+              }}
+            >
+              +{restantes}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    return <span className="text-sm text-[#A8B7C8]">—</span>;
+  };
 
   if (cargando) {
     return (
@@ -707,102 +822,153 @@ export function GestionUsuarios() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
-      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
-        <header className="space-y-4 border-b border-border px-4 py-4 dark:border-[#30465C] sm:px-5">
-          <div>
-            <div>
-              <h2 className="text-sm font-semibold text-card-foreground">
-                Usuarios
-              </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Administra las cuentas y sus asignaciones.
-              </p>
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-7xl space-y-5">
+      {/* Encabezado fuera de la card */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Gestiona el registro de nuevos usuarios</h2>
+        </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={() => {
+            setActionError(null);
+            setModalOpen(true);
+          }}
+          className="flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "#118ab2", fontSize: "0.875rem" }}
+        >
+          <Plus size={15} /> Nuevo usuario
+        </button>
+      </div>
+
+      {actionError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3"
+        >
+          <p className="text-sm text-destructive">{actionError}</p>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        {/* Cabecera de la card */}
+        <div
+          className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between"
+          style={{ background: "#192b3b", borderColor: "#30465c" }}
+        >
+          <h3 className="shrink-0 text-base font-semibold text-foreground">
+            Usuarios registrados
+          </h3>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <VoiceSearchInput
               value={busqueda}
               onChange={setBusqueda}
-              placeholder="Buscar por nombre o correo..."
-              className="min-w-0 flex-1"
+              placeholder="Buscar por nombre, correo o carné..."
+              className="min-w-0 sm:w-80 lg:w-96"
               style={{ fontSize: "0.875rem" }}
             />
 
-            <div className="relative sm:w-52 sm:shrink-0">
-              <select
-                value={filtroRol}
-                onChange={(e) => setFiltroRol(e.target.value)}
-                aria-label="Filtrar usuarios por rol"
-                className="w-full appearance-none rounded-lg border border-border bg-card px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring dark:bg-[#1F2937]"
+            <div className="relative self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setMostrarFiltros((actual) => !actual)}
+                aria-expanded={mostrarFiltros}
+                aria-controls="filtro-usuarios"
+                className={`flex h-11 w-full items-center justify-between gap-3 rounded-2xl border px-4 text-sm text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-ring sm:w-44 ${
+                  mostrarFiltros ? "ring-2 ring-ring" : ""
+                }`}
+                style={{
+                  borderColor: "var(--border-strong)",
+                  background: "var(--input-background)",
+                }}
               >
-                <option value="Todos">Todos los roles</option>
-                <option value="ESTUDIANTE">Estudiante</option>
-                <option value="TUTOR">Tutor</option>
-                <option value="COORDINADOR">Coordinador</option>
-              </select>
+                <span>Filtrar</span>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${
+                    mostrarFiltros ? "rotate-180" : ""
+                  }`}
+                  style={{ color: "#b8c5d1" }}
+                />
+              </button>
 
-              <ChevronDown
-                size={14}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActionError(null);
-                setModalOpen(true);
-              }}
-              className="flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
-              style={{ background: "#10B981" }}
-            >
-              <Plus size={15} />
-              Nuevo usuario
-            </button>
-          </div>
-
-          {actionError && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3"
-            >
-              <p className="text-sm text-destructive">{actionError}</p>
-            </div>
-          )}
-        </header>
-
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "680px" }}>
-            <thead>
-              <tr
-                className="border-b border-border bg-secondary dark:border-[#30465C] dark:bg-[#1F2937]"
-              >
-                {[
-                  "Usuario",
-                  "Correo",
-                  "Rol",
-                  "Detalle",
-                  "Estado",
-                  "Acción",
-                ].map((encabezado) => (
-                  <th
-                    key={encabezado}
-                    className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
+              {mostrarFiltros && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Cerrar filtros"
+                    className="fixed inset-0 z-20 cursor-default"
+                    onClick={() => setMostrarFiltros(false)}
+                  />
+                  <div
+                    id="filtro-usuarios"
+                    className="absolute right-0 z-30 mt-2 w-64 space-y-3 rounded-2xl border border-[#30465C] bg-[#1D3043] p-3 shadow-xl"
                   >
-                    {encabezado}
-                  </th>
-                ))}
+                    <label className="block text-xs font-medium text-[#A8B7C8]">
+                      Rol
+                      <select
+                        value={filtroRol}
+                        onChange={(e) => setFiltroRol(e.target.value)}
+                        aria-label="Filtrar usuarios por rol"
+                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:ring-2 focus:ring-ring"
+                        style={{ borderColor: "var(--border-strong)" }}
+                      >
+                        <option value="Todos">Todos los roles</option>
+                        <option value="ESTUDIANTE">Estudiante</option>
+                        <option value="TUTOR">Tutor</option>
+                        <option value="COORDINADOR">Coordinador</option>
+                      </select>
+                    </label>
+
+                    <label className="block text-xs font-medium text-[#A8B7C8]">
+                      Estado
+                      <select
+                        value={filtroEstado}
+                        onChange={(e) =>
+                          setFiltroEstado(e.target.value as FiltroEstado)
+                        }
+                        aria-label="Filtrar usuarios por estado"
+                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:ring-2 focus:ring-ring"
+                        style={{ borderColor: "var(--border-strong)" }}
+                      >
+                        <option value="Todos">Todos los estados</option>
+                        <option value="ACTIVO">Activos</option>
+                        <option value="INACTIVO">Inactivos</option>
+                      </select>
+                    </label>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabla */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left" style={{ minWidth: "960px" }}>
+            <thead>
+              <tr className="border-b border-[#30465C] bg-[#192B3B]">
+                {["Id", "Usuario", "Correo", "Teléfono", "Rol", "Detalle", "Estado", "Acciones"].map(
+                  (encabezado) => (
+                    <th
+                      key={encabezado}
+                      className="px-5 py-3 text-left text-xs font-medium text-[#A8B7C8]"
+                    >
+                      {encabezado}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-border dark:divide-[#30465C]">
+            <tbody className="divide-y divide-[#30465C]">
               {filtrados.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
-                    className="bg-card py-12 text-center text-sm text-muted-foreground dark:bg-[#1F2937]"
+                    colSpan={8}
+                    className="bg-[#1D3043] py-12 text-center text-sm text-[#D5DEE8]"
                   >
                     {usuarios.length === 0
                       ? "Sin usuarios registrados."
@@ -813,12 +979,26 @@ export function GestionUsuarios() {
                 filtrados.map((usuario) => (
                   <tr
                     key={usuario.id}
-                    className="bg-card transition-colors hover:bg-secondary/40 dark:bg-[#1F2937]"
+                    className="bg-[#1F2937] text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D]"
                   >
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-mono text-sm text-[#F1F5F9]">
+                          {usuario.id}
+                        </span>
+                        {usuario.rol === "ESTUDIANTE" && (
+                          <span className="text-xs text-[#A8B7C8]">
+                            Carné: {usuario.carnet ?? "—"}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Usuario: avatar + nombre */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
                         <div
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs text-white"
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs text-white"
                           style={{
                             background:
                               "linear-gradient(135deg, #1E3A8A, #3B82F6)",
@@ -827,41 +1007,44 @@ export function GestionUsuarios() {
                           {iniciales(usuario.nombres, usuario.apellidos)}
                         </div>
 
-                        <span className="text-sm text-foreground">
-                          {usuario.nombres} {usuario.apellidos}
-                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm text-[#F1F5F9]">
+                            {usuario.nombres} {usuario.apellidos}
+                          </p>
+                        </div>
                       </div>
                     </td>
 
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {usuario.correo}
+                    <td className="max-w-[240px] px-5 py-3.5">
+                      <p className="truncate text-sm text-[#D5DEE8]" title={usuario.correo}>
+                        {usuario.correo}
+                      </p>
+                    </td>
+
+                    <td className="px-5 py-3.5">
+                      <p className="text-sm text-[#D5DEE8]">
+                        {usuario.telefono ?? "—"}
+                      </p>
                     </td>
 
                     <td className="px-5 py-3.5">
                       <span
-                        className="rounded-full px-2.5 py-1 text-xs"
-                        style={ROL_STYLE[usuario.rol]}
+                        className="text-xs text-[#D5DEE8]"
                       >
                         {ROL_LABEL[usuario.rol]}
                       </span>
                     </td>
 
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {usuario.rol === "ESTUDIANTE" && (usuario.carnet ?? "—")}
-
-                      {usuario.rol === "TUTOR" && (usuario.especialidad ?? "—")}
-
-                      {usuario.rol === "COORDINADOR" && "—"}
-                    </td>
+                    <td className="px-5 py-3.5">{renderDetalle(usuario)}</td>
 
                     <td className="px-5 py-3.5">
                       <span
-                        className="rounded-full px-2.5 py-1 text-xs"
+                        className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
                         style={{
-                          color: usuario.activo ? "#10B981" : "#6B7280",
+                          color: usuario.activo ? "#059669" : "#64748B",
                           background: usuario.activo
                             ? "rgba(16,185,129,0.12)"
-                            : "rgba(107,114,128,0.12)",
+                            : "rgba(100,116,139,0.12)",
                         }}
                       >
                         {usuario.activo ? "Activo" : "Inactivo"}
@@ -876,19 +1059,24 @@ export function GestionUsuarios() {
                             setActionError(null);
                             setUsuarioEditando(usuario);
                           }}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-secondary hover:text-foreground"
                           aria-label={`Editar a ${usuario.nombres} ${usuario.apellidos}`}
                           title="Editar usuario"
                         >
-                          <Pencil size={14} />
+                          <Pencil size={13} />
                         </button>
 
                         <button
                           type="button"
                           onClick={() => void toggleEstado(usuario)}
                           disabled={cambiando === usuario.id}
-                          className="rounded-lg px-3 py-1.5 text-xs transition-all disabled:opacity-50"
+                          className={`rounded-lg px-3 py-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 ${
+                            usuario.activo
+                              ? "hover:bg-red-500/25 active:bg-red-500/40 focus-visible:ring-red-500"
+                              : "hover:bg-emerald-500/25 active:bg-emerald-500/40 focus-visible:ring-emerald-500"
+                          }`}
                           style={{
+                            fontSize: "0.78rem",
                             color: usuario.activo ? "#EF4444" : "#10B981",
                             background: usuario.activo
                               ? "rgba(239,68,68,0.08)"
@@ -912,12 +1100,12 @@ export function GestionUsuarios() {
           </table>
         </div>
 
-        <div className="border-t border-border px-5 py-3">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-t border-[#30465C] bg-[#182A39] px-5 py-3">
+          <p className="text-xs text-[#A8B7C8]">
             Mostrando {filtrados.length} de {usuarios.length} usuarios
           </p>
         </div>
-      </section>
+      </div>
 
       {modalOpen && (
         <NuevoUsuarioModal

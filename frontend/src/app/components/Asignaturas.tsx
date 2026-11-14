@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
-  Users,
   X,
   Loader2,
   AlertCircle,
@@ -471,7 +470,7 @@ export function Asignaturas() {
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-foreground">
             Gestiona materias, asigna tutores y controla el estado de las
@@ -480,8 +479,8 @@ export function Asignaturas() {
         </div>
         <button
           onClick={() => setModalNueva(true)}
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
-          style={{ background: "#118ab2", fontSize: "0.875rem" }}
+          className="flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0E6F8F] active:bg-[#0B6685]"
+          style={{ background: "#118AB2" }}
         >
           <Plus size={15} /> Nueva asignatura
         </button>
@@ -589,18 +588,18 @@ export function Asignaturas() {
           </div>
         ) : (
           <div>
-            <div className="hidden grid-cols-[minmax(7rem,1fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_minmax(6rem,0.8fr)_9rem] gap-4 border-b border-[#30465C] bg-[#192B3B] px-5 py-3 text-xs font-medium text-[#A8B7C8] md:grid">
+            <div className="hidden grid-cols-[minmax(7rem,1fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_minmax(6rem,0.8fr)_9rem] gap-4 border-b border-[#30465C] bg-[#192B3B] px-5 py-3 text-left text-xs font-medium text-[#A8B7C8] md:grid">
               <span className="text-left">Código</span>
               <span className="text-left">Asignatura</span>
-              <span className="text-center">Tutor asignado</span>
-              <span className="text-center">Estado</span>
-              <span className="text-center">Acciones</span>
+              <span className="text-left">Tutor asignado</span>
+              <span className="text-left">Estado</span>
+              <span className="text-left">Acciones</span>
             </div>
             <div className="divide-y divide-[#30465C]">
               {asignaturasFiltradas.map((a) => (
                 <div
                   key={a.id}
-                  className="grid gap-4 bg-[#1F2937] px-5 py-4 text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D] md:grid-cols-[minmax(7rem,1fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_minmax(6rem,0.8fr)_9rem] md:items-center"
+                  className="grid gap-4 bg-[#1F2937] px-5 py-4 text-left text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D] md:grid-cols-[minmax(7rem,1fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_minmax(6rem,0.8fr)_9rem] md:items-center"
                 >
                   <div className="flex items-center md:col-start-1 md:row-start-1">
                     <span className="rounded-md border border-border bg-secondary/60 px-2 py-0.5 font-mono text-[0.7rem] text-muted-foreground">
@@ -618,7 +617,7 @@ export function Asignaturas() {
                       <p className="text-sm text-[#F1F5F9]">{a.nombre}</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center gap-2 md:col-start-3 md:row-start-1">
+                  <div className="flex items-center gap-2 md:col-start-3 md:row-start-1">
                     <button
                       onClick={() =>
                         setGestionando({ asignatura: a, soloLectura: true })
@@ -626,11 +625,10 @@ export function Asignaturas() {
                       className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                       style={{ fontSize: "0.78rem" }}
                     >
-                      <Users size={13} /> Tutores (
-                      {tutoresPorAsignatura[a.id] ?? 0})
+                      Tutores ({tutoresPorAsignatura[a.id] ?? 0})
                     </button>
                   </div>
-                  <div className="flex items-center justify-center md:col-start-4 md:row-start-1">
+                  <div className="flex items-center md:col-start-4 md:row-start-1">
                     <span
                       className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
                       style={{
@@ -643,7 +641,7 @@ export function Asignaturas() {
                       {a.activa ? "Activa" : "Inactiva"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-center gap-2 md:col-start-5 md:row-start-1">
+                  <div className="flex items-center gap-2 md:col-start-5 md:row-start-1">
                     <button
                       type="button"
                       onClick={() =>
@@ -679,6 +677,12 @@ export function Asignaturas() {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="border-t border-[#30465C] bg-[#192B3B] px-5 py-3">
+              <p className="text-sm text-[#D5DEE8]">
+                Mostrando {asignaturasFiltradas.length} de {asignaturas.length}{" "}
+                asignaturas
+              </p>
             </div>
           </div>
         )}

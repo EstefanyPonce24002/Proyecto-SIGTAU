@@ -45,6 +45,7 @@ CREATE TABLE usuarios (
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(50) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
+    telefono VARCHAR(25),
     contrasena VARCHAR(255) NOT NULL,
     -- [CORREGIDO] longitud definida (hash BCrypt)
     rol_usuario rol_usuario_enum NOT NULL,

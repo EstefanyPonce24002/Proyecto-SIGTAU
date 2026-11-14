@@ -30,6 +30,9 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String correo;
 
+    @Column(length = 25)
+    private String telefono;
+
     /** Hash BCrypt, nunca la contraseña en texto plano. */
     @Column(nullable = false, length = 255)
     private String contrasena;

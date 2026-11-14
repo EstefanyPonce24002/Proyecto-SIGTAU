@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 public record ActualizarUsuarioRequest(
         @NotBlank String nombres,
         @NotBlank String apellidos,
+        String telefono,
         String carnet,
         String carrera,
         String especialidad) {

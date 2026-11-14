@@ -59,6 +59,10 @@ public class UsuarioService {
 
         usuario.setNombres(request.nombres().trim());
         usuario.setApellidos(request.apellidos().trim());
+        usuario.setTelefono(
+                request.telefono() == null || request.telefono().isBlank()
+                        ? null
+                        : request.telefono().trim());
 
         if (usuario.getRolUsuario() == RolUsuario.ESTUDIANTE) {
             estudianteRepository.findById(id).ifPresent(estudiante -> {
@@ -184,6 +188,7 @@ public class UsuarioService {
                 usuario.getNombres(),
                 usuario.getApellidos(),
                 usuario.getCorreo(),
+                usuario.getTelefono(),
                 usuario.getRolUsuario(),
                 usuario.getActivo(),
                 usuario.getFechaRegistro(),

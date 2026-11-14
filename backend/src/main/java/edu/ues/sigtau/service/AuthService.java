@@ -75,6 +75,7 @@ public class AuthService {
                 .nombres(request.nombres())
                 .apellidos(request.apellidos())
                 .correo(request.correo())
+                .telefono(request.telefono())
                 .contrasena(passwordEncoder.encode(request.contrasena()))
                 .rolUsuario(request.rol())
                 .activo(true)

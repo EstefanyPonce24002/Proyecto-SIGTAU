@@ -12,6 +12,7 @@ public record RegistroRequest(
         @NotBlank String nombres,
         @NotBlank String apellidos,
         @NotBlank @Email String correo,
+        String telefono,
         @NotBlank @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres") String contrasena,
         @NotNull RolUsuario rol,
         String carnet,

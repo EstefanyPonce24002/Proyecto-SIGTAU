@@ -11,6 +11,7 @@ public record UsuarioAdminResponse(
         String nombres,
         String apellidos,
         String correo,
+        String telefono,
         RolUsuario rol,
         Boolean activo,
         LocalDateTime fechaRegistro,
@@ -20,7 +21,7 @@ public record UsuarioAdminResponse(
 ) {
     public static UsuarioAdminResponse basico(Usuario u) {
         return new UsuarioAdminResponse(
-                u.getId(), u.getNombres(), u.getApellidos(), u.getCorreo(),
+                u.getId(), u.getNombres(), u.getApellidos(), u.getCorreo(), u.getTelefono(),
                 u.getRolUsuario(), u.getActivo(), u.getFechaRegistro(),
                 null, null, null
         );

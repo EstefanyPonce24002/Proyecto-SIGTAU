@@ -6,6 +6,7 @@ export interface UsuarioAdmin {
   nombres: string;
   apellidos: string;
   correo: string;
+  telefono: string | null;
   rol: Rol;
   activo: boolean;
   fechaRegistro: string;
@@ -18,6 +19,7 @@ export interface RegistroPayload {
   nombres: string;
   apellidos: string;
   correo: string;
+  telefono?: string;
   contrasena: string;
   rol: Rol;
   carnet?: string;
