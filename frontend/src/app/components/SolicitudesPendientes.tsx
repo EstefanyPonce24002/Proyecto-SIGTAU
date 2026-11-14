@@ -852,7 +852,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                 {solicitudesVisibles.map((sesion) => (
                   <tr
                     key={sesion.id}
-                    className="bg-[#1D3043] transition-colors hover:bg-[#24394D]"
+                    className="bg-[#1F2937] transition-colors hover:bg-[#24394D]"
                   >
                     {/* Columna Fecha */}
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-[#F1F5F9]">

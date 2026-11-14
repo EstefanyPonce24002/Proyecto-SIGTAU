@@ -922,7 +922,7 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
                     filtradas.map((session) => (
                       <tr
                         key={session.id}
-                        className="text-xs transition-colors hover:bg-[#EAF3F8] dark:hover:bg-[#2A4158]/40 [&>td]:text-xs [&_p]:text-xs"
+                        className="bg-[#1F2937] text-xs transition-colors hover:bg-[#24394D] [&>td]:text-xs [&_p]:text-xs"
                       >
                         {/* Columna: Fecha */}
                         <td className="px-5 py-3.5">

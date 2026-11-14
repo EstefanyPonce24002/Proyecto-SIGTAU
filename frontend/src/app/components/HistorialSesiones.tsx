@@ -803,7 +803,7 @@ export function HistorialSesiones({ idTutor }: Props) {
                 filtradas.map((s) => (
                   <tr
                     key={s.id}
-                    className="cursor-pointer bg-[#1D3043] transition-colors hover:bg-[#24394D]"
+                    className="cursor-pointer bg-[#1F2937] transition-colors hover:bg-[#24394D]"
                     onClick={() => setDetalle(s)}
                   >
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-[#F1F5F9]">
