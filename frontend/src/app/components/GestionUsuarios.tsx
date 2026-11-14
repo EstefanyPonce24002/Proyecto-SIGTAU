@@ -219,7 +219,7 @@ function NuevoUsuarioModal({
         await actualizarUsuario(usuario!.id, {
           nombres: form.nombres.trim(),
           apellidos: form.apellidos.trim(),
-          telefono: form.telefono,
+          telefono: form.telefono?.trim() ?? "",
           carnet: form.carnet,
           carrera: form.carrera,
           especialidad: form.especialidad,
@@ -366,6 +366,7 @@ function NuevoUsuarioModal({
             <input
               id="telefono"
               type="tel"
+              maxLength={25}
               value={form.telefono ?? ""}
               onChange={set("telefono")}
               disabled={saving}
