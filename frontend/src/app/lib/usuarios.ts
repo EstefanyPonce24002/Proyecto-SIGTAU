@@ -30,7 +30,10 @@ export interface RegistroPayload {
 export function registrarUsuario(
   payload: RegistroPayload,
 ): Promise<UsuarioAdmin> {
-  return apiFetch<UsuarioAdmin>("/auth/registro", {
+  const endpoint = payload.rol === "COORDINADOR"
+    ? "/usuarios/coordinadores"
+    : "/auth/registro";
+  return apiFetch<UsuarioAdmin>(endpoint, {
     method: "POST",
     body: JSON.stringify(payload),
   });
