@@ -14,6 +14,7 @@ import {
 import {
   listarUsuarios,
   registrarUsuario,
+  registrarCoordinador,
   actualizarUsuario,
   cambiarEstadoUsuario,
   type UsuarioAdmin,
@@ -43,30 +44,29 @@ function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
 
-function generarCorreoInstitucional(
+function generarCorreoVistaPrevia(
   nombres: string,
   apellidos: string,
-  correosExistentes: string[],
+  rol: Rol,
 ): string {
   if (!nombres.trim() || !apellidos.trim()) return "";
 
-  const normalizarInicial = (texto: string) =>
-    texto.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z]/g, "").charAt(0).toLowerCase();
+  const normalizar = (valor: string) =>
+    valor.trim().split(/\s+/)[0]
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
 
-  const base = `${normalizarInicial(nombres)}${normalizarInicial(apellidos)}`;
-  if (!base.replace(/[^a-z]/g, "")) return "";
+  const primerNombre = normalizar(nombres);
+  const primerApellido = normalizar(apellidos);
+  if (!primerNombre || !primerApellido) return "";
 
-  const existentes = new Set(correosExistentes.map((correo) => correo.toLowerCase()));
-  let candidato = `${base}@sigtau.edu.sv`;
-  let sufijo = 2;
+  const base = rol === "ESTUDIANTE"
+    ? primerNombre[0] + primerApellido[0]
+    : `${primerNombre}.${primerApellido}`;
 
-  while (existentes.has(candidato.toLowerCase())) {
-    candidato = `${base}${sufijo}@sigtau.edu.sv`;
-    sufijo += 1;
-  }
-
-  return candidato;
+  return `${base}@sigtau.edu.sv`;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -77,19 +77,16 @@ function NuevoUsuarioModal({
   onCreated,
   onClose,
   usuario,
-  correosExistentes,
-}: {
+ }: {
   onCreated: () => void;
   onClose: () => void;
   usuario?: UsuarioAdmin;
-  correosExistentes: string[];
 }) {
   const editando = Boolean(usuario);
 
   const [form, setForm] = useState<RegistroPayload>({
     nombres: usuario?.nombres ?? "",
     apellidos: usuario?.apellidos ?? "",
-    correo: usuario?.correo ?? "",
     telefono: usuario?.telefono ?? "",
     contrasena: "",
     rol: usuario?.rol ?? "ESTUDIANTE",
@@ -99,7 +96,7 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [correoManual, setCorreoManual] = useState(false);
+  const correoVistaPrevia = generarCorreoVistaPrevia(form.nombres, form.apellidos, form.rol);
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -122,23 +119,7 @@ function NuevoUsuarioModal({
     };
 
   const actualizarNombre = (field: "nombres" | "apellidos", value: string) => {
-    setForm((prev) => {
-      const siguiente = { ...prev, [field]: value };
-      if (!editando && !correoManual) {
-        const generado = generarCorreoInstitucional(
-          siguiente.nombres,
-          siguiente.apellidos,
-          correosExistentes,
-        );
-        siguiente.correo = generado;
-      }
-      return siguiente;
-    });
-  };
-
-  const actualizarCorreo = (value: string) => {
-    setForm((prev) => ({ ...prev, correo: value }));
-    setCorreoManual(true);
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   /*
@@ -232,8 +213,8 @@ function NuevoUsuarioModal({
     e.preventDefault();
     setError(null);
 
-    if (!form.nombres.trim() || !form.apellidos.trim() || !form.correo.trim()) {
-      setError("Completa nombres, apellidos y correo.");
+    if (!form.nombres.trim() || !form.apellidos.trim()) {
+      setError("Completa nombres y apellidos.");
       return;
     }
 
@@ -294,7 +275,11 @@ function NuevoUsuarioModal({
           ]);
         }
       } else {
-        await registrarUsuario(form);
+        if (form.rol === "COORDINADOR") {
+          await registrarCoordinador(form);
+        } else {
+          await registrarUsuario(form);
+        }
       }
 
       onCreated();
@@ -385,26 +370,26 @@ function NuevoUsuarioModal({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="correo" className="text-sm">
-              Correo institucional <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="correo"
-              type="email"
-              required
-              value={form.correo}
-              onChange={(e) => actualizarCorreo(e.target.value)}
-              disabled={editando || saving}
-              placeholder="usuario@universidad.edu.sv"
-              className="w-full min-w-0 rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-60"
-            />
-            {!editando && form.correo && (
-              <p className="break-all text-xs text-muted-foreground">
-                Correo generado automáticamente; puedes modificarlo si es necesario.
+          {!editando && (
+            <div className="space-y-1.5">
+              <label htmlFor="correo" className="text-sm">Correo institucional</label>
+              <input
+                id="correo"
+                type="email"
+                value={correoVistaPrevia}
+                readOnly
+                disabled={saving}
+                placeholder="Se generará al ingresar nombres y apellidos"
+                className="w-full min-w-0 rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                {form.rol === "ESTUDIANTE"
+                  ? "Se forma con las iniciales del primer nombre y del primer apellido."
+                  : "Se forma como primerNombre.primerApellido@sigtau.edu.sv."}
+                {" "}Si ya existe, el backend agregará un correlativo automáticamente.
               </p>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label htmlFor="telefono" className="text-sm">
@@ -1058,7 +1043,6 @@ export function GestionUsuarios() {
             void cargar();
           }}
           onClose={() => setModalOpen(false)}
-          correosExistentes={usuarios.map((u) => u.correo)}
         />
       )}
 
@@ -1071,7 +1055,6 @@ export function GestionUsuarios() {
             void cargar();
           }}
           onClose={() => setUsuarioEditando(null)}
-          correosExistentes={usuarios.map((u) => u.correo)}
         />
       )}
     </div>
