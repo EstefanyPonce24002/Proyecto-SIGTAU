@@ -1,7 +1,6 @@
 package edu.ues.sigtau.dto;
 
 import edu.ues.sigtau.model.RolUsuario;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,7 +9,7 @@ import jakarta.validation.constraints.Size;
 public record RegistroRequest(
         @NotBlank String nombres,
         @NotBlank String apellidos,
-        @NotBlank @Email String correo,
+        String correo, // Opcional: el backend genera el correo institucional automáticamente.
         String telefono,
         @NotBlank @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres") String contrasena,
         @NotNull RolUsuario rol,
