@@ -49,7 +49,7 @@ public class CorreoInstitucionalService {
         );
 
         String candidato = base + DOMINIO;
-        if (!usuarioRepository.existsByCorreo(candidato)) {
+        if (!usuarioRepository.existsByCorreoIgnoreCase(candidato)) {
             return candidato;
         }
 
@@ -61,7 +61,7 @@ public class CorreoInstitucionalService {
                     : base;
             candidato = baseConSufijo + sufijo + DOMINIO;
 
-            if (!usuarioRepository.existsByCorreo(candidato)) {
+            if (!usuarioRepository.existsByCorreoIgnoreCase(candidato)) {
                 return candidato;
             }
         }
