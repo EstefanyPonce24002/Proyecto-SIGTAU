@@ -278,7 +278,15 @@ function NuevoUsuarioModal({
           ]);
         }
       } else {
-        await registrarUsuario(form);
+        if (!correoVistaPrevia) {
+          setError("No se pudo generar el correo institucional. Verifica nombres y apellidos.");
+          return;
+        }
+
+        await registrarUsuario({
+          ...form,
+          correo: correoVistaPrevia,
+        });
       }
 
       onCreated();
