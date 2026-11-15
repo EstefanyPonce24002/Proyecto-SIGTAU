@@ -26,7 +26,7 @@ export interface RegistroPayload {
   especialidad?: string;
 }
 
-/** Registrar estudiante o tutor; el backend genera su correo e identificador institucional. */
+/** Registra usuarios; coordinadores usan una ruta administrativa protegida. */
 export function registrarUsuario(
   payload: RegistroPayload,
 ): Promise<UsuarioAdmin> {
