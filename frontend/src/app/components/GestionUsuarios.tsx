@@ -97,7 +97,7 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [correoGenerado, setCorreoGenerado] = useState("");
+  const [correoManual, setCorreoManual] = useState(false);
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -122,14 +122,14 @@ function NuevoUsuarioModal({
   const actualizarNombre = (field: "nombres" | "apellidos", value: string) => {
     setForm((prev) => {
       const siguiente = { ...prev, [field]: value };
-      if (!editando && (!prev.correo || prev.correo === correoGenerado)) {
+      if (!editando && !correoManual) {
         const generado = generarCorreoInstitucional(
           siguiente.nombres,
           siguiente.apellidos,
           correosExistentes,
         );
         siguiente.correo = generado;
-        setCorreoGenerado(generado);
+        
       }
       return siguiente;
     });
@@ -137,7 +137,7 @@ function NuevoUsuarioModal({
 
   const actualizarCorreo = (value: string) => {
     setForm((prev) => ({ ...prev, correo: value }));
-    setCorreoGenerado("");
+    setCorreoManual(true);
   };
 
   /*
