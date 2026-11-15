@@ -120,6 +120,21 @@ public class SecurityConfig {
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(org.springframework.http.HttpStatus.UNAUTHORIZED.value());
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(
+                                    "{\\"mensaje\\":\\"No autenticado o sesión expirada. Inicia sesión nuevamente.\\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(org.springframework.http.HttpStatus.FORBIDDEN.value());
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(
+                                    "{\\"mensaje\\":\\"No tienes permisos para realizar esta operación.\\"}");
+                        }))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
