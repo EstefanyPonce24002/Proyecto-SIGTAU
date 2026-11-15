@@ -19,7 +19,7 @@ export interface UsuarioAdmin {
 export interface RegistroPayload {
   nombres: string;
   apellidos: string;
-  correo: string;
+  correo?: string;
   telefono?: string;
   contrasena: string;
   rol: Rol;
