@@ -65,7 +65,6 @@ function NuevoUsuarioModal({
     telefono: usuario?.telefono ?? "",
     contrasena: "",
     rol: usuario?.rol ?? "ESTUDIANTE",
-    carnet: usuario?.carnet ?? "",
     carrera: usuario?.carrera ?? "",
     especialidad: usuario?.especialidad ?? "",
   });
@@ -194,11 +193,6 @@ function NuevoUsuarioModal({
       return;
     }
 
-    if (form.rol === "ESTUDIANTE" && !form.carnet?.trim()) {
-      setError("El carnet es obligatorio para un estudiante.");
-      return;
-    }
-
     // No permitir guardar una selección incompleta si falló la carga.
     if (
       editando &&
@@ -220,7 +214,6 @@ function NuevoUsuarioModal({
           nombres: form.nombres.trim(),
           apellidos: form.apellidos.trim(),
           telefono: form.telefono?.trim() ?? "",
-          carnet: form.carnet,
           carrera: form.carrera,
           especialidad: form.especialidad,
         });
@@ -420,8 +413,11 @@ function NuevoUsuarioModal({
             </div>
             {!editando && (
               <p className="mt-1.5 text-xs text-muted-foreground">
-                El ID se genera automáticamente al crear el usuario. Los
-                tutores también reciben un ID propio.
+                {form.rol === "ESTUDIANTE"
+                  ? "El carné se genera automáticamente con las iniciales del nombre y apellido más un correlativo."
+                  : form.rol === "TUTOR"
+                    ? "El código del tutor se genera automáticamente con el formato TUT-0001."
+                    : "El coordinador no utiliza un identificador en esta tabla."}
               </p>
             )}
           </div>
@@ -429,21 +425,9 @@ function NuevoUsuarioModal({
           {form.rol === "ESTUDIANTE" && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label htmlFor="carnet" className="text-sm">
-                  Carnet <span className="text-red-500">*</span>
+                <label htmlFor="carrera" className="text-sm">
+                  Carrera <span className="text-red-500">*</span>
                 </label>
-                <input
-                  id="carnet"
-                  required
-                  value={form.carnet}
-                  onChange={set("carnet")}
-                  disabled={saving}
-                  placeholder="20230187"
-                  className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-
-              <div className="space-y-1.5">
                 <label htmlFor="carrera" className="text-sm">
                   Carrera
                 </label>
@@ -722,7 +706,10 @@ export function GestionUsuarios() {
       !texto ||
       nombreCompleto.includes(texto) ||
       usuario.correo.toLowerCase().includes(texto) ||
-      Boolean(usuario.carnet?.toLowerCase().includes(texto));
+      Boolean(
+        usuario.carnet?.toLowerCase().includes(texto) ||
+        usuario.codigoTutor?.toLowerCase().includes(texto)
+      );
 
     const coincideRol = filtroRol === "Todos" || usuario.rol === filtroRol;
 
@@ -951,7 +938,7 @@ export function GestionUsuarios() {
           <table className="w-full text-left" style={{ minWidth: "960px" }}>
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
-                {["Id", "Usuario", "Correo", "Teléfono", "Rol", "Detalle", "Estado", "Acciones"].map(
+                {["Identificador", "Usuario", "Correo", "Teléfono", "Rol", "Detalle", "Estado", "Acciones"].map(
                   (encabezado) => (
                     <th
                       key={encabezado}
@@ -983,16 +970,13 @@ export function GestionUsuarios() {
                     className="bg-[#1F2937] text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D]"
                   >
                     <td className="px-5 py-3.5">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-mono text-sm text-[#F1F5F9]">
-                          {usuario.id}
-                        </span>
-                        {usuario.rol === "ESTUDIANTE" && (
-                          <span className="text-xs text-[#A8B7C8]">
-                            Carné: {usuario.carnet ?? "—"}
-                          </span>
-                        )}
-                      </div>
+                      <span className="font-mono text-sm text-[#F1F5F9]">
+                        {usuario.rol === "ESTUDIANTE"
+                          ? usuario.carnet ?? "—"
+                          : usuario.rol === "TUTOR"
+                            ? usuario.codigoTutor ?? "—"
+                            : ""}
+                      </span>
                     </td>
 
                     {/* Usuario: avatar + nombre */}
