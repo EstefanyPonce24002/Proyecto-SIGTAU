@@ -53,7 +53,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (JwtException | IllegalArgumentException | org.springframework.security.core.userdetails.UsernameNotFoundException ex) {
+            // No continuar como una petición anónima cuando el cliente envió un
+            // Bearer inválido o vencido. Devolver 401 permite al frontend mostrar
+            // el problema real sin confundirlo con un error de permisos (403).
             SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(
+                    "{\"mensaje\":\"La sesión ha expirado o el token de acceso no es válido. Inicia sesión nuevamente.\"}"
+            );
+            return;
         }
 
         filterChain.doFilter(request, response);
