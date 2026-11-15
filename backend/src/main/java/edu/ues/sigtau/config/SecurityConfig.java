@@ -133,7 +133,7 @@ public class SecurityConfig {
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             response.getWriter().write(
-                                    "{\\"mensaje\\":\\"No tienes permisos para realizar esta operación.\\"}");
+                                    "{\"mensaje\":\"No tienes permisos para realizar esta operación.\"}");
                         }))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
