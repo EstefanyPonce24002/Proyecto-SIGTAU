@@ -35,6 +35,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final EmailService emailService;
     private final JdbcTemplate jdbcTemplate;
+    private final CorreoInstitucionalService correoInstitucionalService;
     // Inyectar aquí un EmailService real (SMTP/SendGrid) cuando esté disponible.
 
     private static final long RESET_TOKEN_EXPIRY_MINUTES = 30;
@@ -69,14 +70,13 @@ public class AuthService {
             throw new IllegalArgumentException("El rol COORDINADOR no puede registrarse desde el endpoint público");
         }
 
-        if (usuarioRepository.existsByCorreo(request.correo())) {
-            throw new IllegalArgumentException("El correo ya está registrado");
-        }
+        String correoGenerado = correoInstitucionalService.generar(
+                request.nombres(), request.apellidos(), request.rol());
 
         Usuario usuario = Usuario.builder()
-                .nombres(request.nombres())
-                .apellidos(request.apellidos())
-                .correo(request.correo())
+                .nombres(request.nombres().trim())
+                .apellidos(request.apellidos().trim())
+                .correo(correoGenerado)
                 .telefono(request.telefono())
                 .contrasena(passwordEncoder.encode(request.contrasena()))
                 .rolUsuario(request.rol())
