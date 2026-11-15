@@ -51,9 +51,9 @@ function generarCorreoVistaPrevia(
   if (!nombres.trim() || !apellidos.trim()) return "";
 
   const normalizar = (valor: string) =>
-    valor.trim().split(/\\s+/)[0]
+    valor.trim().split(/\s+/)[0]
       .normalize("NFD")
-      .replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "");
 
