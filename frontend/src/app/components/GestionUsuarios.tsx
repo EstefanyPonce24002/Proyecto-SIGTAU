@@ -445,7 +445,7 @@ function NuevoUsuarioModal({
               >
                 <option value="ESTUDIANTE">Estudiante</option>
                 <option value="TUTOR">Tutor</option>
-                <option value="COORDINADOR" disabled>Coordinador</option>
+                <option value="COORDINADOR">Coordinador</option>
               </select>
 
               <ChevronDown
