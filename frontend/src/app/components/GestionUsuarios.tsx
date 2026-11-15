@@ -48,8 +48,10 @@ function generarCorreoInstitucional(
   apellidos: string,
   correosExistentes: string[],
 ): string {
+  if (!nombres.trim() || !apellidos.trim()) return "";
+
   const normalizarInicial = (texto: string) =>
-    texto.trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+    texto.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z]/g, "").charAt(0).toLowerCase();
 
   const base = `${normalizarInicial(nombres)}${normalizarInicial(apellidos)}`;
@@ -129,7 +131,6 @@ function NuevoUsuarioModal({
           correosExistentes,
         );
         siguiente.correo = generado;
-        
       }
       return siguiente;
     });
