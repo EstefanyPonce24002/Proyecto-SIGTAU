@@ -83,7 +83,6 @@ public class UsuarioService {
         return enriquecer(usuarioRepository.save(usuario));
     }
 
-    @Transactional
     /** Crea una cuenta de coordinador desde una sesión administrativa autenticada. */
     @Transactional
     public UsuarioAdminResponse registrarCoordinador(RegistroRequest request) {
