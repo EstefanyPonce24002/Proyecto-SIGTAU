@@ -43,6 +43,30 @@ function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
 
+function generarCorreoInstitucional(
+  nombres: string,
+  apellidos: string,
+  correosExistentes: string[],
+): string {
+  const normalizarInicial = (texto: string) =>
+    texto.trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/[^a-zA-Z]/g, "").charAt(0).toLowerCase();
+
+  const base = `${normalizarInicial(nombres)}${normalizarInicial(apellidos)}`;
+  if (!base.replace(/[^a-z]/g, "")) return "";
+
+  const existentes = new Set(correosExistentes.map((correo) => correo.toLowerCase()));
+  let candidato = `${base}@sigtau.edu.sv`;
+  let sufijo = 2;
+
+  while (existentes.has(candidato.toLowerCase())) {
+    candidato = `${base}${sufijo}@sigtau.edu.sv`;
+    sufijo += 1;
+  }
+
+  return candidato;
+}
+
 /* ─────────────────────────────────────────────────────────────
    Modal de creación y edición de usuarios
    ───────────────────────────────────────────────────────────── */
@@ -51,10 +75,12 @@ function NuevoUsuarioModal({
   onCreated,
   onClose,
   usuario,
+  correosExistentes,
 }: {
   onCreated: () => void;
   onClose: () => void;
   usuario?: UsuarioAdmin;
+  correosExistentes: string[];
 }) {
   const editando = Boolean(usuario);
 
@@ -71,6 +97,7 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [correoGenerado, setCorreoGenerado] = useState("");
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -91,6 +118,27 @@ function NuevoUsuarioModal({
         [field]: e.target.value,
       }));
     };
+
+  const actualizarNombre = (field: "nombres" | "apellidos", value: string) => {
+    setForm((prev) => {
+      const siguiente = { ...prev, [field]: value };
+      if (!editando && (!prev.correo || prev.correo === correoGenerado)) {
+        const generado = generarCorreoInstitucional(
+          siguiente.nombres,
+          siguiente.apellidos,
+          correosExistentes,
+        );
+        siguiente.correo = generado;
+        setCorreoGenerado(generado);
+      }
+      return siguiente;
+    });
+  };
+
+  const actualizarCorreo = (value: string) => {
+    setForm((prev) => ({ ...prev, correo: value }));
+    setCorreoGenerado("");
+  };
 
   /*
    * Al editar un tutor:
@@ -315,7 +363,7 @@ function NuevoUsuarioModal({
                 id="nombres"
                 required
                 value={form.nombres}
-                onChange={set("nombres")}
+                onChange={(e) => actualizarNombre("nombres", e.target.value)}
                 disabled={saving}
                 className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
               />
@@ -329,7 +377,7 @@ function NuevoUsuarioModal({
                 id="apellidos"
                 required
                 value={form.apellidos}
-                onChange={set("apellidos")}
+                onChange={(e) => actualizarNombre("apellidos", e.target.value)}
                 disabled={saving}
                 className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
               />
@@ -345,11 +393,16 @@ function NuevoUsuarioModal({
               type="email"
               required
               value={form.correo}
-              onChange={set("correo")}
+              onChange={(e) => actualizarCorreo(e.target.value)}
               disabled={editando || saving}
               placeholder="usuario@universidad.edu.sv"
-              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-60"
+              className="w-full min-w-0 rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-60"
             />
+            {!editando && form.correo && (
+              <p className="break-all text-xs text-muted-foreground">
+                Correo generado automáticamente; puedes modificarlo si es necesario.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -1095,6 +1148,7 @@ export function GestionUsuarios() {
             void cargar();
           }}
           onClose={() => setModalOpen(false)}
+          correosExistentes={usuarios.map((u) => u.correo)}
         />
       )}
 
@@ -1107,6 +1161,7 @@ export function GestionUsuarios() {
             void cargar();
           }}
           onClose={() => setUsuarioEditando(null)}
+          correosExistentes={usuarios.map((u) => u.correo)}
         />
       )}
     </div>
