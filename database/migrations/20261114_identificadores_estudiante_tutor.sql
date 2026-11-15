@@ -35,8 +35,42 @@ ALTER TABLE tutores
 -- Se conservan sin cambios los carnés actuales de los estudiantes.
 SELECT setval(
     'seq_carnet_estudiante',
-    COALESCE(MAX((SUBSTRING(carnet FROM '[0-9]+$'))::BIGINT), 1),
-    COUNT(carnet) > 0
+    COALESCE(
+        MAX((SUBSTRING(carnet FROM '[0-9]+
+
+SELECT setval(
+    'seq_codigo_tutor',
+    COALESCE(MAX((SUBSTRING(codigo_tutor FROM '[0-9]+$'))::BIGINT), 1),
+    COUNT(codigo_tutor) > 0
+)
+FROM tutores;
+
+COMMIT;
+))::BIGINT)
+            FILTER (WHERE carnet ~ '^[A-Z]{2}[0-9]+
+
+SELECT setval(
+    'seq_codigo_tutor',
+    COALESCE(MAX((SUBSTRING(codigo_tutor FROM '[0-9]+$'))::BIGINT), 1),
+    COUNT(codigo_tutor) > 0
+)
+FROM tutores;
+
+COMMIT;
+),
+        1
+    ),
+    COUNT(*) FILTER (WHERE carnet ~ '^[A-Z]{2}[0-9]+
+
+SELECT setval(
+    'seq_codigo_tutor',
+    COALESCE(MAX((SUBSTRING(codigo_tutor FROM '[0-9]+$'))::BIGINT), 1),
+    COUNT(codigo_tutor) > 0
+)
+FROM tutores;
+
+COMMIT;
+) > 0
 )
 FROM estudiante;
 
