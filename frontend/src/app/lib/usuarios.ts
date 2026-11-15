@@ -11,6 +11,7 @@ export interface UsuarioAdmin {
   activo: boolean;
   fechaRegistro: string;
   carnet: string | null;
+  codigoTutor: string | null;
   carrera: string | null;
   especialidad: string | null;
 }
@@ -22,7 +23,6 @@ export interface RegistroPayload {
   telefono?: string;
   contrasena: string;
   rol: Rol;
-  carnet?: string;
   carrera?: string;
   especialidad?: string;
 }
