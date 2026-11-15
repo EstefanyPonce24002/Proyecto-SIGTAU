@@ -423,7 +423,7 @@ function NuevoUsuarioModal({
           </div>
 
           {form.rol === "ESTUDIANTE" && (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
               <div className="space-y-1.5">
                 <label htmlFor="carrera" className="text-sm">
                   Carrera <span className="text-red-500">*</span>
