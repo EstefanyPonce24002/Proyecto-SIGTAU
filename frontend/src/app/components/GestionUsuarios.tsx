@@ -428,10 +428,6 @@ function NuevoUsuarioModal({
                 <label htmlFor="carrera" className="text-sm">
                   Carrera <span className="text-red-500">*</span>
                 </label>
-                <label htmlFor="carrera" className="text-sm">
-                  Carrera
-                </label>
-
                 <select
                   id="carrera"
                   value={form.carrera ?? ""}
