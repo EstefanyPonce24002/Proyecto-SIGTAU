@@ -66,11 +66,6 @@ public class UsuarioService {
 
         if (usuario.getRolUsuario() == RolUsuario.ESTUDIANTE) {
             estudianteRepository.findById(id).ifPresent(estudiante -> {
-                if (request.carnet() != null
-                        && !request.carnet().isBlank()) {
-                    estudiante.setCarnet(request.carnet().trim());
-                }
-
                 estudiante.setCarrera(request.carrera());
                 estudianteRepository.save(estudiante);
             });
@@ -160,6 +155,7 @@ public class UsuarioService {
 
     private UsuarioAdminResponse enriquecer(Usuario usuario) {
         String carnet = null;
+        String codigoTutor = null;
         String carrera = null;
         String especialidad = null;
 
@@ -179,6 +175,7 @@ public class UsuarioService {
                     .orElse(null);
 
             if (tutor != null) {
+                codigoTutor = tutor.getCodigoTutor();
                 especialidad = tutor.getEspecialidad();
             }
         }
@@ -193,6 +190,7 @@ public class UsuarioService {
                 usuario.getActivo(),
                 usuario.getFechaRegistro(),
                 carnet,
+                codigoTutor,
                 carrera,
                 especialidad);
     }
