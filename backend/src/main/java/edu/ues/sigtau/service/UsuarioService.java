@@ -2,6 +2,7 @@
 package edu.ues.sigtau.service;
 
 import edu.ues.sigtau.dto.ActualizarUsuarioRequest;
+import edu.ues.sigtau.dto.RegistroRequest;
 import edu.ues.sigtau.dto.UsuarioAdminResponse;
 import edu.ues.sigtau.model.Asignatura;
 import edu.ues.sigtau.model.RolUsuario;
@@ -15,6 +16,7 @@ import edu.ues.sigtau.repository.TutorRepository;
 import edu.ues.sigtau.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
     private final EstudianteRepository estudianteRepository;
     private final TutorRepository tutorRepository;
     private final AsignaturaRepository asignaturaRepository;
@@ -81,6 +84,63 @@ public class UsuarioService {
     }
 
     @Transactional
+    /** Crea una cuenta de coordinador desde una sesión administrativa autenticada. */
+    @Transactional
+    public UsuarioAdminResponse registrarCoordinador(RegistroRequest request) {
+        if (request.rol() != RolUsuario.COORDINADOR) {
+            throw new IllegalArgumentException("Esta operación solo permite registrar usuarios con rol COORDINADOR");
+        }
+        String nombres = request.nombres().trim();
+        String apellidos = request.apellidos().trim();
+        String correo = generarCorreoCoordinador(nombres, apellidos);
+
+        Usuario usuario = Usuario.builder()
+                .nombres(nombres)
+                .apellidos(apellidos)
+                .correo(correo)
+                .telefono(request.telefono() == null || request.telefono().isBlank()
+                        ? null : request.telefono().trim())
+                .contrasena(passwordEncoder.encode(request.contrasena()))
+                .rolUsuario(RolUsuario.COORDINADOR)
+                .activo(true)
+                .build();
+
+        return UsuarioAdminResponse.basico(usuarioRepository.save(usuario));
+    }
+
+    private String generarCorreoCoordinador(String nombres, String apellidos) {
+        String base = normalizarPrimerComponente(nombres) + "." + normalizarPrimerComponente(apellidos);
+        String dominio = "@sigtau.edu.sv";
+        int maximoLocal = 150 - dominio.length();
+        if (base.length() > maximoLocal) base = base.substring(0, maximoLocal);
+
+        String candidato = base + dominio;
+        int correlativo = 1;
+        while (usuarioRepository.existsByCorreo(candidato)) {
+            String sufijo = String.valueOf(correlativo++);
+            int longitudBase = Math.max(1, maximoLocal - sufijo.length());
+            candidato = (base.length() > longitudBase ? base.substring(0, longitudBase) : base)
+                    + sufijo + dominio;
+        }
+        return candidato;
+    }
+
+    private String normalizarPrimerComponente(String valor) {
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException("Nombres y apellidos son obligatorios");
+        }
+        String primero = valor.trim().split("\\s+")[0];
+        String normalizado = java.text.Normalizer.normalize(
+                primero, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]", "");
+        if (normalizado.isBlank()) {
+            throw new IllegalArgumentException("No se pudo generar el correo institucional");
+        }
+        return normalizado;
+    }
+
     public void actualizarAsignaturasTutor(
             Integer idTutor,
             List<Integer> idsSolicitados) {
