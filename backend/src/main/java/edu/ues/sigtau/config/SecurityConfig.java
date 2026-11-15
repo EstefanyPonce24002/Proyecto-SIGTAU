@@ -120,6 +120,15 @@ public class SecurityConfig {
                         .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
                         .anyRequest().authenticated())
+                // Respuestas explícitas para que los errores de autenticación/autorización
+                // de la API no se conviertan en redirecciones ambiguas del navegador.
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(org.springframework.http.HttpStatus.UNAUTHORIZED.value(),
+                                        "No autenticado o sesión expirada"))
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(org.springframework.http.HttpStatus.FORBIDDEN.value(),
+                                        "No tienes permisos para realizar esta operación")))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
