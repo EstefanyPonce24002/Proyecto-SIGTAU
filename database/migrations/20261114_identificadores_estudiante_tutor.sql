@@ -20,7 +20,7 @@ WITH tutores_sin_codigo AS (
     WHERE codigo_tutor IS NULL
 )
 UPDATE tutores t
-SET codigo_tutor = 'TUT-' || LPAD(ts.correlativo::TEXT, 4, '0')
+SET codigo_tutor = 'TUT-' || LPAD(ts.correlativo::TEXT, GREATEST(4, LENGTH(ts.correlativo::TEXT)), '0')
 FROM tutores_sin_codigo ts
 WHERE t.id_tutor = ts.id_tutor;
 
