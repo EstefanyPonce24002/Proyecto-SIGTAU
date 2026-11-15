@@ -126,7 +126,7 @@ public class SecurityConfig {
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             response.getWriter().write(
-                                    "{\\"mensaje\\":\\"No autenticado o sesión expirada. Inicia sesión nuevamente.\\"}");
+                                    "{\"mensaje\":\"No autenticado o sesión expirada. Inicia sesión nuevamente.\"}");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(org.springframework.http.HttpStatus.FORBIDDEN.value());
