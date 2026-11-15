@@ -43,6 +43,34 @@ function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
 
+function generarCorreoVistaPrevia(
+  nombres: string,
+  apellidos: string,
+  rol: Rol,
+): string {
+  if (!nombres.trim() || !apellidos.trim()) return "";
+
+  const normalizar = (valor: string) =>
+    valor.trim().split(/\s+/)[0]
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const primerNombre = normalizar(nombres);
+  const primerApellido = normalizar(apellidos);
+  if (!primerNombre || !primerApellido) return "";
+
+  if (rol === "ESTUDIANTE") {
+    return primerNombre[0] + primerApellido[0] + "@sigtau.edu.sv";
+  }
+
+  if (rol === "TUTOR") {
+    return primerNombre + "." + primerApellido + "@sigtau.edu.sv";
+  }
+
+  return "";
+}
 /* ─────────────────────────────────────────────────────────────
    Modal de creación y edición de usuarios
    ───────────────────────────────────────────────────────────── */
@@ -61,7 +89,6 @@ function NuevoUsuarioModal({
   const [form, setForm] = useState<RegistroPayload>({
     nombres: usuario?.nombres ?? "",
     apellidos: usuario?.apellidos ?? "",
-    correo: usuario?.correo ?? "",
     telefono: usuario?.telefono ?? "",
     contrasena: "",
     rol: usuario?.rol ?? "ESTUDIANTE",
@@ -71,6 +98,12 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const correoVistaPrevia = generarCorreoVistaPrevia(
+    form.nombres,
+    form.apellidos,
+    form.rol,
+  );
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -183,8 +216,8 @@ function NuevoUsuarioModal({
     e.preventDefault();
     setError(null);
 
-    if (!form.nombres.trim() || !form.apellidos.trim() || !form.correo.trim()) {
-      setError("Completa nombres, apellidos y correo.");
+    if (!form.nombres.trim() || !form.apellidos.trim()) {
+      setError("Completa nombres y apellidos.");
       return;
     }
 
@@ -336,21 +369,30 @@ function NuevoUsuarioModal({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="correo" className="text-sm">
-              Correo institucional <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="correo"
-              type="email"
-              required
-              value={form.correo}
-              onChange={set("correo")}
-              disabled={editando || saving}
-              placeholder="usuario@universidad.edu.sv"
-              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-60"
-            />
-          </div>
+          {!editando && (
+            <div className="space-y-1.5">
+              <label htmlFor="correo" className="text-sm">
+                Correo institucional
+              </label>
+              <input
+                id="correo"
+                type="email"
+                value={correoVistaPrevia}
+                readOnly
+                placeholder="Se generará al ingresar nombres y apellidos"
+                disabled={saving || form.rol === "COORDINADOR"}
+                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                {form.rol === "ESTUDIANTE"
+                  ? "Se forma con la inicial del primer nombre y del primer apellido."
+                  : form.rol === "TUTOR"
+                    ? "Se forma como primerNombre.primerApellido@sigtau.edu.sv."
+                    : "La creación de coordinadores no está habilitada."}
+                {" "}Si la dirección ya existe, el sistema agregará un correlativo al registrarla.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label htmlFor="telefono" className="text-sm">
@@ -403,7 +445,7 @@ function NuevoUsuarioModal({
               >
                 <option value="ESTUDIANTE">Estudiante</option>
                 <option value="TUTOR">Tutor</option>
-                <option value="COORDINADOR">Coordinador</option>
+                <option value="COORDINADOR" disabled>Coordinador</option>
               </select>
 
               <ChevronDown
@@ -613,11 +655,6 @@ type FiltroEstado = "Todos" | "ACTIVO" | "INACTIVO";
 
 export function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([]);
-  // null = no se pudieron cargar las asignaturas de los tutores
-  const [materiasPorTutor, setMateriasPorTutor] = useState<Record<
-    number,
-    string[]
-  > | null>({});
   const [cargando, setCargando] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -639,26 +676,6 @@ export function GestionUsuarios() {
       const datos = await listarUsuarios();
       setUsuarios(datos);
 
-      // Asignaturas por tutor (para la columna Detalle).
-      try {
-        const catalogo = await listarTodasLasAsignaturas();
-        const vinculos = await Promise.all(
-          catalogo.map(async (asignatura) => ({
-            nombre: asignatura.nombre,
-            tutores: await listarTutoresPorAsignatura(asignatura.id),
-          })),
-        );
-
-        const mapa: Record<number, string[]> = {};
-        for (const { nombre, tutores } of vinculos) {
-          for (const tutor of tutores) {
-            (mapa[tutor.id] ??= []).push(nombre);
-          }
-        }
-        setMateriasPorTutor(mapa);
-      } catch {
-        setMateriasPorTutor(null);
-      }
     } catch (err) {
       setLoadError(
         err instanceof ApiError
@@ -716,69 +733,6 @@ export function GestionUsuarios() {
 
     return coincideBusqueda && coincideRol && coincideEstado;
   });
-
-  const renderDetalle = (usuario: UsuarioAdmin) => {
-    if (usuario.rol === "ESTUDIANTE") {
-      return <span className="text-sm text-[#A8B7C8]">—</span>;
-    }
-
-    if (usuario.rol === "TUTOR") {
-      // No se pudieron cargar las materias: no afirmar "Sin materias".
-      if (materiasPorTutor === null) {
-        return <span className="text-sm text-[#A8B7C8]">—</span>;
-      }
-
-      const materias = materiasPorTutor[usuario.id] ?? [];
-
-      if (materias.length === 0) {
-        return (
-          <span
-            className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
-            style={{
-              background: "rgba(245,158,11,0.12)",
-              color: "#F59E0B",
-            }}
-          >
-            Sin materias
-          </span>
-        );
-      }
-
-      const visibles = materias.slice(0, 2);
-      const restantes = materias.length - visibles.length;
-
-      return (
-        <div className="flex flex-wrap items-center gap-1.5">
-          {visibles.map((nombre) => (
-            <span
-              key={nombre}
-              className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
-              style={{
-                background: "rgba(16,185,129,0.12)",
-                color: "#059669",
-              }}
-            >
-              {nombre}
-            </span>
-          ))}
-          {restantes > 0 && (
-            <span
-              title={materias.join(", ")}
-              className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
-              style={{
-                background: "rgba(100,116,139,0.12)",
-                color: "#A8B7C8",
-              }}
-            >
-              +{restantes}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    return <span className="text-sm text-[#A8B7C8]">—</span>;
-  };
 
   if (cargando) {
     return (
@@ -931,10 +885,10 @@ export function GestionUsuarios() {
 
         {/* Tabla */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left" style={{ minWidth: "960px" }}>
+          <table className="w-full text-left" style={{ minWidth: "880px" }}>
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
-                {["Identificador", "Usuario", "Correo", "Teléfono", "Rol", "Detalle", "Estado", "Acciones"].map(
+                {["Identificador", "Usuario", "Correo", "Teléfono", "Rol", "Estado", "Acciones"].map(
                   (encabezado) => (
                     <th
                       key={encabezado}
@@ -951,7 +905,7 @@ export function GestionUsuarios() {
               {filtrados.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={7}
                     className="bg-[#1D3043] py-12 text-center text-sm text-[#D5DEE8]"
                   >
                     {usuarios.length === 0
@@ -971,7 +925,7 @@ export function GestionUsuarios() {
                           ? usuario.carnet ?? "—"
                           : usuario.rol === "TUTOR"
                             ? usuario.codigoTutor ?? "—"
-                            : ""}
+                            : "—"}
                       </span>
                     </td>
 
@@ -1016,7 +970,6 @@ export function GestionUsuarios() {
                       </span>
                     </td>
 
-                    <td className="px-5 py-3.5">{renderDetalle(usuario)}</td>
 
                     <td className="px-5 py-3.5">
                       <span

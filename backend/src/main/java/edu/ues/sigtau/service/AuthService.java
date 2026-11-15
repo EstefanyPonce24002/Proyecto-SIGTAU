@@ -69,14 +69,13 @@ public class AuthService {
             throw new IllegalArgumentException("El rol COORDINADOR no puede registrarse desde el endpoint público");
         }
 
-        if (usuarioRepository.existsByCorreo(request.correo())) {
-            throw new IllegalArgumentException("El correo ya está registrado");
-        }
+        String correoGenerado = generarCorreoInstitucional(
+                request.nombres(), request.apellidos(), request.rol());
 
         Usuario usuario = Usuario.builder()
                 .nombres(request.nombres())
                 .apellidos(request.apellidos())
-                .correo(request.correo())
+                .correo(correoGenerado)
                 .telefono(request.telefono())
                 .contrasena(passwordEncoder.encode(request.contrasena()))
                 .rolUsuario(request.rol())
@@ -112,6 +111,69 @@ public class AuthService {
                 usuario.getActivo(), usuario.getFechaRegistro(),
                 carnetGenerado, codigoTutorGenerado, request.carrera(), request.especialidad()
         );
+    }
+
+    /**
+     * Genera el correo institucional según el rol:
+     * estudiantes: iniciales del primer nombre y apellido;
+     * tutores: primerNombre.primerApellido.
+     * Si el correo ya existe, agrega un correlativo antes del dominio.
+     */
+    private String generarCorreoInstitucional(
+            String nombres,
+            String apellidos,
+            RolUsuario rol) {
+
+        String base = switch (rol) {
+            case ESTUDIANTE -> (inicial(nombres) + inicial(apellidos)).toLowerCase(java.util.Locale.ROOT);
+            case TUTOR -> primerComponenteCorreo(nombres) + "." + primerComponenteCorreo(apellidos);
+            default -> throw new IllegalArgumentException(
+                    "Solo estudiantes y tutores pueden generar correo desde este registro");
+        };
+
+        String dominio = "@sigtau.edu.sv";
+        int maximoLocal = 150 - dominio.length();
+        if (base.length() > maximoLocal) {
+            base = base.substring(0, maximoLocal);
+        }
+
+        String candidato = base + dominio;
+        if (!usuarioRepository.existsByCorreo(candidato)) {
+            return candidato;
+        }
+
+        for (int correlativo = 1; ; correlativo++) {
+            String sufijo = String.valueOf(correlativo);
+            int longitudBase = Math.max(1, maximoLocal - sufijo.length());
+            String baseConSufijo = base.length() > longitudBase
+                    ? base.substring(0, longitudBase)
+                    : base;
+            candidato = baseConSufijo + sufijo + dominio;
+
+            if (!usuarioRepository.existsByCorreo(candidato)) {
+                return candidato;
+            }
+        }
+    }
+
+    private String primerComponenteCorreo(String texto) {
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException("Nombres y apellidos son obligatorios");
+        }
+
+        String primerComponente = texto.trim().split("\\s+")[0];
+        String normalizado = java.text.Normalizer.normalize(
+                primerComponente,
+                java.text.Normalizer.Form.NFD
+        ).replaceAll("\\p{M}", "")
+         .toLowerCase(java.util.Locale.ROOT)
+         .replaceAll("[^a-z0-9]", "");
+
+        if (normalizado.isBlank()) {
+            throw new IllegalArgumentException("No se pudo generar el correo institucional");
+        }
+
+        return normalizado;
     }
 
     private String generarCarnetEstudiante(String nombres, String apellidos) {
