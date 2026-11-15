@@ -43,6 +43,34 @@ function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
 
+function generarCorreoVistaPrevia(
+  nombres: string,
+  apellidos: string,
+  rol: Rol,
+): string {
+  if (!nombres.trim() || !apellidos.trim()) return "";
+
+  const normalizar = (valor: string) =>
+    valor.trim().split(/\\s+/)[0]
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const primerNombre = normalizar(nombres);
+  const primerApellido = normalizar(apellidos);
+  if (!primerNombre || !primerApellido) return "";
+
+  if (rol === "ESTUDIANTE") {
+    return primerNombre[0] + primerApellido[0] + "@sigtau.edu.sv";
+  }
+
+  if (rol === "TUTOR") {
+    return primerNombre + "." + primerApellido + "@sigtau.edu.sv";
+  }
+
+  return "";
+}
 /* ─────────────────────────────────────────────────────────────
    Modal de creación y edición de usuarios
    ───────────────────────────────────────────────────────────── */
@@ -70,6 +98,12 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const correoVistaPrevia = generarCorreoVistaPrevia(
+    form.nombres,
+    form.apellidos,
+    form.rol,
+  );
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -336,15 +370,26 @@ function NuevoUsuarioModal({
           </div>
 
           {!editando && (
-            <div className="rounded-xl border border-border bg-secondary/20 px-3 py-2.5">
-              <p className="text-sm font-medium">Correo institucional automático</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+            <div className="space-y-1.5">
+              <label htmlFor="correo" className="text-sm">
+                Correo institucional
+              </label>
+              <input
+                id="correo"
+                type="email"
+                value={correoVistaPrevia}
+                readOnly
+                placeholder="Se generará al ingresar nombres y apellidos"
+                disabled={saving || form.rol === "COORDINADOR"}
+                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none"
+              />
+              <p className="text-xs text-muted-foreground">
                 {form.rol === "ESTUDIANTE"
-                  ? "Se generará con las iniciales del primer nombre y apellido."
+                  ? "Se forma con la inicial del primer nombre y del primer apellido."
                   : form.rol === "TUTOR"
-                    ? "Se generará como primerNombre.primerApellido@sigtau.edu.sv."
-                    : "La creación de coordinadores no está habilitada en este formulario."}
-                {" "}Si ya existe, se agregará un correlativo.
+                    ? "Se forma como primerNombre.primerApellido@sigtau.edu.sv."
+                    : "La creación de coordinadores no está habilitada."}
+                {" "}Si la dirección ya existe, el sistema agregará un correlativo al registrarla.
               </p>
             </div>
           )}
