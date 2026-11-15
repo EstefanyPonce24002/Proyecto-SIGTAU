@@ -85,24 +85,33 @@ public class AuthService {
 
         usuario = usuarioRepository.save(usuario);
 
+        String carnetGenerado = null;
+        String codigoTutorGenerado = null;
+
         if (request.rol() == RolUsuario.ESTUDIANTE) {
-            String carnetGenerado = generarCarnetEstudiante(request.nombres(), request.apellidos());
+            carnetGenerado = generarCarnetEstudiante(request.nombres(), request.apellidos());
             estudianteRepository.save(edu.ues.sigtau.model.Estudiante.builder()
                     .usuario(usuario)
                     .carnet(carnetGenerado)
                     .carrera(request.carrera())
                     .build());
         } else if (request.rol() == RolUsuario.TUTOR) {
+            codigoTutorGenerado = generarCodigoTutor();
             tutorRepository.save(edu.ues.sigtau.model.Tutor.builder()
                     .usuario(usuario)
-                    .codigoTutor(generarCodigoTutor())
+                    .codigoTutor(codigoTutorGenerado)
                     .especialidad(request.especialidad())
                     .build());
         }
 
         // TODO: enviar correo de confirmación de cuenta (exigido por RF-01).
 
-        return UsuarioAdminResponse.basico(usuario);
+        return new UsuarioAdminResponse(
+                usuario.getId(), usuario.getNombres(), usuario.getApellidos(),
+                usuario.getCorreo(), usuario.getTelefono(), usuario.getRolUsuario(),
+                usuario.getActivo(), usuario.getFechaRegistro(),
+                carnetGenerado, codigoTutorGenerado, request.carrera(), request.especialidad()
+        );
     }
 
     private String generarCarnetEstudiante(String nombres, String apellidos) {
