@@ -343,7 +343,7 @@ function NuevoUsuarioModal({
                   ? "Se generará con las iniciales del primer nombre y apellido."
                   : form.rol === "TUTOR"
                     ? "Se generará como primerNombre.primerApellido@sigtau.edu.sv."
-                    : "El correo se genera según el rol permitido por el sistema."}
+                    : "La creación de coordinadores no está habilitada en este formulario."}
                 {" "}Si ya existe, se agregará un correlativo.
               </p>
             </div>
@@ -400,7 +400,7 @@ function NuevoUsuarioModal({
               >
                 <option value="ESTUDIANTE">Estudiante</option>
                 <option value="TUTOR">Tutor</option>
-                <option value="COORDINADOR">Coordinador</option>
+                <option value="COORDINADOR" disabled>Coordinador</option>
               </select>
 
               <ChevronDown
