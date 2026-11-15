@@ -18,6 +18,7 @@ export interface UsuarioAdmin {
 
 export interface RegistroPayload {
   nombres: string;
+  correo?: string;
   apellidos: string;
   telefono?: string;
   contrasena: string;
