@@ -36,9 +36,24 @@ export function registrarUsuario(
   });
 }
 
-/** listar todos los usuarios */
-export function listarUsuarios(): Promise<UsuarioAdmin[]> {
-  return apiFetch<UsuarioAdmin[]>("/usuarios");
+/** Normaliza los nombres de propiedades que puede devolver la API. */
+type UsuarioAdminApi = UsuarioAdmin & {
+  codigo_tutor?: string | null;
+  carnet_estudiantil?: string | null;
+};
+
+function normalizarUsuarioAdmin(usuario: UsuarioAdminApi): UsuarioAdmin {
+  return {
+    ...usuario,
+    carnet: usuario.carnet ?? usuario.carnet_estudiantil ?? null,
+    codigoTutor: usuario.codigoTutor ?? usuario.codigo_tutor ?? null,
+  };
+}
+
+/** Lista usuarios y normaliza los identificadores institucionales. */
+export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
+  const datos = await apiFetch<UsuarioAdminApi[]>("/usuarios");
+  return datos.map(normalizarUsuarioAdmin);
 }
 
 /** activar o desactivar una cuenta */
