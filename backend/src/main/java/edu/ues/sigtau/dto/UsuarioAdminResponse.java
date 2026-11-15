@@ -15,15 +15,16 @@ public record UsuarioAdminResponse(
         RolUsuario rol,
         Boolean activo,
         LocalDateTime fechaRegistro,
-        String carnet,        // solo ESTUDIANTE
-        String carrera,       // solo ESTUDIANTE
-        String especialidad   // solo TUTOR
+        String carnet,
+        String codigoTutor,
+        String carrera,
+        String especialidad
 ) {
     public static UsuarioAdminResponse basico(Usuario u) {
         return new UsuarioAdminResponse(
                 u.getId(), u.getNombres(), u.getApellidos(), u.getCorreo(), u.getTelefono(),
                 u.getRolUsuario(), u.getActivo(), u.getFechaRegistro(),
-                null, null, null
+                null, null, null, null
         );
     }
 }
