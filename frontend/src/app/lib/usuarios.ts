@@ -19,7 +19,6 @@ export interface UsuarioAdmin {
 export interface RegistroPayload {
   nombres: string;
   apellidos: string;
-  correo?: string;
   telefono?: string;
   contrasena: string;
   rol: Rol;
@@ -27,7 +26,7 @@ export interface RegistroPayload {
   especialidad?: string;
 }
 
-/** Registrar Usuario (coordinador crea estudiantes/tutores/coordinadores) */
+/** Registrar estudiante o tutor; el backend genera su correo e identificador institucional. */
 export function registrarUsuario(
   payload: RegistroPayload,
 ): Promise<UsuarioAdmin> {
@@ -65,7 +64,7 @@ export function actualizarAsignaturasDelTutor(
 
 export function actualizarUsuario(
   id: number,
-  payload: Omit<RegistroPayload, "correo" | "contrasena" | "rol">,
+  payload: Omit<RegistroPayload, "contrasena" | "rol">,
 ): Promise<UsuarioAdmin> {
   return apiFetch<UsuarioAdmin>(`/usuarios/${id}`, {
     method: "PATCH",
