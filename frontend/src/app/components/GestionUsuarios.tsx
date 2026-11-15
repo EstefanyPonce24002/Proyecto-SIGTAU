@@ -65,7 +65,7 @@ function generarCorreoVistaPrevia(
     return primerNombre[0] + primerApellido[0] + "@sigtau.edu.sv";
   }
 
-  if (rol === "TUTOR") {
+  if (rol === "TUTOR" || rol === "COORDINADOR") {
     return primerNombre + "." + primerApellido + "@sigtau.edu.sv";
   }
 
@@ -380,7 +380,7 @@ function NuevoUsuarioModal({
                 value={correoVistaPrevia}
                 readOnly
                 placeholder="Se generará al ingresar nombres y apellidos"
-                disabled={saving || form.rol === "COORDINADOR"}
+                disabled={saving}
                 className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none"
               />
               <p className="text-xs text-muted-foreground">
@@ -388,7 +388,7 @@ function NuevoUsuarioModal({
                   ? "Se forma con la inicial del primer nombre y del primer apellido."
                   : form.rol === "TUTOR"
                     ? "Se forma como primerNombre.primerApellido@sigtau.edu.sv."
-                    : "La creación de coordinadores no está habilitada."}
+                    : "Para coordinadores se utilizará el mismo formato que para tutores: primerNombre.primerApellido@sigtau.edu.sv."}
                 {" "}Si la dirección ya existe, el sistema agregará un correlativo al registrarla.
               </p>
             </div>
