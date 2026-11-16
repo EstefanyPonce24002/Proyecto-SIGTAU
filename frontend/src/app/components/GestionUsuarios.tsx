@@ -39,11 +39,13 @@ const ROL_LABEL: Record<Rol, string> = {
   COORDINADOR: "Coordinador",
 };
 
-const ROL_STYLE: Record<Rol, { color: string; background: string }> = {
-  ESTUDIANTE: { color: "#60A5FA", background: "rgba(59,130,246,0.12)" },
-  TUTOR: { color: "#4ADE80", background: "rgba(34,197,94,0.12)" },
-  COORDINADOR: { color: "#C084FC", background: "rgba(168,85,247,0.12)" },
+const ROL_STYLE: Record<Rol, string> = {
+  ESTUDIANTE: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  TUTOR: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  COORDINADOR: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
 };
+
+const ESTADO_ACTIVO = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
 
 function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
@@ -282,10 +284,10 @@ function NuevoUsuarioModal({
         role="dialog"
         aria-modal="true"
         aria-label={editando ? "Editar usuario" : "Nuevo usuario"}
-        className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl"
+        className="relative flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-xl dark:border-[#30465C] dark:bg-[#192B3B]"
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border bg-secondary/30 px-5 py-4">
-          <h3 className="font-medium">
+          <h3 className="font-semibold">
             {editando ? "Editar usuario" : "Nuevo usuario"}
           </h3>
 
@@ -294,7 +296,7 @@ function NuevoUsuarioModal({
             onClick={onClose}
             disabled={saving}
             aria-label="Cerrar formulario"
-            className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
           >
             <X size={16} />
           </button>
@@ -475,17 +477,17 @@ function NuevoUsuarioModal({
               </div>
 
               {/* Asignaturas del tutor: nuevo y edición */}
-              <section className="space-y-3 rounded-xl border border-border p-4">
+              <section className="space-y-3 rounded-xl border border-border bg-secondary/30 p-4 dark:border-[#30465C] dark:bg-[#1F2937]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <BookOpen size={18} className="text-emerald-600" />
+                    <BookOpen size={18} className="text-brand-blue-text" />
                     <h4 className="text-sm font-medium">
                       Asignaturas del tutor
                     </h4>
                   </div>
 
                   {!cargandoAsignaturas && !errorAsignaturas && (
-                    <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-600">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_ACTIVO}`}>
                       {asignaturasSeleccionadas.length} seleccionadas
                     </span>
                   )}
@@ -567,7 +569,7 @@ function NuevoUsuarioModal({
                             {seleccionada && (
                               <CheckCircle2
                                 size={16}
-                                className="shrink-0 text-emerald-600"
+                                className="shrink-0 text-brand-blue-text"
                               />
                             )}
                           </label>
@@ -596,8 +598,7 @@ function NuevoUsuarioModal({
                 (form.rol === "TUTOR" &&
                   (cargandoAsignaturas || Boolean(errorAsignaturas)))
               }
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ background: "#118AB2" }}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving && <Loader2 size={15} className="animate-spin" />}
               {editando ? "Guardar cambios" : "Crear usuario"}
@@ -681,61 +682,58 @@ export function GestionUsuarios() {
     return coincideBusqueda && coincideRol;
   });
 
-  if (cargando) {
-    return (
-      <div className="flex w-full items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  return (
+    <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id="usuarios-titulo" className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
+            Usuarios
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Administra las cuentas y sus asignaciones.
+          </p>
+        </div>
 
-  if (loadError) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <AlertCircle size={24} className="mx-auto mb-2 text-destructive" />
-        <p className="mb-4 text-sm text-destructive">{loadError}</p>
         <button
           type="button"
-          onClick={() => void cargar()}
-          className="rounded-xl px-4 py-2 text-sm text-white"
-          style={{ background: "#118AB2" }}
+          onClick={() => {
+            setActionError(null);
+            setModalOpen(true);
+          }}
+          disabled={cargando || Boolean(loadError)}
+          className="sigtau-accent-button inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-emerald-950 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60 sm:w-auto"
         >
-          Reintentar
+          <Plus size={16} aria-hidden="true" />
+          Nuevo usuario
         </button>
-      </div>
-    );
-  }
+      </header>
 
-  return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
+      {actionError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+        >
+          {actionError}
+        </div>
+      )}
+
       <section className="overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
-        <header className="space-y-4 border-b border-border px-4 py-4 dark:border-[#30465C] sm:px-5">
-          <div>
-            <div>
-              <h2 className="text-sm font-semibold text-card-foreground">
-                Usuarios
-              </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Administra las cuentas y sus asignaciones.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="border-b border-border px-4 py-4 has-[[role=status]]:pb-12 sm:has-[[role=status]]:pb-9 dark:border-[#30465C] sm:px-5">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_13rem]">
             <VoiceSearchInput
               value={busqueda}
               onChange={setBusqueda}
               placeholder="Buscar por nombre o correo..."
-              className="min-w-0 flex-1"
-              style={{ fontSize: "0.875rem" }}
+              className="min-w-0 bg-input-background"
+              style={{ fontSize: "0.875rem", lineHeight: "1.25rem" }}
             />
 
-            <div className="relative sm:w-52 sm:shrink-0">
+            <div className="relative min-w-0">
               <select
                 value={filtroRol}
                 onChange={(e) => setFiltroRol(e.target.value)}
                 aria-label="Filtrar usuarios por rol"
-                className="w-full appearance-none rounded-lg border border-border bg-card px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring dark:bg-[#1F2937]"
+                className="w-full appearance-none rounded-xl border border-border bg-input-background px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="Todos">Todos los roles</option>
                 <option value="ESTUDIANTE">Estudiante</option>
@@ -748,175 +746,172 @@ export function GestionUsuarios() {
                 className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
             </div>
+          </div>
+        </div>
 
+        {cargando ? (
+          <div role="status" className="flex items-center justify-center gap-2 px-4 py-12 text-sm text-muted-foreground">
+            <Loader2 size={20} aria-hidden="true" className="animate-spin" />
+            Cargando usuarios…
+          </div>
+        ) : loadError ? (
+          <div className="px-4 py-10 text-center">
+            <AlertCircle size={24} aria-hidden="true" className="mx-auto mb-2 text-destructive" />
+            <p role="alert" className="text-sm text-red-700 dark:text-red-300">{loadError}</p>
             <button
               type="button"
-              onClick={() => {
-                setActionError(null);
-                setModalOpen(true);
-              }}
-              className="flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
-              style={{ background: "#10B981" }}
+              onClick={() => void cargar()}
+              className="mt-4 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              <Plus size={15} />
-              Nuevo usuario
+              Reintentar
             </button>
           </div>
-
-          {actionError && (
+        ) : (
+          <>
             <div
-              role="alert"
-              className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3"
+              role="region"
+              aria-labelledby="usuarios-titulo"
+              tabIndex={0}
+              className="overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
             >
-              <p className="text-sm text-destructive">{actionError}</p>
-            </div>
-          )}
-        </header>
-
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: "680px" }}>
-            <thead>
-              <tr
-                className="border-b border-border bg-secondary dark:border-[#30465C] dark:bg-[#1F2937]"
-              >
-                {[
-                  "Usuario",
-                  "Correo",
-                  "Rol",
-                  "Detalle",
-                  "Estado",
-                  "Acción",
-                ].map((encabezado) => (
-                  <th
-                    key={encabezado}
-                    className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                  >
-                    {encabezado}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-border dark:divide-[#30465C]">
-              {filtrados.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="bg-card py-12 text-center text-sm text-muted-foreground dark:bg-[#1F2937]"
-                  >
-                    {usuarios.length === 0
-                      ? "Sin usuarios registrados."
-                      : "No se encontraron usuarios."}
-                  </td>
-                </tr>
-              ) : (
-                filtrados.map((usuario) => (
+              <table className="w-full min-w-[680px] border-collapse text-left">
+                <thead>
                   <tr
-                    key={usuario.id}
-                    className="bg-card transition-colors hover:bg-secondary/40 dark:bg-[#1F2937]"
+                    className="border-b border-border bg-secondary/60 dark:border-[#30465C] dark:bg-[#192B3B]"
                   >
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs text-white"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, #1E3A8A, #3B82F6)",
-                          }}
-                        >
-                          {iniciales(usuario.nombres, usuario.apellidos)}
-                        </div>
-
-                        <span className="text-sm text-foreground">
-                          {usuario.nombres} {usuario.apellidos}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {usuario.correo}
-                    </td>
-
-                    <td className="px-5 py-3.5">
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs"
-                        style={ROL_STYLE[usuario.rol]}
+                    {[
+                      "Usuario",
+                      "Correo",
+                      "Rol",
+                      "Detalle",
+                      "Estado",
+                      "Acciones",
+                    ].map((encabezado) => (
+                      <th
+                        key={encabezado}
+                        scope="col"
+                        className="px-4 py-3 text-xs font-semibold text-muted-foreground sm:px-5"
                       >
-                        {ROL_LABEL[usuario.rol]}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {usuario.rol === "ESTUDIANTE" && (usuario.carnet ?? "—")}
-
-                      {usuario.rol === "TUTOR" && (usuario.especialidad ?? "—")}
-
-                      {usuario.rol === "COORDINADOR" && "—"}
-                    </td>
-
-                    <td className="px-5 py-3.5">
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs"
-                        style={{
-                          color: usuario.activo ? "#10B981" : "#6B7280",
-                          background: usuario.activo
-                            ? "rgba(16,185,129,0.12)"
-                            : "rgba(107,114,128,0.12)",
-                        }}
-                      >
-                        {usuario.activo ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActionError(null);
-                            setUsuarioEditando(usuario);
-                          }}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                          aria-label={`Editar a ${usuario.nombres} ${usuario.apellidos}`}
-                          title="Editar usuario"
-                        >
-                          <Pencil size={14} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => void toggleEstado(usuario)}
-                          disabled={cambiando === usuario.id}
-                          className="rounded-lg px-3 py-1.5 text-xs transition-all disabled:opacity-50"
-                          style={{
-                            color: usuario.activo ? "#EF4444" : "#10B981",
-                            background: usuario.activo
-                              ? "rgba(239,68,68,0.08)"
-                              : "rgba(16,185,129,0.1)",
-                          }}
-                        >
-                          {cambiando === usuario.id ? (
-                            <Loader2 size={13} className="animate-spin" />
-                          ) : usuario.activo ? (
-                            "Desactivar"
-                          ) : (
-                            "Activar"
-                          )}
-                        </button>
-                      </div>
-                    </td>
+                        {encabezado}
+                      </th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
 
-        <div className="border-t border-border px-5 py-3">
-          <p className="text-xs text-muted-foreground">
-            Mostrando {filtrados.length} de {usuarios.length} usuarios
-          </p>
-        </div>
+                <tbody className="divide-y divide-border dark:divide-[#30465C]">
+                  {filtrados.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="bg-card px-4 py-12 text-center text-sm text-muted-foreground dark:bg-[#1F2937]"
+                      >
+                        <Users size={24} aria-hidden="true" className="mx-auto mb-2" />
+                        {usuarios.length === 0
+                          ? "Sin usuarios registrados."
+                          : "No se encontraron usuarios."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filtrados.map((usuario) => (
+                      <tr
+                        key={usuario.id}
+                        className="bg-card transition-colors hover:bg-secondary/40 dark:bg-[#1F2937] dark:hover:bg-[#24394D]"
+                      >
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              aria-hidden="true"
+                              className="sigtau-primary-button flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-medium text-white"
+                            >
+                              {iniciales(usuario.nombres, usuario.apellidos)}
+                            </div>
+
+                            <span className="text-sm font-medium text-card-foreground">
+                              {usuario.nombres} {usuario.apellidos}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                          {usuario.correo}
+                        </td>
+
+                        <td className="px-5 py-3.5">
+                          <span
+                            className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${ROL_STYLE[usuario.rol]}`}
+                          >
+                            {ROL_LABEL[usuario.rol]}
+                          </span>
+                        </td>
+
+                        <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                          {usuario.rol === "ESTUDIANTE" && (usuario.carnet ?? "—")}
+
+                          {usuario.rol === "TUTOR" && (usuario.especialidad ?? "—")}
+
+                          {usuario.rol === "COORDINADOR" && "—"}
+                        </td>
+
+                        <td className="px-5 py-3.5">
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                              usuario.activo ? ESTADO_ACTIVO : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {usuario.activo ? "Activo" : "Inactivo"}
+                          </span>
+                        </td>
+
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActionError(null);
+                                setUsuarioEditando(usuario);
+                              }}
+                              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                              aria-label={`Editar a ${usuario.nombres} ${usuario.apellidos}`}
+                              title="Editar usuario"
+                            >
+                              <Pencil size={14} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => void toggleEstado(usuario)}
+                              disabled={cambiando === usuario.id}
+                              aria-label={`${usuario.activo ? "Desactivar" : "Activar"} a ${usuario.nombres} ${usuario.apellidos}`}
+                              className={`inline-flex h-8 min-w-21 items-center justify-center whitespace-nowrap rounded-lg px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50 ${
+                                usuario.activo
+                                  ? "bg-destructive/10 text-red-700 hover:bg-destructive/20 dark:text-red-300"
+                                  : `${ESTADO_ACTIVO} hover:bg-emerald-500/20`
+                              }`}
+                            >
+                              {cambiando === usuario.id ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : usuario.activo ? (
+                                "Desactivar"
+                              ) : (
+                                "Activar"
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="border-t border-border px-4 py-3 dark:border-[#30465C] sm:px-5">
+              <p role="status" className="text-xs text-muted-foreground">
+                Mostrando {filtrados.length} de {usuarios.length} usuarios
+              </p>
+            </div>
+          </>
+        )}
       </section>
 
       {modalOpen && (
