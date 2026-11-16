@@ -285,15 +285,11 @@ export function DashboardReportes() {
     : `No hay sesiones registradas entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con un período más amplio.`;
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+     <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
+      {/* Encabezado de Reportes */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <BarChart3 size={14} className="text-brand-teal" /> Análisis
-            académico
-          </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
             Reportes
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -399,54 +395,27 @@ export function DashboardReportes() {
           ))}
         </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="space-y-1">
-            <label
-              className="text-muted-foreground"
-              style={{ fontSize: "0.73rem" }}
-            >
-              Fecha inicio
-            </label>
+          <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
+            Fecha inicio
             <input
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
-              style={
-                {
-                  fontSize: "0.85rem",
-                  "--tw-ring-color": "#10B981",
-                } as React.CSSProperties
-              }
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
             />
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-muted-foreground"
-              style={{ fontSize: "0.73rem" }}
-            >
-              Fecha fin
-            </label>
+          </label>
+          <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
+            Fecha fin
             <input
               type="date"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
-              className="w-full rounded-xl border border-border bg-input-background text-foreground px-3 py-2.5 outline-none focus:ring-2 transition-all"
-              style={
-                {
-                  fontSize: "0.85rem",
-                  "--tw-ring-color": "#10B981",
-                } as React.CSSProperties
-              }
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
             />
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-muted-foreground"
-              style={{ fontSize: "0.73rem" }}
-            >
-              Filtro por carrera
-            </label>
+          </label>
+          <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
+            Filtro por carrera
             <select
               value={carrera}
               onChange={(e) => {
@@ -458,13 +427,7 @@ export function DashboardReportes() {
                   ? "No se pudieron cargar las carreras; se usará Todas las carreras."
                   : undefined
               }
-              className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-ring"
-              style={
-                {
-                  fontSize: "0.85rem",
-                  "--tw-ring-color": "#10B981",
-                } as React.CSSProperties
-              }
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
             >
               <option value="">Todas las carreras</option>
               {carreras.map((c) => (
@@ -473,36 +436,23 @@ export function DashboardReportes() {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-muted-foreground"
-              style={{ fontSize: "0.73rem" }}
-            >
-              &nbsp;
-            </label>
-            <button
-              onClick={handleGenerar}
-              disabled={generando}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-white transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{
-                background: generando
-                  ? "#6B7280"
-                  : "linear-gradient(135deg, #1E3A8A, #3B82F6)",
-                fontSize: "0.875rem",
-              }}
-            >
-              {generando ? (
-                <>
-                  <Loader2 size={15} className="animate-spin" /> Generando...
-                </>
-              ) : (
-                <>
-                  <Play size={14} /> Generar reporte
-                </>
-              )}
-            </button>
-          </div>
+          </label>
+          <button
+            type="button"
+            onClick={handleGenerar}
+            disabled={generando}
+            className="sigtau-accent-button flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-emerald-950 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {generando ? (
+              <>
+                <Loader2 size={15} className="animate-spin" /> Generando...
+              </>
+            ) : (
+              <>
+                <Play size={14} /> Generar reporte
+              </>
+            )}
+          </button>
         </div>
 
         {genError && (
