@@ -1,6 +1,7 @@
 package edu.ues.sigtau.controller;
 
 import edu.ues.sigtau.dto.UsuarioAdminResponse;
+import edu.ues.sigtau.dto.RegistroRequest;
 import edu.ues.sigtau.dto.ActualizarAsignaturasTutorRequest;
 import edu.ues.sigtau.dto.ActualizarUsuarioRequest;
 import edu.ues.sigtau.service.UsuarioService;
@@ -17,6 +18,12 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+
+    @PostMapping("/coordinadores")
+    public ResponseEntity<UsuarioAdminResponse> registrarCoordinador(
+            @Valid @RequestBody RegistroRequest request) {
+        return ResponseEntity.status(201).body(usuarioService.registrarCoordinador(request));
+    }
 
     @GetMapping
     public ResponseEntity<List<UsuarioAdminResponse>> listarTodos() {

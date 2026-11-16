@@ -35,6 +35,11 @@ export interface GenerarReportePayload {
   filtroCarrera?: string;
 }
 
+/** Carreras registradas en los estudiantes (para el filtro de reportes). */
+export function listarCarreras(): Promise<string[]> {
+  return apiFetch<string[]>("/reportes/carreras");
+}
+
 export function generarReporte(
   payload: GenerarReportePayload,
 ): Promise<ReporteGenerado> {

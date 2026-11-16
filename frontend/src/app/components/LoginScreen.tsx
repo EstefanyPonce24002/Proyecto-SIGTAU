@@ -9,7 +9,6 @@ import { useState } from "react";
 import {
   Eye,
   EyeOff,
-  GraduationCap,
   Moon,
   Sun,
   AlertCircle,
@@ -187,28 +186,6 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
             <Moon size={20} style={{ color: "#e0e7ed" }} />
           )}
         </button>
-
-        {/* Logotipo móvil visible únicamente en resoluciones menores a 'lg' */}
-        <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-xl"
-            style={{
-              background: "linear-gradient(135deg, #1E3A8A, #118AB2)",
-            }}
-          >
-            <GraduationCap size={15} className="text-white" />
-          </div>
-
-          <span
-            className="text-foreground"
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-            }}
-          >
-            SIG<span style={{ color: "#118AB2" }}>TAU</span>
-          </span>
-        </div>
 
         {/* Tarjeta de cristal esmerilado (Glassmorphism) con el formulario */}
         <div

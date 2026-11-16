@@ -60,22 +60,68 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
 
   if (!response.ok) {
     let message = `Error ${response.status}`;
-    try {
-      const body = await response.json();
-      message = body.mensaje ?? body.errores ?? message;
-      if (typeof message === "object" && message !== null) {
-        const details = Object.entries(message)
-          .map(([field, detail]) => `${field === "correo" ? "Correo electrónico" : field === "contrasena" ? "Contraseña" : field}: ${detail}`)
-          .join(". ");
-        message = details || "Revisa los datos ingresados";
+    const responseText = await response.text();
+
+    if (responseText) {
+      try {
+        const body = JSON.parse(responseText) as {
+          mensaje?: unknown;
+          message?: unknown;
+          error?: unknown;
+          errores?: unknown;
+        };
+        const detail = body.mensaje ?? body.message ?? body.error ?? body.errores;
+
+        if (typeof detail === "string") {
+          message = detail;
+        } else if (detail && typeof detail === "object") {
+          if (Array.isArray(detail)) {
+            message = detail.map(String).join(". ");
+          } else {
+            message = Object.entries(detail)
+              .map(([field, value]) =>
+                `${field === "correo" ? "Correo electrónico" : field === "contrasena" ? "Contraseña" : field}: ${String(value)}`,
+              )
+              .join(". ");
+          }
+        }
+      } catch {
+        if (!responseText.trimStart().startsWith("<")) {
+          message = responseText.slice(0, 300);
+        }
       }
-    } catch {
-      // el cuerpo no era JSON, se mantiene el mensaje genérico
     }
-    throw new ApiError(typeof message === "string" ? message : JSON.stringify(message), response.status);
+
+    throw new ApiError(message, response.status);
   }
 
   // 204 No Content u otras respuestas vacías
   const text = await response.text();
   return (text ? JSON.parse(text) : undefined) as T;
+}
+
+export async function apiFetchBlob(
+  path: string,
+  options: ApiFetchOptions = {},
+): Promise<Blob> {
+  const { auth = true, headers, ...rest } = options;
+  const finalHeaders: Record<string, string> = {
+    ...(headers as Record<string, string> | undefined),
+  };
+
+  if (auth) {
+    const token = getToken();
+    if (token) finalHeaders["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...rest,
+    headers: finalHeaders,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(`Error ${response.status}`, response.status);
+  }
+
+  return response.blob();
 }

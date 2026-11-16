@@ -229,10 +229,7 @@ export function SolicitudTutoria({
   // La propiedad onCancel se recibe, pero actualmente no se utiliza.
   void onCancel;
 
-  // ----------------------------------------------------
   // 4.1. ESTADOS DEL COMPONENTE
-  // ----------------------------------------------------
-
   // Listas de datos obtenidos desde el backend.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
   const [tutoresDisponibles, setTutoresDisponibles] = useState<TutorOption[]>(
@@ -299,10 +296,8 @@ export function SolicitudTutoria({
       .finally(() => setCargandoAsignaturas(false));
   }, []);
 
-  // ----------------------------------------------------
-  // 4.3. MANEJADORES DE SELECCIÓN
-  // ----------------------------------------------------
 
+  // 4.3. MANEJADORES DE SELECCIÓN
   // Se ejecuta cuando el estudiante selecciona una asignatura.
   const handleAsignaturaChange = (value: string) => {
     // Convierte el identificador recibido del select a número.
@@ -369,10 +364,7 @@ export function SolicitudTutoria({
     setCalendarOpen(false);
   };
 
-  // ----------------------------------------------------
   // 4.4. CARGA Y ADMINISTRACIÓN DE ARCHIVOS
-  // ----------------------------------------------------
-
   // Maneja los archivos que el usuario arrastra hasta el área de carga.
   const handleDrop = (event: React.DragEvent) => {
     // Evita que el navegador abra el archivo por defecto.
@@ -409,10 +401,7 @@ export function SolicitudTutoria({
   const removeFile = (index: number) =>
     setArchivos((prev) => prev.filter((_, current) => current !== index));
 
-  // ----------------------------------------------------
   // 4.5. CÁLCULOS Y DATOS DERIVADOS
-  // ----------------------------------------------------
-
   // Obtiene los días de la semana en los que el tutor tiene disponibilidad.
   // useMemo evita recalcular el resultado mientras no cambien los horarios.
   const diasTutor = useMemo(
@@ -480,10 +469,7 @@ export function SolicitudTutoria({
   // o después de registrar el envío.
   const paso3Completo = confirmationOpen || solicitudEnviada;
 
-  // ----------------------------------------------------
   // 4.6. VALIDACIÓN DEL FORMULARIO
-  // ----------------------------------------------------
-
   // Comprueba que todos los campos obligatorios tengan información.
   const validate = () => {
     const nextErrors: Record<string, string> = {};
@@ -530,10 +516,7 @@ export function SolicitudTutoria({
     setConfirmationOpen(true);
   };
 
-  // ----------------------------------------------------
   // 4.7. CONFIRMACIÓN Y ENVÍO AL BACKEND
-  // ----------------------------------------------------
-
   // Registra la solicitud y después sube los archivos adjuntos.
   const confirmSolicitud = async () => {
     // Evita continuar si faltan datos esenciales.
@@ -583,10 +566,7 @@ export function SolicitudTutoria({
     }
   };
 
-  // ======================================================
   // 5. RENDERIZADO DE LA INTERFAZ (JSX)
-  // ======================================================
-
   return (
     <div className="w-full max-w-none">
       {/* Barra de navegación para acceder a otras secciones. */}
@@ -603,13 +583,11 @@ export function SolicitudTutoria({
 
         {/* Tarjeta principal del formulario. */}
         <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          {/* -------------------------------------------- */}
-          {/* CABECERA E INDICADOR DE PROGRESO */}
-          {/* -------------------------------------------- */}
 
+          {/* CABECERA E INDICADOR DE PROGRESO */}
           <header
             className="border-b border-border px-4 pb-4 pt-5 text-white sm:px-5"
-            style={{ backgroundColor: "#79cae55a" }}
+            style={{ backgroundColor: "#1F2937" }}
           >
             <div>
               <h1 className="text-foreground" style={{ fontSize: "1.2rem" }}>
@@ -667,10 +645,7 @@ export function SolicitudTutoria({
               </div>
             )}
 
-            {/* ========================================== */}
             {/* PASO 1: ASIGNATURA Y TUTOR */}
-            {/* ========================================== */}
-
             <section className="rounded-2xl border border-border p-4">
               <CardHeader
                 step={1}
@@ -966,10 +941,7 @@ export function SolicitudTutoria({
               </div>
             </section>
 
-            {/* ========================================== */}
             {/* PASO 3: DESCRIPCIÓN Y DOCUMENTOS */}
-            {/* ========================================== */}
-
             <section className="rounded-2xl border border-border p-5">
               <CardHeader
                 step={3}
@@ -1161,10 +1133,7 @@ export function SolicitudTutoria({
         </div>
       </div>
 
-      {/* ================================================= */}
       {/* 6. DIÁLOGO DE CONFIRMACIÓN DE LA SOLICITUD */}
-      {/* ================================================= */}
-
       {/* Solicita al estudiante revisar sus datos antes de registrar la tutoría. */}
       <Dialog
         open={confirmationOpen}
@@ -1178,7 +1147,7 @@ export function SolicitudTutoria({
           }
         }}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto bg-background text-foreground dark:border-[#374151] dark:bg-[#1F2937]">
           <DialogHeader>
             <DialogTitle>Detalle de tu solicitud</DialogTitle>
 
@@ -1253,7 +1222,7 @@ export function SolicitudTutoria({
               type="button"
               onClick={() => setConfirmationOpen(false)}
               disabled={submitting}
-              className="rounded-xl border border-[#CB0404] px-4 py-2.5 text-sm text-red-800 transition-colors hover:bg-red-50 hover:border-red-400 disabled:opacity-50 dark:border-red-800/50 dark:hover:bg-red-950/20"
+              className="rounded-xl border border-red-800/50 bg-red-950/20 px-4 py-2.5 text-sm text-red-400 transition-colors hover:border-red-500/60 hover:bg-red-950/40 disabled:opacity-50"
             >
               Editar
             </button>

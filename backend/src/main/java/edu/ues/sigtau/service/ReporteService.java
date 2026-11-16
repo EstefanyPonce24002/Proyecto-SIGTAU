@@ -2,6 +2,7 @@ package edu.ues.sigtau.service;
 
 import edu.ues.sigtau.dto.*;
 import edu.ues.sigtau.model.*;
+import edu.ues.sigtau.repository.EstudianteRepository;
 import edu.ues.sigtau.repository.SesionRepository;
 import edu.ues.sigtau.repository.ReporteRepository;
 import edu.ues.sigtau.repository.UsuarioRepository;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ public class ReporteService {
     private final SesionRepository sesionRepository;
     private final ReporteRepository reporteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final EstudianteRepository estudianteRepository;
 
     private static final String SIN_FILTRO = "Todas las carreras";
 
@@ -35,11 +38,11 @@ public class ReporteService {
 
         String filtroCarrera = request.filtroCarrera();
         if (filtroCarrera != null && !filtroCarrera.isBlank() && !SIN_FILTRO.equalsIgnoreCase(filtroCarrera.trim())) {
-            String carreraBuscada = filtroCarrera.trim();
+            // Se compara sin tildes ni mayúsculas: "ingenieria" coincide con "Ingeniería"
+            String carreraBuscada = normalizar(filtroCarrera);
             sesiones = sesiones.stream()
                     .filter(s -> s.getEstudiante() != null
-                            && carreraBuscada.equalsIgnoreCase(
-                                    Objects.toString(s.getEstudiante().getCarrera(), "").trim()))
+                            && carreraBuscada.equals(normalizar(s.getEstudiante().getCarrera())))
                     .toList();
         }
 
@@ -64,6 +67,25 @@ public class ReporteService {
                 .build());
 
         return respuesta;
+    }
+
+    /** Carreras disponibles para el filtro de reportes. */
+    @Transactional(readOnly = true)
+    public List<String> listarCarreras() {
+        return estudianteRepository.findCarrerasDistintas().stream()
+                .map(String::trim)
+                .distinct()
+                .toList();
+    }
+
+    /** Quita tildes, espacios extremos y mayúsculas para comparar textos. */
+    private static String normalizar(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return Normalizer.normalize(texto.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT);
     }
 
     /* ASISTENCIA */

@@ -54,6 +54,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } catch (JwtException | IllegalArgumentException | org.springframework.security.core.userdetails.UsernameNotFoundException ex) {
             SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(
+                    "{\"mensaje\":\"La sesión ha expirado o el token no es válido. Inicia sesión nuevamente.\"}");
+            return;
         }
 
         filterChain.doFilter(request, response);

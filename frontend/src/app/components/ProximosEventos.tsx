@@ -525,7 +525,7 @@ export function ProximosEventos({
             <button
               type="button"
               onClick={onVerHistorial}
-              className="min-h-11 rounded-xl border border-[#118AB2] px-4 py-2.5 text-sm font-medium text-[#118AB2] transition-all hover:bg-[#118AB2] hover:text-white"
+              className="min-h-11 rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#0B6685] hover:text-white"
             >
               Ver todas mis tutorías
             </button>

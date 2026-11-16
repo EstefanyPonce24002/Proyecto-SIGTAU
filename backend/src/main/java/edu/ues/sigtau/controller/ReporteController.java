@@ -35,6 +35,12 @@ public class ReporteController {
                 .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
         return ResponseEntity.ok(reporteService.generar(request, coordinador.getId()));
     }
+    /** Carreras registradas, para el selector de filtro de la pantalla Reportes. */
+    @GetMapping("/carreras")
+    public ResponseEntity<java.util.List<String>> carreras() {
+        return ResponseEntity.ok(reporteService.listarCarreras());
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<edu.ues.sigtau.dto.CoordinadorDashboardResponse> dashboard() {
         return ResponseEntity.ok(dashboardService.obtener());
