@@ -213,10 +213,10 @@ export function Asignaturas() {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-foreground">Asignaturas</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Asignaturas</h2>
           <p className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
             RF-05 / RF-12 · {asignaturas.length} registradas
           </p>
