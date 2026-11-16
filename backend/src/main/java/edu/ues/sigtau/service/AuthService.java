@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -91,12 +92,13 @@ public class AuthService {
                     .carnet(request.carnet())
                     .carrera(request.carrera())
                     .build());
-        } else if (request.rol() == RolUsuario.TUTOR) {
+            } else if (request.rol() == RolUsuario.TUTOR) {
             tutorRepository.save(edu.ues.sigtau.model.Tutor.builder()
-                    .usuario(usuario)
-                    .especialidad(request.especialidad())
-                    .build());
-        }
+            .usuario(usuario)
+            .especialidad(request.especialidad())
+            .fechaVinculacion(LocalDate.now())
+            .build());
+            }
 
         // TODO: enviar correo de confirmación de cuenta (exigido por RF-01).
 
