@@ -469,13 +469,15 @@ export function Asignaturas() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground">
-            Gestiona materias, asigna tutores y controla el estado de las
-            tutorías
-          </h2>
+<div className="mx-auto w-full max-w-[1180px] space-y-5">
+  <div className="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        Asignaturas
+      </h2>
+      <p className="text-sm text-muted-foreground">
+        Gestiona materias, asigna tutores y controla el estado de las tutorías.
+      </p>
         </div>
         <button
           onClick={() => setModalNueva(true)}

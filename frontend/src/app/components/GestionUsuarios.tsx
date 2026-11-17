@@ -40,6 +40,14 @@ const ROL_LABEL: Record<Rol, string> = {
   COORDINADOR: "Coordinador",
 };
 
+const ROL_STYLE: Record<Rol, string> = {
+  ESTUDIANTE: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  TUTOR: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  COORDINADOR: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
+};
+
+const ESTADO_ACTIVO = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+
 function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
 }
@@ -305,10 +313,10 @@ function NuevoUsuarioModal({
         role="dialog"
         aria-modal="true"
         aria-label={editando ? "Editar usuario" : "Nuevo usuario"}
-        className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl"
+        className="relative flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-xl dark:border-[#30465C] dark:bg-[#192B3B]"
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border bg-secondary/30 px-5 py-4">
-          <h3 className="font-medium">
+          <h3 className="font-semibold">
             {editando ? "Editar usuario" : "Nuevo usuario"}
           </h3>
 
@@ -317,7 +325,7 @@ function NuevoUsuarioModal({
             onClick={onClose}
             disabled={saving}
             aria-label="Cerrar formulario"
-            className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
           >
             <X size={16} />
           </button>
@@ -510,17 +518,17 @@ function NuevoUsuarioModal({
               </div>
 
               {/* Asignaturas del tutor: nuevo y edición */}
-              <section className="space-y-3 rounded-xl border border-border p-4">
+              <section className="space-y-3 rounded-xl border border-border bg-secondary/30 p-4 dark:border-[#30465C] dark:bg-[#1F2937]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <BookOpen size={18} className="text-emerald-600" />
+                    <BookOpen size={18} className="text-brand-blue-text" />
                     <h4 className="text-sm font-medium">
                       Asignaturas del tutor
                     </h4>
                   </div>
 
                   {!cargandoAsignaturas && !errorAsignaturas && (
-                    <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-600">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_ACTIVO}`}>
                       {asignaturasSeleccionadas.length} seleccionadas
                     </span>
                   )}
@@ -602,7 +610,7 @@ function NuevoUsuarioModal({
                             {seleccionada && (
                               <CheckCircle2
                                 size={16}
-                                className="shrink-0 text-emerald-600"
+                                className="shrink-0 text-brand-blue-text"
                               />
                             )}
                           </label>
@@ -631,8 +639,7 @@ function NuevoUsuarioModal({
                 (form.rol === "TUTOR" &&
                   (cargandoAsignaturas || Boolean(errorAsignaturas)))
               }
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ background: "#118AB2" }}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving && <Loader2 size={15} className="animate-spin" />}
               {editando ? "Guardar cambios" : "Crear usuario"}
@@ -730,37 +737,16 @@ export function GestionUsuarios() {
     return coincideBusqueda && coincideRol && coincideEstado;
   });
 
-  if (cargando) {
-    return (
-      <div className="flex w-full items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <AlertCircle size={24} className="mx-auto mb-2 text-destructive" />
-        <p className="mb-4 text-sm text-destructive">{loadError}</p>
-        <button
-          type="button"
-          onClick={() => void cargar()}
-          className="rounded-xl px-4 py-2 text-sm text-white"
-          style={{ background: "#118AB2" }}
-        >
-          Reintentar
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-5">
-      {/* Encabezado fuera de la card */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Gestiona el registro de nuevos usuarios</h2>
+          <h2 id="usuarios-titulo" className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
+            Usuarios
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Administra las cuentas y sus asignaciones.
+          </p>
         </div>
 
         <button
@@ -769,21 +755,23 @@ export function GestionUsuarios() {
             setActionError(null);
             setModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-white transition-all hover:opacity-90 active:scale-95"
-          style={{ background: "#118ab2", fontSize: "0.875rem" }}
+          disabled={cargando || Boolean(loadError)}
+          className="sigtau-accent-button inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-emerald-950 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60 sm:w-auto"
         >
-          <Plus size={15} /> Nuevo usuario
+          <Plus size={16} aria-hidden="true" />
+          Nuevo usuario
         </button>
-      </div>
+      </header>
 
       {actionError && (
         <div
           role="alert"
-          className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-red-700 dark:text-red-300"
         >
-          <p className="text-sm text-destructive">{actionError}</p>
+          {actionError}
         </div>
       )}
+
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {/* Cabecera de la card */}
@@ -817,6 +805,7 @@ export function GestionUsuarios() {
                   borderColor: "var(--border-strong)",
                   background: "var(--input-background)",
                 }}
+
               >
                 <span>Filtrar</span>
                 <ChevronDown
@@ -898,7 +887,26 @@ export function GestionUsuarios() {
             </thead>
 
             <tbody className="divide-y divide-[#30465C]">
-              {filtrados.length === 0 ? (
+              {cargando ? (
+  <tr>
+    <td colSpan={7} className="px-5 py-12 text-center text-sm text-muted-foreground">
+      <span role="status">Cargando usuarios...</span>
+    </td>
+  </tr>
+) : loadError ? (
+  <tr>
+    <td colSpan={7} className="px-5 py-10 text-center text-sm">
+      <p role="alert" className="text-destructive">{loadError}</p>
+      <button
+        type="button"
+        onClick={() => void cargar()}
+        className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+      >
+        Reintentar
+      </button>
+    </td>
+  </tr>
+) : filtrados.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -1023,11 +1031,11 @@ export function GestionUsuarios() {
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                          ))
+        )}
+      </tbody>
+    </table>
+  </div>
 
         <div className="border-t border-[#30465C] bg-[#182A39] px-5 py-3">
           <p className="text-xs text-[#A8B7C8]">

@@ -350,12 +350,14 @@ export function Supervision() {
     sesiones.filter((s) => s.estado === e).length;
 
   return (
-    <div className="w-full space-y-5">
+    <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
       {error && <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
 
       {/* Header */}
       <div>
-        <h2 className="text-foreground">Supervisión de Sesiones</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
+  Supervisión de Sesiones
+</h2>
         <p className="text-muted-foreground" style={{ fontSize: "0.85rem" }}>
           Vista global · {sesiones.length} sesiones registradas en el sistema
         </p>
@@ -378,7 +380,7 @@ export function Supervision() {
             <button
               key={e}
               onClick={() => setFiltroEstado(filtroEstado === e ? "Todos" : e)}
-              className="bg-card rounded-xl border p-3 text-left transition-all"
+              className="min-h-24 rounded-xl border bg-card p-4 text-left transition-all"
               style={{
                 borderColor: filtroEstado === e ? cfg.color : "var(--border)",
               }}
@@ -405,7 +407,7 @@ export function Supervision() {
       </div>
 
       {/* Filters */}
-      <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+      <div className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
         <p
           className="text-muted-foreground"
           style={{

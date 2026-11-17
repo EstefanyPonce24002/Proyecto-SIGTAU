@@ -121,16 +121,15 @@ function statusStyle(estado: string) {
   );
 }
 
-// Encabezado reutilizable de cada panel: título a la izquierda
-// y un detalle opcional (p. ej. "3 programadas") a la derecha.
+// Muestra el título de cada panel y, si hay un detalle, lo coloca en una etiqueta redondeada.
 function SectionHeader({ title, detail }: { title: string; detail?: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
-      <div className="flex items-center gap-2.5">
-        <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
-      </div>
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-border px-4 py-3 dark:border-[#30465C] sm:px-5">
+      <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
       {detail && (
-        <span className="text-[11px] text-muted-foreground">{detail}</span>
+        <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium leading-none text-muted-foreground">
+          {detail}
+        </span>
       )}
     </div>
   );
@@ -247,25 +246,26 @@ export function DashboardCoord() {
         </div>
       )}
 
-      {/* Indicadores (KPI): 2 columnas en pantallas pequeñas, 4 en xl */}
-      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+            {/* Tarjetas de indicadores */}
+      <section
+        aria-label="Indicadores del coordinador"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         {kpiItems.map(({ key, label, icon: Icon, tone }) => (
           <div
             key={key}
-            className="flex min-h-[72px] items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B] sm:px-3.5"
+            className="flex min-h-24 items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]"
           >
-            {/* Ícono con fondo del color del tono */}
             <div
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClasses[tone]}`}
+              className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${toneClasses[tone]}`}
             >
-              <Icon size={19} strokeWidth={2} />
+              <Icon size={19} strokeWidth={2} aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              {/* Valor del KPI; muestra "—" mientras los datos cargan */}
-              <p className="text-xl font-semibold leading-none tracking-tight text-card-foreground sm:text-2xl">
+              <p className="break-words text-2xl font-semibold leading-none tracking-tight text-card-foreground tabular-nums">
                 {data?.[key] ?? "—"}
               </p>
-              <p className="mt-1.5 truncate text-[10px] leading-3 text-muted-foreground sm:text-[11px]">
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                 {label}
               </p>
             </div>
@@ -274,7 +274,7 @@ export function DashboardCoord() {
       </section>
 
       {/* Fila central: tutorías de hoy (izquierda) y alertas (derecha) en pantallas grandes */}
-      <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* Panel: próximas tutorías de hoy */}
         <section className="overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
           <SectionHeader
@@ -333,7 +333,7 @@ export function DashboardCoord() {
         <section className="overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/10 dark:border-[#30465C] dark:bg-[#192B3B]">
           <SectionHeader
             title="Alertas y seguimiento"
-            detail={`${alertas.length} activas`}
+            detail={`${alertas.length} ${alertas.length === 1 ? "activa" : "activas"}`}
           />
           {/* Si no hay alertas, muestra un mensaje positivo */}
           {alertas.length === 0 ? (
