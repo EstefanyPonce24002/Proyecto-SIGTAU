@@ -30,7 +30,8 @@ import {
   type ReporteGenerado,
 } from "../lib/reportes";
 import { ApiError } from "../lib/api";
-import jsPDF from "jspdf";
+import jsPDF from
+ "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
