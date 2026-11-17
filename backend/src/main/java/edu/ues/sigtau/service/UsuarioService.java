@@ -2,6 +2,7 @@
 package edu.ues.sigtau.service;
 
 import edu.ues.sigtau.dto.ActualizarUsuarioRequest;
+import edu.ues.sigtau.dto.RegistroRequest;
 import edu.ues.sigtau.dto.UsuarioAdminResponse;
 import edu.ues.sigtau.model.Asignatura;
 import edu.ues.sigtau.model.RolUsuario;
@@ -14,6 +15,7 @@ import edu.ues.sigtau.repository.TutorAsignaturaRepository;
 import edu.ues.sigtau.repository.TutorRepository;
 import edu.ues.sigtau.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,8 @@ public class UsuarioService {
     private final TutorRepository tutorRepository;
     private final AsignaturaRepository asignaturaRepository;
     private final TutorAsignaturaRepository tutorAsignaturaRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CorreoInstitucionalService correoInstitucionalService;
 
     @Transactional(readOnly = true)
     public List<UsuarioAdminResponse> listarTodos() {
@@ -38,6 +42,35 @@ public class UsuarioService {
                 .stream()
                 .map(this::enriquecer)
                 .toList();
+    }
+
+    /**
+     * Permite que un coordinador autenticado registre otra cuenta de coordinador.
+     * La ruta está protegida por el rol COORDINADOR en SecurityConfig.
+     */
+    @Transactional
+    public UsuarioAdminResponse registrarCoordinador(RegistroRequest request) {
+        if (request.rol() != RolUsuario.COORDINADOR) {
+            throw new IllegalArgumentException("Este endpoint solo permite registrar coordinadores");
+        }
+
+        String nombres = request.nombres().trim();
+        String apellidos = request.apellidos().trim();
+        String correo = correoInstitucionalService.generar(
+                nombres, apellidos, RolUsuario.COORDINADOR);
+
+        Usuario usuario = Usuario.builder()
+                .nombres(nombres)
+                .apellidos(apellidos)
+                .correo(correo)
+                .telefono(request.telefono() == null || request.telefono().isBlank()
+                        ? null : request.telefono().trim())
+                .contrasena(passwordEncoder.encode(request.contrasena()))
+                .rolUsuario(RolUsuario.COORDINADOR)
+                .activo(true)
+                .build();
+
+        return UsuarioAdminResponse.basico(usuarioRepository.save(usuario));
     }
 
     @Transactional
@@ -59,14 +92,13 @@ public class UsuarioService {
 
         usuario.setNombres(request.nombres().trim());
         usuario.setApellidos(request.apellidos().trim());
+        usuario.setTelefono(
+                request.telefono() == null || request.telefono().isBlank()
+                        ? null
+                        : request.telefono().trim());
 
         if (usuario.getRolUsuario() == RolUsuario.ESTUDIANTE) {
             estudianteRepository.findById(id).ifPresent(estudiante -> {
-                if (request.carnet() != null
-                        && !request.carnet().isBlank()) {
-                    estudiante.setCarnet(request.carnet().trim());
-                }
-
                 estudiante.setCarrera(request.carrera());
                 estudianteRepository.save(estudiante);
             });
@@ -156,6 +188,7 @@ public class UsuarioService {
 
     private UsuarioAdminResponse enriquecer(Usuario usuario) {
         String carnet = null;
+        String codigoTutor = null;
         String carrera = null;
         String especialidad = null;
 
@@ -175,6 +208,7 @@ public class UsuarioService {
                     .orElse(null);
 
             if (tutor != null) {
+                codigoTutor = tutor.getCodigoTutor();
                 especialidad = tutor.getEspecialidad();
             }
         }
@@ -184,10 +218,12 @@ public class UsuarioService {
                 usuario.getNombres(),
                 usuario.getApellidos(),
                 usuario.getCorreo(),
+                usuario.getTelefono(),
                 usuario.getRolUsuario(),
                 usuario.getActivo(),
                 usuario.getFechaRegistro(),
                 carnet,
+                codigoTutor,
                 carrera,
                 especialidad);
     }

@@ -35,127 +35,154 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final JwtAuthFilter jwtAuthFilter;
+        private final CustomUserDetailsService userDetailsService;
+        private final JwtAuthFilter jwtAuthFilter;
 
-    // CAMBIO: se inyecta el entorno para comprobar el perfil activo
-    // antes de autorizar la ruta de la consola H2.
-    private final Environment environment;
+        // CAMBIO: se inyecta el entorno para comprobar el perfil activo
+        // antes de autorizar la ruta de la consola H2.
+        private final Environment environment;
 
-    @Value("${sigtau.cors.allowed-origins}")
-    private String allowedOrigins;
+        @Value("${sigtau.cors.allowed-origins}")
+        private String allowedOrigins;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // API stateless con JWT; CSRF no aplica igual que en sesiones basadas en
-                                              // cookies
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas: login y recuperación de contraseña
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
-                        // Registrar usuarios es una operación administrativa (RF-01/RF-12 vía
-                        // GestionUsuarios.tsx)
-                        .requestMatchers("/api/auth/registro").hasRole("COORDINADOR")
-                        .requestMatchers("/api/usuarios/**").hasRole("COORDINADOR")
-                        .requestMatchers("/api/reportes/**").hasRole("COORDINADOR")
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable()) // API stateless con JWT; CSRF no aplica igual que en
+                                                              // sesiones basadas en
+                                                              // cookies
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .authorizeHttpRequests(auth -> auth
+                                                // Rutas públicas: login y recuperación de contraseña
+                                                .requestMatchers("/api/auth/login").permitAll()
+                                                .requestMatchers("/api/auth/forgot-password",
+                                                                "/api/auth/reset-password")
+                                                .permitAll()
+                                                // Registrar usuarios es una operación administrativa (RF-01/RF-12 vía
+                                                // GestionUsuarios.tsx)
+                                                .requestMatchers("/api/auth/registro").hasRole("COORDINADOR")
+                                                .requestMatchers("/api/usuarios/**").hasRole("COORDINADOR")
+                                                .requestMatchers("/api/reportes/**").hasRole("COORDINADOR")
 
-                        // CAMBIO: H2 solo se permite cuando el perfil dev está activo.
-                        // En otros perfiles, la regla deniega el acceso explícitamente.
-                        .requestMatchers("/h2-console/**")
-                        .access((authentication, context) ->
-                                new org.springframework.security.authorization.AuthorizationDecision(
-                                        environment.acceptsProfiles(Profiles.of("dev"))
-                                ))
+                                                // CAMBIO: H2 solo se permite cuando el perfil dev está activo.
+                                                // En otros perfiles, la regla deniega el acceso explícitamente.
+                                                .requestMatchers("/h2-console/**")
+                                                .access((authentication,
+                                                                context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                                                                environment.acceptsProfiles(
+                                                                                                Profiles.of("dev"))))
 
-                        // Catálogos de lectura para solicitar tutoría.
-                        .requestMatchers(HttpMethod.GET, "/api/asignaturas", "/api/asignaturas/*/tutores",
-                                "/api/tutores/*/horarios")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/asignaturas/todas")
-                        .hasRole("COORDINADOR")
-                        .requestMatchers(HttpMethod.POST, "/api/asignaturas")
-                        .hasRole("COORDINADOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/asignaturas/*/estado")
-                        .hasRole("COORDINADOR")
+                                                // Catálogos de lectura para solicitar tutoría.
+                                                .requestMatchers(HttpMethod.GET, "/api/asignaturas",
+                                                                "/api/asignaturas/*/tutores",
+                                                                "/api/tutores/*/horarios")
+                                                .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/asignaturas/todas")
+                                                .hasRole("COORDINADOR")
+                                                .requestMatchers(HttpMethod.POST, "/api/asignaturas")
+                                                .hasRole("COORDINADOR")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/asignaturas/*/estado")
+                                                .hasRole("COORDINADOR")
 
-                        // Administración del catálogo y gestión de horarios.
-                        .requestMatchers(HttpMethod.POST, "/api/asignaturas/*/tutores/*")
-                        .hasRole("COORDINADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/asignaturas/*/tutores/*")
-                        .hasRole("COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/tutores")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/horarios/tutor/*")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.POST, "/api/horarios")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/horarios/*")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
+                                                // Administración del catálogo y gestión de horarios.
+                                                .requestMatchers(HttpMethod.POST, "/api/asignaturas/*/tutores/*")
+                                                .hasRole("COORDINADOR")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/asignaturas/*/tutores/*")
+                                                .hasRole("COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/tutores")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/horarios/tutor/*")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.POST, "/api/horarios")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/horarios/*")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
 
-                        // Flujo de tutorías.
-                        .requestMatchers(HttpMethod.POST, "/api/sesiones")
-                        .hasRole("ESTUDIANTE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver", "/api/sesiones/*/seguimiento", "/api/sesiones/*/reprogramar")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/cancelar")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/sesiones/estudiante/*")
-                        .hasAnyRole("ESTUDIANTE", "COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/sesiones")
-                                .hasRole("COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/sesiones/tutor/*", "/api/sesiones/tutor/*/pendientes")
-                        .hasAnyRole("TUTOR", "COORDINADOR")
+                                                // Flujo de tutorías.
+                                                .requestMatchers(HttpMethod.POST, "/api/sesiones")
+                                                .hasRole("ESTUDIANTE")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/resolver",
+                                                                "/api/sesiones/*/seguimiento",
+                                                                "/api/sesiones/*/reprogramar")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/sesiones/*/cancelar")
+                                                .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/sesiones/estudiante/*")
+                                                .hasAnyRole("ESTUDIANTE", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/sesiones")
+                                                .hasRole("COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/sesiones/tutor/*",
+                                                                "/api/sesiones/tutor/*/pendientes")
+                                                .hasAnyRole("TUTOR", "COORDINADOR")
 
-                        .requestMatchers(HttpMethod.POST, "/api/sesiones/*/adjuntos")
-                        .hasAnyRole("ESTUDIANTE", "COORDINADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/sesiones/*/adjuntos", "/api/sesiones/adjuntos/*/descarga")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.POST, "/api/sesiones/*/adjuntos")
+                                                .hasAnyRole("ESTUDIANTE", "COORDINADOR")
+                                                .requestMatchers(HttpMethod.GET, "/api/sesiones/*/adjuntos",
+                                                                "/api/sesiones/adjuntos/*/descarga")
+                                                .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
-                        .requestMatchers("/api/mensajes/**")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR")
+                                                .requestMatchers("/api/mensajes/**")
+                                                .hasAnyRole("ESTUDIANTE", "TUTOR")
 
-                        .requestMatchers("/api/notificaciones/**")
-                        .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
+                                                .requestMatchers("/api/notificaciones/**")
+                                                .hasAnyRole("ESTUDIANTE", "TUTOR", "COORDINADOR")
 
-                        .anyRequest().authenticated())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // se conserva sin cambios
+                                                .anyRequest().authenticated())
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint((request, response, authException) -> {
+                                                        response.setStatus(
+                                                                        org.springframework.http.HttpStatus.UNAUTHORIZED
+                                                                                        .value());
+                                                        response.setContentType("application/json");
+                                                        response.setCharacterEncoding("UTF-8");
+                                                        response.getWriter().write(
+                                                                        "{\"mensaje\":\"No autenticado o sesión expirada. Inicia sesión nuevamente.\"}");
+                                                })
+                                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                                        response.setStatus(org.springframework.http.HttpStatus.FORBIDDEN
+                                                                        .value());
+                                                        response.setContentType("application/json");
+                                                        response.setCharacterEncoding("UTF-8");
+                                                        response.getWriter().write(
+                                                                        "{\"mensaje\":\"No tienes permisos para realizar esta operación.\"}");
+                                                }))
+                                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authenticationProvider(authenticationProvider())
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // se conserva
+                                                                                                        // sin cambios
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
+        @Bean
+        public DaoAuthenticationProvider authenticationProvider() {
+                DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+                provider.setUserDetailsService(userDetailsService);
+                provider.setPasswordEncoder(passwordEncoder());
+                return provider;
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+                return config.getAuthenticationManager();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(List.of("*"));
+                configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }

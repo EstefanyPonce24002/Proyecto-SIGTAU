@@ -64,17 +64,12 @@ function formatHora(horaISO: string): string {
 
 // Comprueba si la sesión ya terminó.
 // Se compara la fecha y hora de finalización con la hora local actual.
-function sesionFinalizada(
-  sesion: Sesion,
-  ahora: Date = new Date(),
-): boolean {
+function sesionFinalizada(sesion: Sesion, ahora: Date = new Date()): boolean {
   if (!sesion.fechaSesion || !sesion.horaFin) {
     return false;
   }
 
-  const fin = new Date(
-    `${sesion.fechaSesion}T${sesion.horaFin}`,
-  );
+  const fin = new Date(`${sesion.fechaSesion}T${sesion.horaFin}`);
 
   return !Number.isNaN(fin.getTime()) && fin <= ahora;
 }
@@ -106,8 +101,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
       setSesiones(data);
 
       const elegiblesActualizadas = data.filter(
-        (sesion) =>
-          sesion.estado === "APROBADA" && sesionFinalizada(sesion),
+        (sesion) => sesion.estado === "APROBADA" && sesionFinalizada(sesion),
       );
 
       setSelectedId((prev) => {
@@ -122,9 +116,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
       });
     } catch (err: unknown) {
       setLoadError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo cargar el listado.",
+        err instanceof ApiError ? err.message : "No se pudo cargar el listado.",
       );
     } finally {
       setCargando(false);
@@ -137,13 +129,9 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
   // Solo se permite registrar seguimiento de sesiones aprobadas
   // cuya hora de finalización ya haya pasado.
-  const aprobadas = sesiones.filter(
-    (sesion) => sesion.estado === "APROBADA",
-  );
+  const aprobadas = sesiones.filter((sesion) => sesion.estado === "APROBADA");
 
-  const elegibles = aprobadas.filter((sesion) =>
-    sesionFinalizada(sesion),
-  );
+  const elegibles = aprobadas.filter((sesion) => sesionFinalizada(sesion));
 
   const sesion = elegibles.find(
     (sesionActual) => sesionActual.id === selectedId,
@@ -157,11 +145,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
     const numero = Number(valor);
 
-    if (
-      Number.isFinite(numero) &&
-      numero >= 0 &&
-      numero <= 10
-    ) {
+    if (Number.isFinite(numero) && numero >= 0 && numero <= 10) {
       setCalificacion(numero);
     }
   };
@@ -218,10 +202,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   if (cargando) {
     return (
       <div className="flex w-full items-center justify-center py-20">
-        <Loader2
-          size={24}
-          className="animate-spin text-muted-foreground"
-        />
+        <Loader2 size={24} className="animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -230,15 +211,9 @@ export function SeguimientoAcademico({ idTutor }: Props) {
   if (loadError) {
     return (
       <div className="w-full rounded-2xl border border-border bg-card p-8 text-center">
-        <AlertCircle
-          size={24}
-          className="mx-auto mb-2 text-destructive"
-        />
+        <AlertCircle size={24} className="mx-auto mb-2 text-destructive" />
 
-        <p
-          className="text-destructive"
-          style={{ fontSize: "0.9rem" }}
-        >
+        <p className="text-destructive" style={{ fontSize: "0.9rem" }}>
           {loadError}
         </p>
 
@@ -267,15 +242,9 @@ export function SeguimientoAcademico({ idTutor }: Props) {
       {/* Lista de sesiones disponibles o mensaje informativo */}
       {elegibles.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card px-5 py-16 text-center shadow-sm">
-          <CheckCircle2
-            size={32}
-            className="mx-auto mb-3 text-brand-blue"
-          />
+          <CheckCircle2 size={32} className="mx-auto mb-3 text-brand-blue" />
 
-          <p
-            className="text-foreground"
-            style={{ fontSize: "1rem" }}
-          >
+          <p className="text-foreground" style={{ fontSize: "1rem" }}>
             {aprobadas.length > 0
               ? "No hay sesiones listas para seguimiento"
               : "Sin sesiones pendientes de cierre"}
@@ -319,9 +288,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                   }}
                   className="w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
-                    background: isSelected
-                      ? "var(--card)"
-                      : "transparent",
+                    background: isSelected ? "var(--card)" : "transparent",
                     borderColor: isSelected
                       ? "var(--brand-blue)"
                       : "var(--border)",
@@ -337,9 +304,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         background: isSelected
                           ? "var(--brand-blue-dark)"
                           : "var(--muted)",
-                        color: isSelected
-                          ? "#fff"
-                          : "var(--muted-foreground)",
+                        color: isSelected ? "#fff" : "var(--muted-foreground)",
                         fontSize: "0.7rem",
                       }}
                     >
@@ -671,7 +636,12 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       type="button"
                       onClick={handleCancel}
                       disabled={saving}
-                      className="inline-flex h-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-500/15 active:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-10 items-center justify-center rounded-xl border px-4 text-sm font-medium transition-colors hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                      style={{
+                        color: "#EF4444",
+                        background: "rgba(239,68,68,0.08)",
+                        borderColor: "rgba(239,68,68,0.2)",
+                      }}
                     >
                       Cancelar
                     </button>
@@ -685,16 +655,9 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         background: "#118ab2",
                       }}
                     >
-                      {saving && (
-                        <Loader2
-                          size={15}
-                          className="animate-spin"
-                        />
-                      )}
+                      {saving && <Loader2 size={15} className="animate-spin" />}
 
-                      {saving
-                        ? "Guardando..."
-                        : "Guardar información"}
+                      {saving ? "Guardando..." : "Guardar información"}
                     </button>
                   </div>
                 </form>
@@ -741,10 +704,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
                 <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                   Solo puedes registrar seguimiento en sesiones{" "}
-                  <strong className="text-brand-blue-text">
-                    APROBADAS
-                  </strong>
-                  . Al guardar, el estado cambia a{" "}
+                  <strong className="text-brand-blue-text">APROBADAS</strong>.
+                  Al guardar, el estado cambia a{" "}
                   <strong className="text-emerald-600 dark:text-emerald-400">
                     COMPLETADA
                   </strong>{" "}

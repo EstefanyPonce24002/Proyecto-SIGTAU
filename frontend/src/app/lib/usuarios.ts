@@ -6,10 +6,12 @@ export interface UsuarioAdmin {
   nombres: string;
   apellidos: string;
   correo: string;
+  telefono: string | null;
   rol: Rol;
   activo: boolean;
   fechaRegistro: string;
   carnet: string | null;
+  codigoTutor: string | null;
   carrera: string | null;
   especialidad: string | null;
 }
@@ -17,40 +19,51 @@ export interface UsuarioAdmin {
 export interface RegistroPayload {
   nombres: string;
   apellidos: string;
-  correo: string;
+  telefono?: string;
   contrasena: string;
   rol: Rol;
-  carnet?: string;
   carrera?: string;
   especialidad?: string;
 }
 
-/** Registrar Usuario (coordinador crea estudiantes/tutores/coordinadores) */
-export function registrarUsuario(
-  payload: RegistroPayload,
-): Promise<UsuarioAdmin> {
+type UsuarioAdminApi = UsuarioAdmin & {
+  codigo_tutor?: string | null;
+  carnet_estudiantil?: string | null;
+};
+
+export function registrarUsuario(payload: RegistroPayload): Promise<UsuarioAdmin> {
   return apiFetch<UsuarioAdmin>("/auth/registro", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
-/** listar todos los usuarios */
-export function listarUsuarios(): Promise<UsuarioAdmin[]> {
-  return apiFetch<UsuarioAdmin[]>("/usuarios");
+export function registrarCoordinador(payload: RegistroPayload): Promise<UsuarioAdmin> {
+  return apiFetch<UsuarioAdmin>("/usuarios/coordinadores", {
+    method: "POST",
+    body: JSON.stringify({ ...payload, rol: "COORDINADOR" }),
+  });
 }
 
-/** activar o desactivar una cuenta */
-export function cambiarEstadoUsuario(
-  id: number,
-  activo: boolean,
-): Promise<UsuarioAdmin> {
+function normalizarUsuarioAdmin(usuario: UsuarioAdminApi): UsuarioAdmin {
+  return {
+    ...usuario,
+    carnet: usuario.carnet ?? usuario.carnet_estudiantil ?? null,
+    codigoTutor: usuario.codigoTutor ?? usuario.codigo_tutor ?? null,
+  };
+}
+
+export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
+  const datos = await apiFetch<UsuarioAdminApi[]>("/usuarios");
+  return datos.map(normalizarUsuarioAdmin);
+}
+
+export function cambiarEstadoUsuario(id: number, activo: boolean): Promise<UsuarioAdmin> {
   return apiFetch<UsuarioAdmin>(`/usuarios/${id}/estado?activo=${activo}`, {
     method: "PATCH",
   });
 }
 
-/** Actualiza todas las asignaturas asignadas a un tutor. */
 export function actualizarAsignaturasDelTutor(
   idTutor: number,
   idAsignaturas: number[],
@@ -63,7 +76,7 @@ export function actualizarAsignaturasDelTutor(
 
 export function actualizarUsuario(
   id: number,
-  payload: Omit<RegistroPayload, "correo" | "contrasena" | "rol">,
+  payload: Omit<RegistroPayload, "contrasena" | "rol">,
 ): Promise<UsuarioAdmin> {
   return apiFetch<UsuarioAdmin>(`/usuarios/${id}`, {
     method: "PATCH",

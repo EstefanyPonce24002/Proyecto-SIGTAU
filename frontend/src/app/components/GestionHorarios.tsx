@@ -317,7 +317,7 @@ export function GestionHorarios({ idTutor }: Props) {
                   <div
                     key={dia}
                     onMouseEnter={() => setDiaSemanaEnfocado(index)}
-                    className={`flex items-start gap-2 border-b border-[#30465C] px-4 py-3 transition-colors sm:px-5 ${diaSemanaEnfocado === index ? "bg-[#20C5E8]/10" : "hover:bg-[#24394D]/60"}`}
+                    className={`flex items-start gap-2 border-b border-[#30465C] bg-[#1F2937] px-4 py-3 transition-colors sm:px-5 ${diaSemanaEnfocado === index ? "bg-[#20C5E8]/10" : "hover:bg-[#24394D]/60"}`}
                   >
                     <span className="w-16 shrink-0 whitespace-nowrap pt-1 text-xs font-semibold text-[#F1F5F9]">
                       {DIA_LABEL[dia]}

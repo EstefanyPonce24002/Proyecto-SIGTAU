@@ -45,12 +45,16 @@ CREATE TABLE usuarios (
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(50) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
+    telefono VARCHAR(25),
     contrasena VARCHAR(255) NOT NULL,
     -- [CORREGIDO] longitud definida (hash BCrypt)
     rol_usuario rol_usuario_enum NOT NULL,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     fecha_registro TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE SEQUENCE seq_carnet_estudiante START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_codigo_tutor START WITH 1 INCREMENT BY 1;
+
 -- ---------------------------------------------------------
 -- Tabla 2: estudiante  [CORREGIDO: se eliminó FK duplicada]
 -- ---------------------------------------------------------
@@ -65,6 +69,7 @@ CREATE TABLE estudiante (
 -- ---------------------------------------------------------
 CREATE TABLE tutores (
     id_tutor INT PRIMARY KEY REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    codigo_tutor VARCHAR(20) NOT NULL UNIQUE,
     especialidad VARCHAR(200),
     descripcion_perfil TEXT,
     fecha_vinculacion DATE

@@ -338,7 +338,20 @@ export default function App() {
     );
   }
 
-  if (!session) return null;
+  // Evita dejar la pantalla completamente vacía durante una redirección
+  // cuando se abre directamente una ruta protegida sin sesión persistida.
+  if (!session) {
+    return (
+      <div className={theme === "dark" ? "dark" : ""}>
+        <LoginScreen
+          dark={theme === "dark"}
+          onToggleDark={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onLogin={handleLogin}
+          onForgot={() => navigate("/recuperar")}
+        />
+      </div>
+    );
+  }
 
   // --- SECCIÓN 6: PREPARACIÓN DE DATOS PARA LA APP ---
   const { rol, nombre, idUsuario } = session!;
