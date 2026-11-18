@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
   CalendarDays,
+  CheckCircle2,
   Clock3,
   ExternalLink,
   Loader2,
@@ -22,6 +23,16 @@ import {
 } from "../lib/sesiones";
 
 import { sesionesAgenda } from "../lib/proximos";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 import { QuickAccessNav, type QuickAccessTab } from "./QuickAccessNav";
 
 // TIPOS Y CONSTANTES
@@ -328,6 +339,8 @@ export function ProximosEventos({
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelando, setCancelando] = useState<number | null>(null);
+  const [sesionPorCancelar, setSesionPorCancelar] = useState<Sesion | null>(null);
+  const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
   // Carga inicial y recarga manual de la agenda.
   const cargar = useCallback(async () => {
@@ -352,16 +365,25 @@ export function ProximosEventos({
     void cargar();
   }, [cargar]);
 
+  useEffect(() => {
+    if (!mensajeExito) return;
+
+    const timeout = window.setTimeout(() => setMensajeExito(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [mensajeExito]);
+
   const { proximas, vencidas } = sesionesAgenda(sesiones);
   const vacia = proximas.length === 0 && vencidas.length === 0;
 
   // Cancela la sesión y después actualiza la agenda sin activar
   // el estado de carga de pantalla completa.
-  const cancelar = async (evento: Sesion) => {
-    if (cancelando !== null) return;
+  const confirmarCancelacion = async () => {
+    const evento = sesionPorCancelar;
+    if (!evento || cancelando !== null) return;
 
     setCancelando(evento.id);
     setError(null);
+    setMensajeExito(null);
 
     try {
       await cancelarSesion(evento.id);
@@ -372,8 +394,12 @@ export function ProximosEventos({
           : "No se pudo cancelar la sesión.",
       );
       setCancelando(null);
+      setSesionPorCancelar(null);
       return;
     }
+
+    setSesionPorCancelar(null);
+    setMensajeExito(`La tutoría de ${evento.asignaturaNombre} se canceló correctamente.`);
 
     // La cancelación ya fue confirmada por la API.
     // La actualización de la agenda se maneja por separado para
@@ -408,6 +434,17 @@ export function ProximosEventos({
           </h1>
         </div>
       </div>
+
+      {mensajeExito && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mx-auto mb-4 flex w-full max-w-4xl items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-700 dark:text-emerald-400"
+        >
+          <CheckCircle2 size={18} className="shrink-0" />
+          <p className="text-sm">{mensajeExito}</p>
+        </div>
+      )}
 
       {cargando && (
         <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-16">
@@ -499,7 +536,7 @@ export function ProximosEventos({
             <TarjetaEvento
               key={evento.id}
               evento={evento}
-              onCancel={() => void cancelar(evento)}
+              onCancel={() => setSesionPorCancelar(evento)}
               cancelando={cancelando === evento.id}
             />
           ))}
@@ -514,7 +551,7 @@ export function ProximosEventos({
                 <TarjetaEvento
                   key={evento.id}
                   evento={evento}
-                  onCancel={() => void cancelar(evento)}
+                  onCancel={() => setSesionPorCancelar(evento)}
                   cancelando={cancelando === evento.id}
                 />
               ))}
@@ -532,6 +569,52 @@ export function ProximosEventos({
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={sesionPorCancelar !== null}
+        onOpenChange={(open) => {
+          if (!open && cancelando === null) setSesionPorCancelar(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <AlertTriangle size={22} aria-hidden="true" />
+            </div>
+            <AlertDialogTitle>¿Cancelar esta tutoría?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {sesionPorCancelar
+                ? `La tutoría de ${sesionPorCancelar.asignaturaNombre} se cancelará y se notificará a las personas participantes. Esta acción no se puede deshacer.`
+                : "Esta acción no se puede deshacer."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={cancelando !== null}
+              className="border-[#118AB2]/40 bg-[#118AB2]/5 text-[#0B6685] transition-colors hover:border-[#118AB2] hover:bg-[#118AB2]/15 hover:text-[#084C63] focus-visible:ring-[#118AB2]/40 dark:text-[#67D3EA] dark:hover:text-[#9BE5F4]"
+            >
+              Volver
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelando !== null}
+              onClick={(event) => {
+                event.preventDefault();
+                void confirmarCancelacion();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelando !== null ? (
+                <>
+                  <Loader2 size={15} className="mr-2 animate-spin" />
+                  Cancelando...
+                </>
+              ) : (
+                "Sí, cancelar tutoría"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

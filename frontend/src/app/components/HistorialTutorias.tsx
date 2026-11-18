@@ -29,6 +29,20 @@ import {
   type EstadoSesion,
 } from "../lib/sesiones";
 import { ApiError } from "../lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
+
+// Componentes reutilizables
+// - VoiceSearchInput: campo de búsqueda con soporte de voz
+// - QuickAccessNav: barra de navegación rápida entre secciones
 import { VoiceSearchInput } from "./VoiceSearchInput";
 import { QuickAccessNav, type QuickAccessTab } from "./QuickAccessNav";
 
@@ -260,58 +274,50 @@ function ConfirmarCancelModal({
   enviando: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-      <button
-        type="button"
-        aria-label="Cerrar confirmación"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      <div className="relative w-full max-w-[420px] overflow-hidden rounded-2xl border border-[#2A3B4F] bg-[#1C2938] shadow-2xl">
-        <div className="px-6 pb-5 pt-6">
-          
-          {/* Icono de advertencia */}
-          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/15">
-            <AlertTriangle size={22} className="text-amber-500" />
+    <AlertDialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !enviando) onClose();
+      }}
+    >
+      <AlertDialogContent className="max-w-md rounded-2xl border-border bg-card shadow-2xl">
+        <AlertDialogHeader>
+          <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <AlertTriangle size={22} aria-hidden="true" />
           </div>
-
-          {/* Título y descripción */}
-          <div className="mb-5 space-y-2">
-            <h2 className="text-[#E2E8F0] font-semibold text-lg">
-              ¿Cancelar esta tutoría?
-            </h2>
-            <p className="text-[#94A3B8] text-sm leading-relaxed">
-              La tutoría de <span className="text-[#E2E8F0] font-medium">{sesion.asignaturaNombre}</span> se cancelará y se notificará al tutor. Esta acción no se puede deshacer.
-            </p>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            
-            {/* Botón Volver con color #118AB2 en texto y borde */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-[#118AB2] bg-[#118AB2]/5 px-4 text-sm font-medium text-[#118AB2] transition-all hover:bg-[#118AB2]/15 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/50"
-            >
-              Volver
-            </button>
-            
-            {/* Botón Confirmar: Tono rojo suavizado */}
-            <button
-              type="button"
-              onClick={onConfirm}
-              disabled={enviando}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#E55858] px-5 text-sm font-medium text-white transition-all hover:bg-[#D94646] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E55858]/50"
-            >
-              {enviando && <Loader2 size={14} className="animate-spin" />}
-              Sí, cancelar tutoría
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+          <AlertDialogTitle>¿Cancelar esta tutoría?</AlertDialogTitle>
+          <AlertDialogDescription>
+            La tutoría de {sesion.asignaturaNombre} se cancelará y se notificará
+            al tutor. Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            disabled={enviando}
+            className="border-[#118AB2]/40 bg-[#118AB2]/5 text-[#0B6685] transition-colors hover:border-[#118AB2] hover:bg-[#118AB2]/15 hover:text-[#084C63] focus-visible:ring-[#118AB2]/40 dark:text-[#67D3EA] dark:hover:text-[#9BE5F4]"
+          >
+            Volver
+          </AlertDialogCancel>
+          <AlertDialogAction
+            disabled={enviando}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm();
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {enviando ? (
+              <>
+                <Loader2 size={15} className="mr-2 animate-spin" />
+                Cancelando...
+              </>
+            ) : (
+              "Sí, cancelar tutoría"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -443,16 +449,19 @@ function CalendarPanel({ tutorias }: { tutorias: Sesion[] }) {
 // COMPONENTE PRINCIPAL
 // =====================================================================
 export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
-  const [tutorias, setTutorias] = useState<Sesion[]>([]);
-  const [cargando, setCargando] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState<string>("Todos");
-  const [detalle, setDetalle] = useState<Sesion | null>(null);
-  const [pendingCancel, setPendingCancel] = useState<Sesion | null>(null);
-  const [cancelando, setCancelando] = useState(false);
-  const [canceledId, setCanceledId] = useState<number | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  // -------------------------------------------------------------------
+  // ESTADOS
+  // -------------------------------------------------------------------
+  const [tutorias, setTutorias] = useState<Sesion[]>([]); // Lista completa de sesiones
+  const [cargando, setCargando] = useState(true); // true mientras se cargan los datos
+  const [loadError, setLoadError] = useState<string | null>(null); // Error al cargar el historial
+  const [busqueda, setBusqueda] = useState(""); // Texto del buscador
+  const [filtroEstado, setFiltroEstado] = useState<string>("Todos"); // Filtro por estado
+  const [detalle, setDetalle] = useState<Sesion | null>(null); // Sesión abierta en el modal de detalle
+  const [pendingCancel, setPendingCancel] = useState<Sesion | null>(null); // Sesión pendiente de confirmar cancelación
+  const [cancelando, setCancelando] = useState(false); // true mientras se envía la cancelación
+  const [mensajeExito, setMensajeExito] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null); // Error al intentar cancelar
 
   const cargar = useCallback(() => {
     setCargando(true);
@@ -474,11 +483,13 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
     setCancelando(true);
     setActionError(null);
     try {
-      await cancelarSesion(pendingCancel.id);
-      setCanceledId(pendingCancel.id);
-      setPendingCancel(null);
-      setTimeout(() => setCanceledId(null), 4000);
-      cargar();
+      await cancelarSesion(pendingCancel.id); // Llamada al backend
+      setMensajeExito(
+        `La tutoría de ${pendingCancel.asignaturaNombre} se canceló correctamente.`,
+      );
+      setPendingCancel(null); // Cierra el modal de confirmación
+      setTimeout(() => setMensajeExito(null), 3500);
+      cargar(); // Recarga la lista para reflejar el nuevo estado
     } catch (error) {
       setActionError(error instanceof ApiError ? error.message : "No se pudo cancelar la sesión.");
     } finally {
@@ -760,16 +771,19 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
         />
       )}
 
-      {canceledId !== null && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 shadow-xl dark:border-[#2A4158] dark:bg-[#1F2937]">
-          <CheckCircle2 size={18} className="shrink-0 text-[#11CAA0]" />
-          <div>
-            <p className="text-sm font-medium text-foreground">Sesión cancelada</p>
-            <p className="text-xs text-muted-foreground">#{canceledId} — estado actualizado</p>
-          </div>
+      {/* ---------- Notificación flotante de éxito (sesión cancelada) ---------- */}
+      {mensajeExito && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-50 flex max-w-[calc(100vw-3rem)] items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-700 shadow-lg dark:text-emerald-400"
+        >
+          <CheckCircle2 size={18} className="shrink-0" />
+          <p className="text-sm">{mensajeExito}</p>
+          {/* Botón para cerrar el aviso manualmente */}
           <button
             type="button"
-            onClick={() => setCanceledId(null)}
+            onClick={() => setMensajeExito(null)}
             aria-label="Cerrar notificación"
             className="ml-2 text-muted-foreground hover:text-foreground"
           >
