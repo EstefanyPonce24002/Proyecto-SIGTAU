@@ -46,7 +46,8 @@ const ROL_STYLE: Record<Rol, string> = {
   COORDINADOR: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
 };
 
-const ESTADO_ACTIVO = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+const ESTADO_ACTIVO =
+  "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
 
 function iniciales(nombres: string, apellidos: string): string {
   return `${nombres[0] ?? ""}${apellidos[0] ?? ""}`.toUpperCase();
@@ -60,7 +61,9 @@ function generarCorreoVistaPrevia(
   if (!nombres.trim() || !apellidos.trim()) return "";
 
   const normalizar = (valor: string) =>
-    valor.trim().split(/\s+/)[0]
+    valor
+      .trim()
+      .split(/\s+/)[0]
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
@@ -70,9 +73,10 @@ function generarCorreoVistaPrevia(
   const primerApellido = normalizar(apellidos);
   if (!primerNombre || !primerApellido) return "";
 
-  const base = rol === "ESTUDIANTE"
-    ? primerNombre[0] + primerApellido[0]
-    : `${primerNombre}.${primerApellido}`;
+  const base =
+    rol === "ESTUDIANTE"
+      ? primerNombre[0] + primerApellido[0]
+      : `${primerNombre}.${primerApellido}`;
 
   return `${base}@sigtau.edu.sv`;
 }
@@ -85,7 +89,7 @@ function NuevoUsuarioModal({
   onCreated,
   onClose,
   usuario,
- }: {
+}: {
   onCreated: () => void;
   onClose: () => void;
   usuario?: UsuarioAdmin;
@@ -104,7 +108,11 @@ function NuevoUsuarioModal({
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const correoVistaPrevia = generarCorreoVistaPrevia(form.nombres, form.apellidos, form.rol);
+  const correoVistaPrevia = generarCorreoVistaPrevia(
+    form.nombres,
+    form.apellidos,
+    form.rol,
+  );
 
   // Estados para las asignaturas del tutor.
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
@@ -359,7 +367,7 @@ function NuevoUsuarioModal({
                 value={form.nombres}
                 onChange={(e) => actualizarNombre("nombres", e.target.value)}
                 disabled={saving}
-                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
               />
             </div>
 
@@ -373,14 +381,16 @@ function NuevoUsuarioModal({
                 value={form.apellidos}
                 onChange={(e) => actualizarNombre("apellidos", e.target.value)}
                 disabled={saving}
-                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
+                className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
               />
             </div>
           </div>
 
           {!editando && (
             <div className="space-y-1.5">
-              <label htmlFor="correo" className="text-sm">Correo institucional</label>
+              <label htmlFor="correo" className="text-sm">
+                Correo institucional
+              </label>
               <input
                 id="correo"
                 type="email"
@@ -388,50 +398,15 @@ function NuevoUsuarioModal({
                 readOnly
                 disabled={saving}
                 placeholder="Se generará al ingresar nombres y apellidos"
-                className="w-full min-w-0 rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none"
+                className="w-full min-w-0 rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
               />
               <p className="text-xs text-muted-foreground">
                 {form.rol === "ESTUDIANTE"
                   ? "Se forma con las iniciales del primer nombre y del primer apellido."
-                  : "Se forma como primerNombre.primerApellido@sigtau.edu.sv."}
-                {" "}Si ya existe, el backend agregará un correlativo automáticamente.
+                  : "Se forma como primerNombre.primerApellido@sigtau.edu.sv."}{" "}
+                Si ya existe, el backend agregará un correlativo
+                automáticamente.
               </p>
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label htmlFor="telefono" className="text-sm">
-              Teléfono
-            </label>
-            <input
-              id="telefono"
-              type="tel"
-              maxLength={25}
-              value={form.telefono ?? ""}
-              onChange={set("telefono")}
-              disabled={saving}
-              placeholder="+503 7000 0000"
-              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
-          {!editando && (
-            <div className="space-y-1.5">
-              <label htmlFor="contrasena" className="text-sm">
-                Contraseña temporal <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="contrasena"
-                type="password"
-                required
-                minLength={8}
-                value={form.contrasena}
-                onChange={set("contrasena")}
-                disabled={saving}
-                placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring"
-              />
             </div>
           )}
 
@@ -446,7 +421,7 @@ function NuevoUsuarioModal({
                 value={form.rol}
                 onChange={set("rol")}
                 disabled={editando || saving}
-                className="w-full appearance-none rounded-xl border border-border bg-input-background px-4 py-2.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+                className="w-full appearance-none rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 pr-9 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2] disabled:opacity-60"
               >
                 <option value="ESTUDIANTE">Estudiante</option>
                 <option value="TUTOR">Tutor</option>
@@ -469,6 +444,42 @@ function NuevoUsuarioModal({
             )}
           </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="telefono" className="text-sm">
+              Teléfono
+            </label>
+            <input
+              id="telefono"
+              type="tel"
+              maxLength={25}
+              value={form.telefono ?? ""}
+              onChange={set("telefono")}
+              disabled={saving}
+              placeholder="+503 7000 0000"
+              className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
+            />
+          </div>
+
+          {!editando && (
+            <div className="space-y-1.5">
+              <label htmlFor="contrasena" className="text-sm">
+                Contraseña temporal <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="contrasena"
+                type="password"
+                required
+                minLength={8}
+                value={form.contrasena}
+                onChange={set("contrasena")}
+                disabled={saving}
+                placeholder="Mínimo 8 caracteres"
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
+              />
+            </div>
+          )}
+
           {form.rol === "ESTUDIANTE" && (
             <div className="space-y-1.5">
               <div className="space-y-1.5">
@@ -481,7 +492,7 @@ function NuevoUsuarioModal({
                   onChange={set("carrera")}
                   disabled={saving}
                   required
-                  className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
                 >
                   <option value="" disabled>
                     Selecciona una carrera
@@ -513,7 +524,7 @@ function NuevoUsuarioModal({
                   onChange={set("especialidad")}
                   disabled={saving}
                   placeholder="Ej.: Matemáticas y Programación"
-                  className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-xl border border-[#118AB2] bg-input-background px-4 py-2.5 text-sm outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
                 />
               </div>
 
@@ -528,7 +539,9 @@ function NuevoUsuarioModal({
                   </div>
 
                   {!cargandoAsignaturas && !errorAsignaturas && (
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_ACTIVO}`}>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_ACTIVO}`}
+                    >
                       {asignaturasSeleccionadas.length} seleccionadas
                     </span>
                   )}
@@ -627,7 +640,7 @@ function NuevoUsuarioModal({
               type="button"
               onClick={onClose}
               disabled={saving}
-              className="rounded-xl border border-border px-4 py-2.5 text-sm transition-colors hover:bg-secondary disabled:opacity-50"
+              className="rounded-xl border border-border px-4 py-2.5 text-sm transition-colors hover:border-[#118AB2] hover:text-[#118AB2] hover:bg-secondary disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -724,7 +737,7 @@ export function GestionUsuarios() {
       usuario.correo.toLowerCase().includes(texto) ||
       Boolean(
         usuario.carnet?.toLowerCase().includes(texto) ||
-        usuario.codigoTutor?.toLowerCase().includes(texto)
+        usuario.codigoTutor?.toLowerCase().includes(texto),
       );
 
     const coincideRol = filtroRol === "Todos" || usuario.rol === filtroRol;
@@ -741,12 +754,12 @@ export function GestionUsuarios() {
     <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 id="usuarios-titulo" className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
-            Usuarios
+          <h2
+            id="usuarios-titulo"
+            className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]"
+          >
+            Administra el registro de nuevos usuarios
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Administra las cuentas y sus asignaciones.
-          </p>
         </div>
 
         <button
@@ -756,7 +769,7 @@ export function GestionUsuarios() {
             setModalOpen(true);
           }}
           disabled={cargando || Boolean(loadError)}
-          className="sigtau-accent-button inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-emerald-950 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60 sm:w-auto"
+          className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#118AB2] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60 sm:w-auto"
         >
           <Plus size={16} aria-hidden="true" />
           Nuevo usuario
@@ -772,7 +785,6 @@ export function GestionUsuarios() {
         </div>
       )}
 
-
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {/* Cabecera de la card */}
         <div
@@ -784,13 +796,16 @@ export function GestionUsuarios() {
           </h3>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <VoiceSearchInput
-              value={busqueda}
-              onChange={setBusqueda}
-              placeholder="Buscar por nombre, correo o carné..."
-              className="min-w-0 sm:w-80 lg:w-96"
-              style={{ fontSize: "0.875rem" }}
-            />
+            {/* Búsqueda con focus aplicado */}
+            <div className="min-w-0 border border-[#118AB2] rounded-2xl sm:w-80 lg:w-96 focus-within:ring-[#118AB2] transition-all">
+              <VoiceSearchInput
+                value={busqueda}
+                onChange={setBusqueda}
+                placeholder="Buscar por nombre, correo o carné..."
+                className="min-w-0 w-full focus:outline-none"
+                style={{ fontSize: "0.875rem" }}
+              />
+            </div>
 
             <div className="relative self-start sm:self-auto">
               <button
@@ -798,14 +813,12 @@ export function GestionUsuarios() {
                 onClick={() => setMostrarFiltros((actual) => !actual)}
                 aria-expanded={mostrarFiltros}
                 aria-controls="filtro-usuarios"
-                className={`flex h-11 w-full items-center justify-between gap-3 rounded-2xl border px-4 text-sm text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-ring sm:w-44 ${
-                  mostrarFiltros ? "ring-2 ring-ring" : ""
+                className={`flex h-11 w-full items-center justify-between gap-3 rounded-2xl border border-[#118AB2] px-4 text-sm text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-[#118AB2] sm:w-44 ${
+                  mostrarFiltros ? "ring-2 ring-[#118AB2]" : ""
                 }`}
                 style={{
-                  borderColor: "var(--border-strong)",
                   background: "var(--input-background)",
                 }}
-
               >
                 <span>Filtrar</span>
                 <ChevronDown
@@ -835,7 +848,7 @@ export function GestionUsuarios() {
                         value={filtroRol}
                         onChange={(e) => setFiltroRol(e.target.value)}
                         aria-label="Filtrar usuarios por rol"
-                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:ring-2 focus:ring-ring"
+                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
                         style={{ borderColor: "var(--border-strong)" }}
                       >
                         <option value="Todos">Todos los roles</option>
@@ -853,7 +866,7 @@ export function GestionUsuarios() {
                           setFiltroEstado(e.target.value as FiltroEstado)
                         }
                         aria-label="Filtrar usuarios por estado"
-                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:ring-2 focus:ring-ring"
+                        className="mt-1.5 h-10 w-full appearance-none rounded-xl border bg-[#263746] px-3 text-sm text-[#F1F5F9] outline-none focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
                         style={{ borderColor: "var(--border-strong)" }}
                       >
                         <option value="Todos">Todos los estados</option>
@@ -869,14 +882,19 @@ export function GestionUsuarios() {
         </div>
 
         {/* Celular: cada usuario como tarjeta y tableta (la tabla de 7 columnas no cabe por debajo de 1024 px) */}
-        <ul className="divide-y divide-[#30465C] lg:hidden" aria-label="Usuarios registrados">
+        <ul
+          className="divide-y divide-[#30465C] lg:hidden"
+          aria-label="Usuarios registrados"
+        >
           {cargando ? (
             <li className="px-4 py-10 text-center text-sm text-[#D5DEE8]">
               <span role="status">Cargando usuarios...</span>
             </li>
           ) : loadError ? (
             <li className="px-4 py-8 text-center text-sm">
-              <p role="alert" className="text-[#F87171]">{loadError}</p>
+              <p role="alert" className="text-[#F87171]">
+                {loadError}
+              </p>
               <button
                 type="button"
                 onClick={() => void cargar()}
@@ -900,11 +918,16 @@ export function GestionUsuarios() {
                     ? usuario.codigoTutor
                     : null;
               return (
-                <li key={usuario.id} className="bg-[#1F2937] px-4 py-4 text-[#F1F5F9]">
+                <li
+                  key={usuario.id}
+                  className="bg-[#1F2937] px-4 py-4 text-[#F1F5F9]"
+                >
                   <div className="flex items-start gap-3">
                     <div
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs text-white"
-                      style={{ background: "linear-gradient(135deg, #1E3A8A, #3B82F6)" }}
+                      style={{
+                        background: "linear-gradient(135deg, #1E3A8A, #3B82F6)",
+                      }}
                       aria-hidden="true"
                     >
                       {iniciales(usuario.nombres, usuario.apellidos)}
@@ -913,7 +936,9 @@ export function GestionUsuarios() {
                       <p className="text-sm font-medium">
                         {usuario.nombres} {usuario.apellidos}
                       </p>
-                      <p className="break-all text-xs text-[#D5DEE8]">{usuario.correo}</p>
+                      <p className="break-all text-xs text-[#D5DEE8]">
+                        {usuario.correo}
+                      </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#D5DEE8]">
                         <span>{ROL_LABEL[usuario.rol]}</span>
                         {identificador && (
@@ -960,7 +985,11 @@ export function GestionUsuarios() {
                       }}
                     >
                       {cambiando === usuario.id ? (
-                        <Loader2 size={14} className="animate-spin" aria-label="Procesando" />
+                        <Loader2
+                          size={14}
+                          className="animate-spin"
+                          aria-label="Procesando"
+                        />
                       ) : usuario.activo ? (
                         "Desactivar"
                       ) : (
@@ -979,40 +1008,51 @@ export function GestionUsuarios() {
           <table className="w-full text-left" style={{ minWidth: "960px" }}>
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
-                {["Identificador", "Usuario", "Correo", "Teléfono", "Rol", "Estado", "Acciones"].map(
-                  (encabezado) => (
-                    <th
-                      key={encabezado}
-                      className="px-5 py-3 text-left text-xs font-medium text-[#A8B7C8]"
-                    >
-                      {encabezado}
-                    </th>
-                  ),
-                )}
+                {[
+                  "Identificador",
+                  "Usuario",
+                  "Correo",
+                  "Teléfono",
+                  "Rol",
+                  "Estado",
+                  "Acciones",
+                ].map((encabezado) => (
+                  <th
+                    key={encabezado}
+                    className="px-5 py-3 text-left text-xs font-medium text-[#A8B7C8]"
+                  >
+                    {encabezado}
+                  </th>
+                ))}
               </tr>
             </thead>
 
             <tbody className="divide-y divide-[#30465C]">
               {cargando ? (
-  <tr>
-    <td colSpan={7} className="px-5 py-12 text-center text-sm text-muted-foreground">
-      <span role="status">Cargando usuarios...</span>
-    </td>
-  </tr>
-) : loadError ? (
-  <tr>
-    <td colSpan={7} className="px-5 py-10 text-center text-sm">
-      <p role="alert" className="text-destructive">{loadError}</p>
-      <button
-        type="button"
-        onClick={() => void cargar()}
-        className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
-      >
-        Reintentar
-      </button>
-    </td>
-  </tr>
-) : filtrados.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-5 py-12 text-center text-sm text-muted-foreground"
+                  >
+                    <span role="status">Cargando usuarios...</span>
+                  </td>
+                </tr>
+              ) : loadError ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-sm">
+                    <p role="alert" className="text-destructive">
+                      {loadError}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void cargar()}
+                      className="mt-4 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+                    >
+                      Reintentar
+                    </button>
+                  </td>
+                </tr>
+              ) : filtrados.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -1030,11 +1070,11 @@ export function GestionUsuarios() {
                     className="bg-[#1F2937] text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D]"
                   >
                     <td className="px-5 py-3.5">
-                      <span className="font-mono text-sm text-[#F1F5F9]">
+                      <span className="text-xs text-[#F1F5F9]">
                         {usuario.rol === "ESTUDIANTE"
-                          ? usuario.carnet ?? "—"
+                          ? (usuario.carnet ?? "—")
                           : usuario.rol === "TUTOR"
-                            ? usuario.codigoTutor ?? "—"
+                            ? (usuario.codigoTutor ?? "—")
                             : ""}
                       </span>
                     </td>
@@ -1061,7 +1101,10 @@ export function GestionUsuarios() {
                     </td>
 
                     <td className="max-w-[240px] px-5 py-3.5">
-                      <p className="truncate text-sm text-[#D5DEE8]" title={usuario.correo}>
+                      <p
+                        className="truncate text-sm text-[#D5DEE8]"
+                        title={usuario.correo}
+                      >
                         {usuario.correo}
                       </p>
                     </td>
@@ -1073,9 +1116,7 @@ export function GestionUsuarios() {
                     </td>
 
                     <td className="px-5 py-3.5">
-                      <span
-                        className="text-xs text-[#D5DEE8]"
-                      >
+                      <span className="text-xs text-[#D5DEE8]">
                         {ROL_LABEL[usuario.rol]}
                       </span>
                     </td>
@@ -1137,11 +1178,11 @@ export function GestionUsuarios() {
                       </div>
                     </td>
                   </tr>
-                          ))
-        )}
-      </tbody>
-    </table>
-  </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         <div className="border-t border-[#30465C] bg-[#182A39] px-5 py-3">
           <p className="text-xs text-[#A8B7C8]">

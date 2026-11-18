@@ -70,7 +70,7 @@ function NuevaAsignaturaModal({
         aria-label="Nueva asignatura"
         className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl"
       >
-        <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-border bg-[#192B3B] px-5 py-4">
           <h3 className="text-card-foreground" style={{ fontSize: "0.95rem" }}>
             Nueva asignatura
           </h3>
@@ -108,11 +108,10 @@ function NuevaAsignaturaModal({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej: Estructuras de Datos"
-              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring"
+              className="w-full rounded-xl border border-border bg-input-background px-4 py-2.5 text-card-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
               style={
                 {
                   fontSize: "0.875rem",
-                  "--tw-ring-color": "#10B981",
                 } as React.CSSProperties
               }
             />
@@ -128,11 +127,10 @@ function NuevaAsignaturaModal({
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               placeholder="Ej: SIS-210"
-              className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none focus:ring-2 transition-all placeholder:text-muted-foreground"
+              className="w-full rounded-xl border border-border bg-input-background text-card-foreground px-4 py-2.5 outline-none transition-all placeholder:text-muted-foreground focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
               style={
                 {
                   fontSize: "0.875rem",
-                  "--tw-ring-color": "#10B981",
                 } as React.CSSProperties
               }
             />
@@ -469,15 +467,16 @@ export function Asignaturas() {
   }
 
   return (
-<div className="mx-auto w-full max-w-[1180px] space-y-5">
-  <div className="flex flex-wrap items-center justify-between gap-3">
-    <div>
-      <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-        Asignaturas
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        Gestiona materias, asigna tutores y controla el estado de las tutorías.
-      </p>
+    <div className="mx-auto w-full max-w-[1180px] space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2
+            id="usuarios-titulo"
+            className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]"
+          >
+            Gestiona materias, asigna tutores y controla el estado de las
+            tutorías
+          </h2>
         </div>
         <button
           onClick={() => setModalNueva(true)}
@@ -522,7 +521,7 @@ export function Asignaturas() {
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar por nombre o código..."
                 aria-label="Buscar asignaturas por nombre o código"
-                className="h-11 w-full rounded-2xl border bg-transparent pl-10 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+                className="h-11 w-full rounded-2xl border bg-transparent pl-10 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
                 style={{
                   borderColor: "var(--brand-blue)",
                   background: "var(--input-background)",
@@ -543,7 +542,7 @@ export function Asignaturas() {
                   )
                 }
                 aria-label="Filtrar asignaturas por estado"
-                className="h-11 w-full appearance-none rounded-2xl border bg-transparent px-4 pr-10 text-sm text-foreground outline-none transition-all focus:ring-2 focus:ring-ring sm:w-36"
+                className="h-11 w-full appearance-none rounded-2xl border bg-transparent px-4 pr-10 text-sm text-foreground outline-none transition-all focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2] sm:w-36"
                 style={{
                   borderColor: "var(--border-strong)",
                   background: "var(--input-background)",
@@ -604,17 +603,11 @@ export function Asignaturas() {
                   className="grid gap-4 bg-[#1F2937] px-5 py-4 text-left text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D] md:grid-cols-[minmax(7rem,1fr)_minmax(12rem,2fr)_minmax(7rem,1fr)_minmax(6rem,0.8fr)_9rem] md:items-center"
                 >
                   <div className="flex items-center md:col-start-1 md:row-start-1">
-                    <span className="rounded-md border border-border bg-secondary/60 px-2 py-0.5 font-mono text-[0.7rem] text-muted-foreground">
+                    <span className="text-sm text-muted-foreground">
                       {a.codigo ?? "Sin código"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 md:col-start-2 md:row-start-1">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(17,138,178,0.1)" }}
-                    >
-                      <BookOpen size={15} style={{ color: "#118ab2" }} />
-                    </div>
+                  <div className="flex items-center md:col-start-2 md:row-start-1">
                     <div>
                       <p className="text-sm text-[#F1F5F9]">{a.nombre}</p>
                     </div>
