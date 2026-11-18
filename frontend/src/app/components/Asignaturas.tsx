@@ -306,7 +306,7 @@ function GestionarTutoresModal({
                           {tutor.especialidad && (
                             <p
                               className="text-muted-foreground"
-                              style={{ fontSize: "0.72rem" }}
+                              style={{ fontSize: "0.75rem" }}
                             >
                               {tutor.especialidad}
                             </p>
@@ -726,7 +726,7 @@ export function Asignaturas() {
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                 style={{
                   background: "rgba(239,68,68,0.12)",
-                  color: "#EF4444",
+                  color: "var(--text-danger)",
                 }}
               >
                 <AlertCircle size={18} />

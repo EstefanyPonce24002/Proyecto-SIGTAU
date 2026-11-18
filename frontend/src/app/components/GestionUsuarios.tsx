@@ -868,8 +868,114 @@ export function GestionUsuarios() {
           </div>
         </div>
 
-        {/* Tabla */}
-        <div className="overflow-x-auto">
+        {/* Celular: cada usuario como tarjeta y tableta (la tabla de 7 columnas no cabe por debajo de 1024 px) */}
+        <ul className="divide-y divide-[#30465C] lg:hidden" aria-label="Usuarios registrados">
+          {cargando ? (
+            <li className="px-4 py-10 text-center text-sm text-[#D5DEE8]">
+              <span role="status">Cargando usuarios...</span>
+            </li>
+          ) : loadError ? (
+            <li className="px-4 py-8 text-center text-sm">
+              <p role="alert" className="text-[#F87171]">{loadError}</p>
+              <button
+                type="button"
+                onClick={() => void cargar()}
+                className="mt-4 min-h-11 rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+              >
+                Reintentar
+              </button>
+            </li>
+          ) : filtrados.length === 0 ? (
+            <li className="bg-[#1D3043] px-4 py-10 text-center text-sm text-[#D5DEE8]">
+              {usuarios.length === 0
+                ? "Sin usuarios registrados."
+                : "No se encontraron usuarios."}
+            </li>
+          ) : (
+            filtrados.map((usuario) => {
+              const identificador =
+                usuario.rol === "ESTUDIANTE"
+                  ? usuario.carnet
+                  : usuario.rol === "TUTOR"
+                    ? usuario.codigoTutor
+                    : null;
+              return (
+                <li key={usuario.id} className="bg-[#1F2937] px-4 py-4 text-[#F1F5F9]">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs text-white"
+                      style={{ background: "linear-gradient(135deg, #1E3A8A, #3B82F6)" }}
+                      aria-hidden="true"
+                    >
+                      {iniciales(usuario.nombres, usuario.apellidos)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">
+                        {usuario.nombres} {usuario.apellidos}
+                      </p>
+                      <p className="break-all text-xs text-[#D5DEE8]">{usuario.correo}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#D5DEE8]">
+                        <span>{ROL_LABEL[usuario.rol]}</span>
+                        {identificador && (
+                          <span className="font-mono">· {identificador}</span>
+                        )}
+                        {usuario.telefono && <span>· {usuario.telefono}</span>}
+                        <span
+                          className="rounded-md px-2 py-0.5 font-medium"
+                          style={{
+                            color: usuario.activo ? "#34D399" : "#CBD5E1",
+                            background: usuario.activo
+                              ? "rgba(16,185,129,0.12)"
+                              : "rgba(100,116,139,0.2)",
+                          }}
+                        >
+                          {usuario.activo ? "Activo" : "Inactivo"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionError(null);
+                        setUsuarioEditando(usuario);
+                      }}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#30465C] text-sm text-[#F1F5F9] transition-colors hover:bg-[#24394D]"
+                      aria-label={`Editar a ${usuario.nombres} ${usuario.apellidos}`}
+                    >
+                      <Pencil size={14} aria-hidden="true" /> Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void toggleEstado(usuario)}
+                      disabled={cambiando === usuario.id}
+                      aria-label={`${usuario.activo ? "Desactivar" : "Activar"} a ${usuario.nombres} ${usuario.apellidos}`}
+                      className="inline-flex min-h-11 items-center justify-center rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                      style={{
+                        color: usuario.activo ? "#F87171" : "#34D399",
+                        background: usuario.activo
+                          ? "rgba(239,68,68,0.1)"
+                          : "rgba(16,185,129,0.12)",
+                      }}
+                    >
+                      {cambiando === usuario.id ? (
+                        <Loader2 size={14} className="animate-spin" aria-label="Procesando" />
+                      ) : usuario.activo ? (
+                        "Desactivar"
+                      ) : (
+                        "Activar"
+                      )}
+                    </button>
+                  </div>
+                </li>
+              );
+            })
+          )}
+        </ul>
+
+        {/* Tabla: pantallas de 1024 px o más */}
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full text-left" style={{ minWidth: "960px" }}>
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
@@ -976,9 +1082,9 @@ export function GestionUsuarios() {
 
                     <td className="px-5 py-3.5">
                       <span
-                        className="rounded-md px-2 py-0.5 text-[0.7rem] font-medium"
+                        className="rounded-md px-2 py-0.5 text-xs font-medium"
                         style={{
-                          color: usuario.activo ? "#059669" : "#64748B",
+                          color: usuario.activo ? "#34D399" : "#CBD5E1",
                           background: usuario.activo
                             ? "rgba(16,185,129,0.12)"
                             : "rgba(100,116,139,0.12)",
@@ -1014,7 +1120,7 @@ export function GestionUsuarios() {
                           }`}
                           style={{
                             fontSize: "0.78rem",
-                            color: usuario.activo ? "#EF4444" : "#10B981",
+                            color: usuario.activo ? "#F87171" : "#34D399",
                             background: usuario.activo
                               ? "rgba(239,68,68,0.08)"
                               : "rgba(16,185,129,0.1)",

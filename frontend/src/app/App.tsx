@@ -394,7 +394,8 @@ export default function App() {
         {/* ── COLUMNA PRINCIPAL ── */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* ── HEADER FIJO ── */}
-          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-5 transition-colors duration-300">
+          {/* En celular el encabezado usa dos filas: logo + perfil arriba y buscador a lo ancho debajo */}
+          <header className="sticky top-0 z-30 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-background px-4 py-2 transition-colors duration-300 sm:h-20 sm:flex-nowrap sm:px-5 sm:py-0">
             {/* Logo SIGTAU */}
             <div className="flex shrink-0 items-center gap-3">
               <button
@@ -414,7 +415,7 @@ export default function App() {
                 >
                   SIG<span style={{ color: "var(--brand-blue)" }}>TAU</span>
                 </span>
-                <span className="mt-1 max-w-[210px] text-[0.65rem] font-semibold leading-tight text-muted-foreground sm:text-[0.70rem]">
+                <span className="mt-1 max-w-[210px] text-xs font-semibold leading-tight text-muted-foreground sm:text-xs">
                   Sistema Integral de Gestión
                   <br />
                   de Tutorías Académicas
@@ -423,7 +424,7 @@ export default function App() {
             </div>
 
             {/* Barra de Búsqueda Global */}
-            <div className="relative ml-auto min-w-0 max-w-md flex-1">
+            <div className="relative order-last w-full min-w-0 basis-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-md sm:flex-1 sm:basis-auto">
               <VoiceSearchInput
                 value={busquedaGlobal}
                 onChange={setBusquedaGlobal}
@@ -473,7 +474,7 @@ export default function App() {
             </div>
 
             {/* Menú de Perfil y Notificaciones */}
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-0">
               {/* Menú de Perfil */}
               <div ref={profileMenuRef} className="relative">
                 <button
@@ -486,7 +487,7 @@ export default function App() {
                 >
                   <User size={16} />
                   <span className="hidden min-w-0 flex-col text-left sm:flex">
-                    <span className="text-[0.62rem] leading-tight text-muted-foreground">
+                    <span className="text-xs leading-tight text-muted-foreground">
                       {rolLabel}
                     </span>
                     <span className="max-w-40 truncate text-sm leading-tight text-foreground">
@@ -570,7 +571,8 @@ export default function App() {
           {/* NAVEGACIÓN SECUNDARIA */}
           {rol !== "estudiante" ? (
             <nav
-              className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 sm:px-5"
+              // En celular las pestañas se desplazan de lado; el difuminado a la derecha indica que hay más
+              className="flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-card px-4 [mask-image:linear-gradient(to_right,black_88%,transparent)] sm:px-5 sm:[mask-image:none]"
               aria-label="Navegación principal"
             >
               {NAV_ITEMS.filter(
@@ -698,7 +700,7 @@ export default function App() {
                       style={{ fontSize: "0.875rem" }}
                     >
                       Tu tutoría fue registrada como{" "}
-                      <strong style={{ color: "#F59E0B" }}>PENDIENTE</strong>.
+                      <strong style={{ color: "var(--text-warning)" }}>PENDIENTE</strong>.
                       Recibirás una notificación cuando el tutor la confirme.
                     </p>
                   </div>

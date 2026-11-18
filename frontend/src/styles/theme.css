@@ -29,10 +29,12 @@
   --secondary: #EFF6FF;
   --secondary-foreground: #1E3A8A;
   --muted: #EFF6FF;
-  --muted-foreground: #6B7280;
+  /* #4B5563: contraste 7.2:1 sobre el fondo claro (antes #6B7280, 4.4:1 en fondos azulados) */
+  --muted-foreground: #4B5563;
   --accent: #10B981;
   --accent-foreground: #ffffff;
-  --destructive: #EF4444;
+  /* #B91C1C: rojo legible como texto (6.5:1) y con texto blanco encima */
+  --destructive: #B91C1C;
   --destructive-foreground: #ffffff;
   --border: #E5E7EB;
   --input: transparent;
@@ -66,6 +68,13 @@
   --surface-hover: #E8F4F8;
   --border-strong: #9CA3AF;
   --focus-ring: var(--brand-blue);
+
+  /* Colores de TEXTO por estado con contraste WCAG AA (>= 4.5:1) en modo claro.
+     Los colores de marca (#10B981, #F59E0B...) se mantienen para fondos e íconos decorativos. */
+  --text-success: #047857;
+  --text-warning: #B45309;
+  --text-danger: #B91C1C;
+  --text-link: #1D4ED8;
 }
 
 
@@ -193,6 +202,11 @@
   --surface-hover: #263F50;
   --border-strong: #8494A7;
   --focus-ring: #38BFE3;
+  /* Colores de texto por estado en modo oscuro (>= 4.5:1 sobre las tarjetas) */
+  --text-success: #34D399;
+  --text-warning: #FBBF24;
+  --text-danger: #F87171;
+  --text-link: #60A5FA;
   --card-foreground: #F9FAFB;
   --popover: #1F2937;
   --popover-foreground: #F9FAFB;
@@ -201,7 +215,7 @@
   --secondary: #374151;
   --secondary-foreground: #F9FAFB;
   --muted: #374151;
-  --muted-foreground: #9CA3AF;
+  --muted-foreground: #AEB6C2;
   --accent: #34D399;
   --accent-foreground: #111827;
   --destructive: #EF4444;
@@ -293,6 +307,25 @@
 
   html {
     font-size: var(--font-size);
+  }
+
+  /* Foco visible para quien navega con teclado (WCAG 2.4.7).
+     :where() tiene especificidad 0: no pisa los estilos de foco propios de cada componente. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Respeta a quien pide menos movimiento en su sistema operativo */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   h1 {

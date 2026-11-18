@@ -82,11 +82,11 @@ const statusLabels: Record<string, string> = {
 
 // Colores (texto y fondo translúcido) de la etiqueta de cada estado
 const statusStyles: Record<string, { color: string; background: string }> = {
-  PENDIENTE: { color: "#F59E0B", background: "rgba(245,158,11,0.12)" },
-  APROBADA: { color: "#3B82F6", background: "rgba(59,130,246,0.12)" },
-  COMPLETADA: { color: "#10B981", background: "rgba(16,185,129,0.12)" },
-  CANCELADA: { color: "#6B7280", background: "rgba(122,144,184,0.12)" },
-  RECHAZADA: { color: "#EF4444", background: "rgba(239,68,68,0.12)" },
+  PENDIENTE: { color: "var(--text-warning)", background: "rgba(245,158,11,0.12)" },
+  APROBADA: { color: "var(--text-link)", background: "rgba(59,130,246,0.12)" },
+  COMPLETADA: { color: "var(--text-success)", background: "rgba(16,185,129,0.12)" },
+  CANCELADA: { color: "var(--muted-foreground)", background: "rgba(122,144,184,0.12)" },
+  RECHAZADA: { color: "var(--text-danger)", background: "rgba(239,68,68,0.12)" },
 };
 
 // Devuelve la fecha de hoy como "YYYY-MM-DD" (hora local),
@@ -249,7 +249,7 @@ export function DashboardCoord() {
             {/* Tarjetas de indicadores */}
       <section
         aria-label="Indicadores del coordinador"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4"
       >
         {kpiItems.map(({ key, label, icon: Icon, tone }) => (
           <div
@@ -303,7 +303,7 @@ export function DashboardCoord() {
                     <p className="text-xs font-semibold text-card-foreground">
                       {formatTime(sesion.horaInicio)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {formatTime(sesion.horaFin)}
                     </p>
                   </div>
@@ -312,13 +312,13 @@ export function DashboardCoord() {
                     <p className="truncate text-xs font-medium text-card-foreground">
                       {sesion.asignaturaNombre}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">
+                    <p className="truncate text-xs text-muted-foreground">
                       Tutor: {sesion.tutorNombre}
                     </p>
                   </div>
                   {/* Etiqueta de estado con su color */}
                   <span
-                    className="rounded-full px-2 py-1 text-[10px] font-medium"
+                    className="rounded-full px-2 py-1 text-xs font-medium"
                     style={statusStyle(sesion.estado)}
                   >
                     {statusLabels[sesion.estado]}
@@ -358,7 +358,7 @@ export function DashboardCoord() {
                     <p className="text-xs font-medium text-card-foreground">
                       {title}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {detail}
                     </p>
                   </div>
@@ -385,11 +385,50 @@ export function DashboardCoord() {
             No hay actividad registrada.
           </div>
         ) : (
-          // Scroll horizontal en pantallas estrechas para no romper la tabla
-          <div className="overflow-x-auto">
+          <>
+            {/* Celular: lista compacta en lugar de la tabla de 840 px */}
+            <ul className="divide-y divide-border lg:hidden dark:divide-[#30465C]">
+              {data.actividadReciente.slice(0, 6).map((actividad) => (
+                <li
+                  key={actividad.idSesion}
+                  className="flex items-center gap-3 bg-card px-4 py-3 dark:bg-[#1F2937]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-card-foreground">
+                      Tutoría #{actividad.idSesion} · {actividad.asignatura}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {actividad.estudiante} · {actividad.fecha} · {formatHour(actividad.hora)}
+                    </p>
+                    <span
+                      className="mt-1.5 inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={statusStyle(actividad.estado)}
+                    >
+                      {statusLabels[actividad.estado] ?? actividad.estado}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={`Ver detalle de la sesión ${actividad.idSesion}`}
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    onClick={() => {
+                      const detalle = sesiones.find(
+                        (sesion) => sesion.id === actividad.idSesion,
+                      );
+                      if (detalle) setSesionDetalle(detalle);
+                    }}
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Tabla: pantallas de 1024 px o más */}
+            <div className="hidden overflow-x-auto lg:block">
             <table className="w-full min-w-[840px] border-collapse bg-card text-left dark:bg-[#1D3043]">
               <thead className="border-b border-border bg-card dark:border-[#30465C] dark:bg-[#192B3B]">
-                <tr className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                <tr className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   <th className="px-4 py-2.5 font-medium sm:px-5">
                     Descripción
                   </th>
@@ -411,7 +450,7 @@ export function DashboardCoord() {
                 {data.actividadReciente.slice(0, 6).map((actividad) => (
                   <tr
                     key={actividad.idSesion}
-                    className="align-middle bg-card text-[11px] transition-colors hover:bg-secondary dark:bg-[#1F2937] dark:hover:bg-[#24394D]"
+                    className="align-middle bg-card text-xs transition-colors hover:bg-secondary dark:bg-[#1F2937] dark:hover:bg-[#24394D]"
                   >
                     {/* Descripción: número de sesión y asignatura */}
                     <td className="max-w-[360px] truncate px-4 py-3 text-card-foreground sm:px-5">
@@ -424,7 +463,7 @@ export function DashboardCoord() {
                     {/* Estado como etiqueta de color (si no tiene etiqueta, muestra el valor crudo) */}
                     <td className="px-4 py-3 sm:px-5">
                       <span
-                        className="inline-flex rounded-full px-2 py-1 text-[10px] font-medium"
+                        className="inline-flex rounded-full px-2 py-1 text-xs font-medium"
                         style={statusStyle(actividad.estado)}
                       >
                         {statusLabels[actividad.estado] ?? actividad.estado}
@@ -442,7 +481,7 @@ export function DashboardCoord() {
                       <button
                         type="button"
                         aria-label={`Ver detalle de la sesión ${actividad.idSesion}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         onClick={() => {
                           const detalle = sesiones.find(
                             (sesion) => sesion.id === actividad.idSesion,
@@ -458,6 +497,7 @@ export function DashboardCoord() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </section>
 
@@ -475,7 +515,7 @@ export function DashboardCoord() {
           >
             <div className="flex items-start justify-between gap-4 border-b border-border pb-4 dark:border-[#30465C]">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
                   Detalle de tutoría #{sesionDetalle.id}
                 </p>
                 <h3
@@ -497,7 +537,7 @@ export function DashboardCoord() {
 
             <div className="mt-4 grid gap-4 sm:grid-cols-1">
               <div className="rounded-xl bg-secondary/60 p-4 dark:bg-[#1F2937]">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Tutor asignado
                 </p>
                 <p className="mt-1 text-sm font-medium">
@@ -507,7 +547,7 @@ export function DashboardCoord() {
             </div>
 
             <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-4 dark:border-[#30465C] dark:bg-[#1F2937]">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Área en la que se requiere apoyo
               </p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">

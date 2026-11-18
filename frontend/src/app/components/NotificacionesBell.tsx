@@ -156,7 +156,7 @@ export function NotificacionesBell() {
 
         {noLeidas > 0 && (
           <span
-            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground shadow-sm"
+            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-primary px-1 text-xs font-bold leading-none text-primary-foreground shadow-sm"
             aria-label={`${noLeidas} notificaciones sin leer`}
           >
             {noLeidas > 99 ? "99+" : noLeidas}
@@ -174,7 +174,7 @@ export function NotificacionesBell() {
               </span>
 
               {noLeidas > 0 && (
-                <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
                   {noLeidas}
                 </span>
               )}
@@ -270,7 +270,7 @@ export function NotificacionesBell() {
                         {n.mensaje}
                       </span>
 
-                      <span className="mt-1 block text-[11px] text-muted-foreground">
+                      <span className="mt-1 block text-xs text-muted-foreground">
                         {tiempoRelativo(n.fechaEnvio)}
                       </span>
                     </span>

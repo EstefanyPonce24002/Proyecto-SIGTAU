@@ -188,12 +188,12 @@ function strengthOf(pwd: string): {
 } {
   if (!pwd) return { score: 0, label: "", color: "" };
 
-  if (pwd.length < 6) return { score: 1, label: "Débil", color: "#EF4444" };
+  if (pwd.length < 6) return { score: 1, label: "Débil", color: "var(--text-danger)" };
 
   if (pwd.length < 10) return { score: 2, label: "Regular", color: "#14B8A6" };
 
   if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd))
-    return { score: 4, label: "Fuerte", color: "#10B981" };
+    return { score: 4, label: "Fuerte", color: "var(--text-success)" };
 
   return { score: 3, label: "Buena", color: BRONZE };
 }
@@ -667,7 +667,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
                     border: `1px solid ${BRONZE_BORDER}`,
 
-                    fontSize: "0.72rem",
+                    fontSize: "0.75rem",
                   }}
                 >
                   <BookOpen size={12} />
@@ -707,7 +707,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               <div className="min-w-0">
                 <p
                   className="text-muted-foreground dark:text-white/55"
-                  style={{ fontSize: "0.65rem" }}
+                  style={{ fontSize: "0.75rem" }}
                 >
                   Correo electrónico
                 </p>
@@ -730,7 +730,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               <div>
                 <p
                   className="text-muted-foreground dark:text-white/55"
-                  style={{ fontSize: "0.65rem" }}
+                  style={{ fontSize: "0.75rem" }}
                 >
                   Teléfono
                 </p>
@@ -753,7 +753,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
               <div>
                 <p
                   className="text-muted-foreground dark:text-white/55"
-                  style={{ fontSize: "0.65rem" }}
+                  style={{ fontSize: "0.75rem" }}
                 >
                   Ciudad
                 </p>
@@ -1043,7 +1043,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
                     <label
                       className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-2 text-foreground transition-colors hover:bg-secondary/70"
-                      style={{ fontSize: "0.72rem" }}
+                      style={{ fontSize: "0.75rem" }}
                     >
                       <Camera size={13} />
                       Cambiar foto
@@ -1092,7 +1092,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
                 <p
                   className="text-muted-foreground"
-                  style={{ fontSize: "0.63rem", marginTop: "-8px" }}
+                  style={{ fontSize: "0.75rem", marginTop: "-8px" }}
                 >
                   El correo institucional no puede modificarse
                 </p>
@@ -1211,7 +1211,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p
                           style={{
-                            fontSize: "0.73rem",
+                            fontSize: "0.75rem",
 
                             color: strength.color,
                           }}
@@ -1221,7 +1221,7 @@ export function MiPerfil({ rol, nombre, email }: Props) {
 
                         <p
                           className="text-muted-foreground"
-                          style={{ fontSize: "0.68rem" }}
+                          style={{ fontSize: "0.75rem" }}
                         >
                           Usa mayúsculas, números y símbolos
                         </p>

@@ -311,7 +311,7 @@ export function DashboardReportes() {
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               style={{ fontSize: "0.82rem" }}
             >
-              <FileText size={14} style={{ color: "#EF4444" }} />
+              <FileText size={14} style={{ color: "var(--text-danger)" }} />
               <span className="text-foreground">Exportar PDF</span>
             </button>
             <button
@@ -327,7 +327,7 @@ export function DashboardReportes() {
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
               style={{ fontSize: "0.82rem" }}
             >
-              <FileSpreadsheet size={14} style={{ color: "#10B981" }} />
+              <FileSpreadsheet size={14} style={{ color: "var(--text-success)" }} />
               <span className="text-foreground">Exportar Excel</span>
             </button>
           </div>
@@ -337,7 +337,7 @@ export function DashboardReportes() {
       {/* Filtros */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Filter size={14} style={{ color: "#10B981" }} />
+          <Filter size={14} style={{ color: "var(--text-success)" }} />
           <p
             className="text-muted-foreground"
             style={{
@@ -387,7 +387,7 @@ export function DashboardReportes() {
               </p>
               <p
                 className="text-muted-foreground mt-0.5"
-                style={{ fontSize: "0.68rem", lineHeight: 1.4 }}
+                style={{ fontSize: "0.75rem", lineHeight: 1.4 }}
               >
                 {t.info}
               </p>
@@ -489,12 +489,12 @@ export function DashboardReportes() {
             {sinDatos ? (
               <AlertCircle
                 size={16}
-                style={{ color: "#F59E0B", flexShrink: 0 }}
+                style={{ color: "var(--text-warning)", flexShrink: 0 }}
               />
             ) : (
               <CheckCircle2
                 size={16}
-                style={{ color: "#10B981", flexShrink: 0 }}
+                style={{ color: "var(--text-success)", flexShrink: 0 }}
               />
             )}
             <div className="flex-1">
@@ -509,7 +509,7 @@ export function DashboardReportes() {
               </p>
               <p
                 className="text-muted-foreground"
-                style={{ fontSize: "0.73rem" }}
+                style={{ fontSize: "0.75rem" }}
               >
                 {sinDatos
                   ? mensajeSinDatos
@@ -606,7 +606,7 @@ export function DashboardReportes() {
           <div className="bg-card rounded-2xl border border-border overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <FileText size={14} style={{ color: "#10B981" }} />
+                <FileText size={14} style={{ color: "var(--text-success)" }} />
                 <h3
                   className="text-card-foreground"
                   style={{ fontSize: "0.95rem" }}
@@ -633,7 +633,7 @@ export function DashboardReportes() {
                         key={h}
                         className="text-left px-5 py-3 text-muted-foreground whitespace-nowrap"
                         style={{
-                          fontSize: "0.69rem",
+                          fontSize: "0.75rem",
                           textTransform: "uppercase",
                           letterSpacing: "0.06em",
                           fontWeight: 500,
@@ -707,7 +707,7 @@ export function DashboardReportes() {
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
                 >
-                  <FileText size={12} style={{ color: "#EF4444" }} /> Exportar
+                  <FileText size={12} style={{ color: "var(--text-danger)" }} /> Exportar
                   PDF
                 </button>
                 <button
@@ -723,7 +723,7 @@ export function DashboardReportes() {
                   className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                   style={{ fontSize: "0.75rem" }}
                 >
-                  <FileSpreadsheet size={12} style={{ color: "#10B981" }} />{" "}
+                  <FileSpreadsheet size={12} style={{ color: "var(--text-success)" }} />{" "}
                   Exportar Excel
                 </button>
               </div>
