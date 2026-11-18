@@ -37,27 +37,27 @@ const ESTADO_CFG: Record<Estado, { label: string; color: string; bg: string }> =
   {
     PENDIENTE: {
       label: "Pendiente",
-      color: "#F59E0B",
+      color: "var(--text-warning)",
       bg: "rgba(245,158,11,0.12)",
     },
     APROBADA: {
       label: "Aprobada",
-      color: "#3B82F6",
+      color: "var(--text-link)",
       bg: "rgba(59,130,246,0.12)",
     },
     COMPLETADA: {
       label: "Completada",
-      color: "#10B981",
+      color: "var(--text-success)",
       bg: "rgba(16,185,129,0.12)",
     },
     CANCELADA: {
       label: "Cancelada",
-      color: "#6B7280",
+      color: "var(--muted-foreground)",
       bg: "rgba(122,144,184,0.12)",
     },
     RECHAZADA: {
       label: "Rechazada",
-      color: "#EF4444",
+      color: "var(--text-danger)",
       bg: "rgba(239,68,68,0.12)",
     },
   };
@@ -73,7 +73,7 @@ function EstadoBadge({ estado }: { estado: Estado }) {
   return (
     <span
       className="rounded-full px-2.5 py-1 inline-block whitespace-nowrap"
-      style={{ fontSize: "0.72rem", color: cfg.color, background: cfg.bg }}
+      style={{ fontSize: "0.75rem", color: cfg.color, background: cfg.bg }}
     >
       {cfg.label}
     </span>
@@ -102,7 +102,7 @@ function DetalleModal({
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-xl">
         <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <FileText size={14} style={{ color: "#10B981" }} />
+            <FileText size={14} style={{ color: "var(--text-success)" }} />
             <h3
               className="text-card-foreground"
               style={{ fontSize: "0.95rem" }}
@@ -112,9 +112,10 @@ function DetalleModal({
           </div>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Cerrar detalle de sesión"
+            className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
           >
-            <X size={16} />
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
         <div className="px-6 py-5 space-y-4">
@@ -147,7 +148,7 @@ function DetalleModal({
                   <span
                     className="text-muted-foreground"
                     style={{
-                      fontSize: "0.67rem",
+                      fontSize: "0.75rem",
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",
                     }}
@@ -168,7 +169,7 @@ function DetalleModal({
             <p
               className="text-muted-foreground mb-1"
               style={{
-                fontSize: "0.67rem",
+                fontSize: "0.75rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
               }}
@@ -190,7 +191,7 @@ function DetalleModal({
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 transition-all hover:opacity-90 active:scale-95"
               style={{
                 fontSize: "0.875rem",
-                color: "#EF4444",
+                color: "var(--text-danger)",
                 background: "rgba(239,68,68,0.08)",
                 border: "1px solid rgba(239,68,68,0.25)",
               }}
@@ -235,7 +236,7 @@ function ConfirmCancelModal({
           className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: "rgba(239,68,68,0.1)" }}
         >
-          <AlertTriangle size={26} style={{ color: "#EF4444" }} />
+          <AlertTriangle size={26} style={{ color: "var(--text-danger)" }} />
         </div>
         <div>
           <h3
@@ -258,7 +259,7 @@ function ConfirmCancelModal({
               {sesion.id}
             </span>{" "}
             de <strong className="text-foreground">{sesion.estudiante}</strong>{" "}
-            cambiará a <strong style={{ color: "#6B7280" }}>CANCELADA</strong>.
+            cambiará a <strong style={{ color: "var(--muted-foreground)" }}>CANCELADA</strong>.
           </p>
         </div>
         <div className="flex gap-3">
@@ -397,7 +398,7 @@ export function Supervision() {
               </p>
               <p
                 className="text-muted-foreground mt-1"
-                style={{ fontSize: "0.67rem" }}
+                style={{ fontSize: "0.75rem" }}
               >
                 {cfg.label}
               </p>
@@ -411,7 +412,7 @@ export function Supervision() {
         <p
           className="text-muted-foreground"
           style={{
-            fontSize: "0.72rem",
+            fontSize: "0.75rem",
             textTransform: "uppercase",
             letterSpacing: "0.07em",
           }}
@@ -430,6 +431,7 @@ export function Supervision() {
           {/* Tutor */}
           <div className="relative min-w-0">
             <select
+              aria-label="Filtrar por tutor"
               value={filtroTutor}
               onChange={(e) => setFiltroTutor(e.target.value)}
               className="w-full appearance-none rounded-xl border border-border bg-input-background text-foreground px-3 py-2.5 pr-8 outline-none focus:ring-2 transition-all"
@@ -452,6 +454,7 @@ export function Supervision() {
           {/* Asignatura */}
           <div className="relative min-w-0">
             <select
+              aria-label="Filtrar por asignatura"
               value={filtroAsig}
               onChange={(e) => setFiltroAsig(e.target.value)}
               className="w-full appearance-none rounded-xl border border-border bg-input-background text-foreground px-3 py-2.5 pr-8 outline-none focus:ring-2 transition-all"
@@ -474,12 +477,14 @@ export function Supervision() {
           {/* Fecha inicio */}
           <div className="space-y-1 min-w-0">
             <label
+              htmlFor="supervision-fecha-inicio"
               className="text-muted-foreground"
-              style={{ fontSize: "0.72rem" }}
+              style={{ fontSize: "0.75rem" }}
             >
               Fecha inicio
             </label>
             <input
+              id="supervision-fecha-inicio"
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
@@ -495,12 +500,14 @@ export function Supervision() {
           {/* Fecha fin */}
           <div className="space-y-1 min-w-0">
             <label
+              htmlFor="supervision-fecha-fin"
               className="text-muted-foreground"
-              style={{ fontSize: "0.72rem" }}
+              style={{ fontSize: "0.75rem" }}
             >
               Fecha fin
             </label>
             <input
+              id="supervision-fecha-fin"
               type="date"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
@@ -538,7 +545,7 @@ export function Supervision() {
                     key={h}
                     className="text-left px-4 py-3 text-muted-foreground"
                     style={{
-                      fontSize: "0.69rem",
+                      fontSize: "0.75rem",
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",
                       fontWeight: 500,
@@ -614,7 +621,7 @@ export function Supervision() {
                       <p
                         className="text-muted-foreground"
                         style={{
-                          fontSize: "0.73rem",
+                          fontSize: "0.75rem",
                           fontFamily: "var(--font-mono)",
                         }}
                       >
@@ -628,10 +635,11 @@ export function Supervision() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setDetalle(s)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                          className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
                           title="Ver detalle"
+                          aria-label={`Ver detalle de la sesión de ${s.estudiante}`}
                         >
-                          <Eye size={14} />
+                          <Eye size={15} aria-hidden="true" />
                         </button>
                         {(s.estado === "PENDIENTE" ||
                           s.estado === "APROBADA") && (
@@ -639,8 +647,8 @@ export function Supervision() {
                             onClick={() => setCancelando(s)}
                             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-all hover:opacity-90 active:scale-95"
                             style={{
-                              fontSize: "0.72rem",
-                              color: "#EF4444",
+                              fontSize: "0.75rem",
+                              color: "var(--text-danger)",
                               background: "rgba(239,68,68,0.08)",
                               border: "1px solid rgba(239,68,68,0.25)",
                             }}

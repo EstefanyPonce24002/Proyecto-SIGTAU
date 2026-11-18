@@ -414,7 +414,7 @@ export default function App() {
                 >
                   SIG<span style={{ color: "var(--brand-blue)" }}>TAU</span>
                 </span>
-                <span className="mt-1 max-w-[210px] text-[0.65rem] font-semibold leading-tight text-muted-foreground sm:text-[0.70rem]">
+                <span className="mt-1 max-w-[210px] text-xs font-semibold leading-tight text-muted-foreground sm:text-xs">
                   Sistema Integral de Gestión
                   <br />
                   de Tutorías Académicas
@@ -486,7 +486,7 @@ export default function App() {
                 >
                   <User size={16} />
                   <span className="hidden min-w-0 flex-col text-left sm:flex">
-                    <span className="text-[0.62rem] leading-tight text-muted-foreground">
+                    <span className="text-xs leading-tight text-muted-foreground">
                       {rolLabel}
                     </span>
                     <span className="max-w-40 truncate text-sm leading-tight text-foreground">
@@ -698,7 +698,7 @@ export default function App() {
                       style={{ fontSize: "0.875rem" }}
                     >
                       Tu tutoría fue registrada como{" "}
-                      <strong style={{ color: "#F59E0B" }}>PENDIENTE</strong>.
+                      <strong style={{ color: "var(--text-warning)" }}>PENDIENTE</strong>.
                       Recibirás una notificación cuando el tutor la confirme.
                     </p>
                   </div>

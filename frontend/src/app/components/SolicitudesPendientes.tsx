@@ -880,7 +880,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                     {/* Columna Estudiante con avatar */}
                     <td className="max-w-[240px] px-5 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#118AB2] text-[10px] font-semibold text-white">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#118AB2] text-xs font-semibold text-white">
                           {iniciales(sesion.estudianteNombre)}
                         </div>
                         <span

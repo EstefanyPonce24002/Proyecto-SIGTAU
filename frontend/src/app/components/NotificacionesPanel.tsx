@@ -108,7 +108,7 @@ export function NotificacionesPanel({ rol, onClose }: Props) {
             Notificaciones
           </span>
           {noLeidas > 0 && (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
               {noLeidas}
             </span>
           )}
@@ -170,7 +170,7 @@ export function NotificacionesPanel({ rol, onClose }: Props) {
                 <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground">
                   {n.mensaje}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {n.tiempo}
                 </p>
               </div>

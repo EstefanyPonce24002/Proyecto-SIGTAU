@@ -330,8 +330,8 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         <span
                           className="rounded-full px-2 py-0.5"
                           style={{
-                            fontSize: "0.68rem",
-                            color: "#3B82F6",
+                            fontSize: "0.75rem",
+                            color: "var(--text-link)",
                             background: "rgba(59,130,246,0.12)",
                           }}
                         >
@@ -340,7 +340,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
                         <span
                           className="text-muted-foreground"
-                          style={{ fontSize: "0.72rem" }}
+                          style={{ fontSize: "0.75rem" }}
                         >
                           {formatFecha(s.fechaSesion)} -{" "}
                           {formatHora(s.horaInicio)}
@@ -394,14 +394,14 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           <span
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
-                            style={{ fontSize: "0.72rem" }}
+                            style={{ fontSize: "0.75rem" }}
                           >
                             {formatFecha(sesion.fechaSesion)}
                           </span>
 
                           <span
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
-                            style={{ fontSize: "0.72rem" }}
+                            style={{ fontSize: "0.75rem" }}
                           >
                             <Clock size={12} />
                             {formatHora(sesion.horaInicio)}
@@ -409,7 +409,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
                           <span
                             className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
-                            style={{ fontSize: "0.72rem" }}
+                            style={{ fontSize: "0.75rem" }}
                           >
                             #{sesion.id}
                           </span>
@@ -623,7 +623,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
 
                       <p
                         className="text-right text-muted-foreground"
-                        style={{ fontSize: "0.73rem" }}
+                        style={{ fontSize: "0.75rem" }}
                       >
                         {observaciones.length}/1000
                       </p>
@@ -638,7 +638,7 @@ export function SeguimientoAcademico({ idTutor }: Props) {
                       disabled={saving}
                       className="inline-flex h-10 items-center justify-center rounded-xl border px-4 text-sm font-medium transition-colors hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
                       style={{
-                        color: "#EF4444",
+                        color: "var(--text-danger)",
                         background: "rgba(239,68,68,0.08)",
                         borderColor: "rgba(239,68,68,0.2)",
                       }}

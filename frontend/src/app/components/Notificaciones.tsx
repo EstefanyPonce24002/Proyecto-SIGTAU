@@ -88,7 +88,7 @@ export function Notificaciones() {
           <h2 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Notificaciones
             {noLeidas > 0 && (
-              <span className="rounded-full px-2 py-0.5 text-white" style={{ fontSize: "0.72rem", background: "#10B981" }}>
+              <span className="rounded-full px-2 py-0.5 text-white" style={{ fontSize: "0.75rem", background: "#10B981" }}>
                 {noLeidas}
               </span>
             )}
@@ -127,7 +127,7 @@ export function Notificaciones() {
             }}>
             {t.label}
             <span className="rounded-full px-1.5 py-0.5 text-white"
-              style={{ fontSize: "0.65rem", background: filtro === t.id ? "#10B981" : "var(--muted)", color: filtro === t.id ? "#fff" : "var(--muted-foreground)" }}>
+              style={{ fontSize: "0.75rem", background: filtro === t.id ? "#10B981" : "var(--muted)", color: filtro === t.id ? "#fff" : "var(--muted-foreground)" }}>
               {t.count}
             </span>
           </button>
@@ -159,7 +159,7 @@ export function Notificaciones() {
                       <p className="text-foreground" style={{ fontSize: "0.875rem", fontWeight: n.leida ? 400 : 500 }}>{TITULO[n.tipo]}</p>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {!n.leida && <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />}
-                        <span className="text-muted-foreground whitespace-nowrap" style={{ fontSize: "0.72rem" }}>{formatFechaHora(n.fechaEnvio)}</span>
+                        <span className="text-muted-foreground whitespace-nowrap" style={{ fontSize: "0.75rem" }}>{formatFechaHora(n.fechaEnvio)}</span>
                       </div>
                     </div>
                     <p className="text-muted-foreground mt-1" style={{ fontSize: "0.82rem", lineHeight: 1.55 }}>{n.mensaje}</p>
@@ -167,7 +167,7 @@ export function Notificaciones() {
                       <div className="flex items-center gap-3 mt-2.5">
                         <button onClick={() => marcarLeida(n.id)}
                           className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                          style={{ fontSize: "0.73rem" }}>
+                          style={{ fontSize: "0.75rem" }}>
                           <CheckCircle2 size={12} /> Marcar como leída
                         </button>
                       </div>

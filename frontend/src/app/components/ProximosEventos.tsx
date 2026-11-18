@@ -451,7 +451,7 @@ export function ProximosEventos({
             className="mx-auto flex h-20 w-20 items-center justify-center rounded-full"
             style={{
               background: "rgba(17,138,178,0.10)",
-              color: "#118AB2",
+              color: "var(--brand-blue-text)",
             }}
           >
             <CalendarDays size={38} />

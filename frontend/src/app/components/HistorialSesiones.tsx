@@ -50,7 +50,7 @@ const ESTADO_CONFIG: Record<
   PENDIENTE: {
     label: "Pendiente",
 
-    color: "#F59E0B",
+    color: "var(--text-warning)",
 
     bg: "rgba(245,158,11,0.12)",
   },
@@ -58,7 +58,7 @@ const ESTADO_CONFIG: Record<
   APROBADA: {
     label: "Aprobada",
 
-    color: "#3B82F6",
+    color: "var(--text-link)",
 
     bg: "rgba(59,130,246,0.12)",
   },
@@ -66,7 +66,7 @@ const ESTADO_CONFIG: Record<
   COMPLETADA: {
     label: "Completada",
 
-    color: "#10B981",
+    color: "var(--text-success)",
 
     bg: "rgba(16,185,129,0.12)",
   },
@@ -74,7 +74,7 @@ const ESTADO_CONFIG: Record<
   CANCELADA: {
     label: "Cancelada",
 
-    color: "#6B7280",
+    color: "var(--muted-foreground)",
 
     bg: "rgba(122,144,184,0.12)",
   },
@@ -82,7 +82,7 @@ const ESTADO_CONFIG: Record<
   RECHAZADA: {
     label: "Rechazada",
 
-    color: "#EF4444",
+    color: "var(--text-danger)",
 
     bg: "rgba(239,68,68,0.12)",
   },
@@ -152,7 +152,7 @@ function EstadoBadge({ estado }: { estado: EstadoSesion }) {
   return (
     <span
       className="rounded-full px-2.5 py-1 inline-block whitespace-nowrap"
-      style={{ fontSize: "0.72rem", color: cfg.color, background: cfg.bg }}
+      style={{ fontSize: "0.75rem", color: cfg.color, background: cfg.bg }}
     >
       {cfg.label}
     </span>
@@ -829,7 +829,7 @@ export function HistorialSesiones({ idTutor }: Props) {
 
                     <td className="max-w-[240px] px-5 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#118AB2] text-[10px] font-semibold text-white">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#118AB2] text-xs font-semibold text-white">
                           {iniciales(s.estudianteNombre)}
                         </div>
 

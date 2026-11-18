@@ -65,7 +65,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                   <Mail size={27} style={{ color: "#49666d" }} />
                 </div>
                 <h2 style={{ color: "#151618", letterSpacing: "-0.01em" }}>Recuperar Contraseña</h2>
-                <p className="mx-auto mt-1.5 max-w-[280px]" style={{ fontSize: "0.88rem", color: "#6B7280", lineHeight: 1.45 }}>
+                <p className="mx-auto mt-1.5 max-w-[280px]" style={{ fontSize: "0.88rem", color: "var(--muted-foreground)", lineHeight: 1.45 }}>
                   Ingresa tu correo institucional para recibir un enlace de recuperación.
                 </p>
               </div>
@@ -93,7 +93,7 @@ export function RecuperarContrasena({ onBack }: Props) {
                     />
                   </div>
                   {error && (
-                    <p style={{ fontSize: "0.78rem", color: "#EF4444" }}>{error}</p>
+                    <p style={{ fontSize: "0.78rem", color: "var(--text-danger)" }}>{error}</p>
                   )}
                 </div>
 
@@ -115,15 +115,15 @@ export function RecuperarContrasena({ onBack }: Props) {
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
                 style={{ background: "rgba(16,185,129,0.1)" }}
               >
-                <CheckCircle2 size={30} style={{ color: "#118AB2" }} />
+                <CheckCircle2 size={30} style={{ color: "var(--brand-blue-text)" }} />
               </div>
               <div>
                 <h3 style={{ color: "#1E3A8A", fontSize: "1.1rem" }}>¡Enlace enviado!</h3>
-                <p className="mt-2" style={{ fontSize: "0.875rem", color: "#6B7280", lineHeight: 1.6 }}>
+                <p className="mt-2" style={{ fontSize: "0.875rem", color: "var(--muted-foreground)", lineHeight: 1.6 }}>
                   Hemos enviado un enlace de recuperación a <br />
                   <strong style={{ color: "#1E3A8A" }}>{email}</strong>
                 </p>
-                <p className="mt-3" style={{ fontSize: "0.78rem", color: "#6B7280" }}>
+                <p className="mt-3" style={{ fontSize: "0.78rem", color: "var(--muted-foreground)" }}>
                   Revisa también tu carpeta de spam. El enlace expira en 30 minutos.
                 </p>
               </div>
@@ -134,7 +134,7 @@ export function RecuperarContrasena({ onBack }: Props) {
           <button
             onClick={onBack}
             className="flex items-center gap-2 transition-colors w-full justify-center"
-            style={{ fontSize: "0.875rem", color: "#6B7280" }}
+            style={{ fontSize: "0.875rem", color: "var(--muted-foreground)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#118AB2")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#6B7280")}
           >

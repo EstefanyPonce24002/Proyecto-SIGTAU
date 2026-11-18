@@ -396,12 +396,12 @@ export function Mensajes({ idUsuario, rol }: Props) {
                         {ultimo?.contenido ?? c.rol}
                       </span>
                       {ultimo && (
-                        <span className="shrink-0 text-[10px] text-muted-foreground">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {horaPreview(ultimo.fechaEnvio)}
                         </span>
                       )}
                       {noLeidos > 0 && (
-                        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#118AB2] px-1 text-[10px] font-semibold text-white">
+                        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#118AB2] px-1 text-xs font-semibold text-white">
                           {noLeidos > 99 ? "99+" : noLeidos}
                         </span>
                       )}
@@ -488,7 +488,7 @@ export function Mensajes({ idUsuario, rol }: Props) {
 
                       {/* Fecha y hora de envío */}
                       {ultimoDelGrupo && (
-                        <div className={`mt-1 flex items-center justify-end gap-1 text-[0.68rem] ${propio ? "text-white" : "text-muted-foreground"}`}>
+                        <div className={`mt-1 flex items-center justify-end gap-1 text-xs ${propio ? "text-white" : "text-muted-foreground"}`}>
                           <span>{fechaHora(m.fechaEnvio)}</span>
                           {propio && (
                             m.estadoEnvio === "enviando" ? (

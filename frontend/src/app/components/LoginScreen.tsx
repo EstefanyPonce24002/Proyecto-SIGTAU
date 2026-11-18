@@ -144,7 +144,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               letterSpacing: "0.01em",
             }}
           >
-            SIG<span style={{ color: "#118AB2" }}>TAU</span>
+            SIG<span style={{ color: "var(--brand-blue-text)" }}>TAU</span>
           </span>
 
           <span
@@ -166,7 +166,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
         <p
           className="relative"
           style={{
-            fontSize: "0.72rem",
+            fontSize: "0.75rem",
             color: "rgba(255, 255, 255, 0.39)",
           }}
         ></p>
@@ -285,7 +285,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               <span
                 style={{
                   fontSize: "0.85rem",
-                  color: "#118AB2",
+                  color: "var(--brand-blue-text)",
                 }}
               >
                 Enlace de recuperación enviado a tu correo institucional.
@@ -369,7 +369,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   aria-label={
                     showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                   }
@@ -384,7 +384,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               <a
                 href="#"
                 onClick={handleForgot}
-                className="transition-colors"
+                className="inline-block rounded-md px-1 py-1.5 underline-offset-2 transition-colors hover:underline"
                 style={{
                   fontSize: "0.82rem",
                   color: dark ? "#D6DEE5" : "#49666D",
@@ -401,7 +401,8 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               className="sigtau-focus-ring flex w-full items-center justify-center gap-2 rounded-xl py-3 text-white transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
               style={{
                 fontSize: "0.95rem",
-                backgroundColor: "#118AB2",
+                // #0E7799: mismo tono turquesa, contraste 5.1:1 con texto blanco (WCAG AA)
+                backgroundColor: "#0E7799",
               }}
             >
               {/* Spinner de carga durante el estado de espera */}

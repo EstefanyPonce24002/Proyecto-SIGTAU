@@ -64,7 +64,7 @@ export function Inicio({ onNavigate, nombre }: Props) {
             </span>
             <span 
               className="block font-bold" 
-              style={{ color: "#118AB2", textShadow: "1px 1px 4px rgba(0,0,0,0.6)" }}
+              style={{ color: "var(--brand-blue-text)", textShadow: "1px 1px 4px rgba(0,0,0,0.6)" }}
             >
               también cuenta
             </span>

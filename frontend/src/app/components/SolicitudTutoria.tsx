@@ -1059,7 +1059,7 @@ export function SolicitudTutoria({
 
                     <p
                       className="text-muted-foreground"
-                      style={{ fontSize: "0.73rem" }}
+                      style={{ fontSize: "0.75rem" }}
                     >
                       PDF, DOCX, XLSX · Máx. 25 MB por archivo
                     </p>
@@ -1099,7 +1099,7 @@ export function SolicitudTutoria({
                           {/* Tamaño aproximado expresado en KB. */}
                           <span
                             className="shrink-0 text-muted-foreground"
-                            style={{ fontSize: "0.73rem" }}
+                            style={{ fontSize: "0.75rem" }}
                           >
                             {(file.size / 1024).toFixed(0)} KB
                           </span>

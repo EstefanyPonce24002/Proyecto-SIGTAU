@@ -70,13 +70,13 @@ type EstadoConfig = { label: string; color: string; bg: string; dot: string };
 const ESTADO_CONFIG: Record<EstadoSesion, EstadoConfig> = {
   PENDIENTE: {
     label: "Pendiente",
-    color: "#F59E0B",
+    color: "var(--text-warning)",
     bg: "rgba(245,158,11,0.12)",
     dot: "#F59E0B",
   },
   APROBADA: {
     label: "Aprobada",
-    color: "#3B82F6",
+    color: "var(--text-link)",
     bg: "rgba(59,130,246,0.12)",
     dot: "#3B82F6",
   },

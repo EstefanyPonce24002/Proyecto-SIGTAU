@@ -177,7 +177,7 @@ export function CalendarioTutor({
               key={`${d}-${index}`}
               onMouseEnter={() => onDiaSemanaEnfocado?.(index)}
               title={["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][index]}
-              className={`px-1 py-1.5 text-center text-[11px] font-medium transition-colors ${compact ? (diaSemanaEnfocado === index ? "bg-[#20C5E8]/10 text-[#20C5E8]" : "text-[#A8B7C8]") : (diaSemanaEnfocado === index ? "bg-brand-blue/10 text-brand-blue" : "text-muted-foreground")}`}
+              className={`px-1 py-1.5 text-center text-xs font-medium transition-colors ${compact ? (diaSemanaEnfocado === index ? "bg-[#20C5E8]/10 text-[#20C5E8]" : "text-[#A8B7C8]") : (diaSemanaEnfocado === index ? "bg-brand-blue/10 text-brand-blue" : "text-muted-foreground")}`}
             >
               {d}
             </div>
@@ -231,7 +231,7 @@ export function CalendarioTutor({
                     {compact ? (
                       <>
                         {eventos.slice(0, 3).map((s) => <span key={s.id} className="h-1.5 w-1.5 rounded-full bg-[#20C5E8]" />)}
-                        {eventos.length > 3 && <span className="text-[9px] leading-none text-[#A8B7C8]">+{eventos.length - 3}</span>}
+                        {eventos.length > 3 && <span className="text-xs leading-none text-[#A8B7C8]">+{eventos.length - 3}</span>}
                       </>
                     ) : <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />}
                   </span>

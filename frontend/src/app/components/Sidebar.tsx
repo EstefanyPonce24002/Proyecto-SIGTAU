@@ -67,7 +67,7 @@ export function Sidebar({ items, active, rol, nombre, onNavigate, onLogout, open
             <p style={{ fontSize: "0.88rem", color: "#fff", letterSpacing: "-0.01em", lineHeight: 1 }}>
               SIGTAU
             </p>
-            <p style={{ fontSize: "0.58rem", color: MUTED_TEXT, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            <p style={{ fontSize: "0.75rem", color: MUTED_TEXT, letterSpacing: "0.06em", textTransform: "uppercase" }}>
               {ROL_LABELS[rol]}
             </p>
           </div>
@@ -83,7 +83,7 @@ export function Sidebar({ items, active, rol, nombre, onNavigate, onLogout, open
 
       {/* ── Section label ─────────────────────────────────────────────── */}
       <div className="px-4 pt-5 pb-2">
-        <p style={{ fontSize: "0.65rem", color: MUTED_TEXT, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+        <p style={{ fontSize: "0.75rem", color: MUTED_TEXT, textTransform: "uppercase", letterSpacing: "0.1em" }}>
           Menú principal
         </p>
       </div>
@@ -140,7 +140,7 @@ export function Sidebar({ items, active, rol, nombre, onNavigate, onLogout, open
             className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
             style={{
               background: "linear-gradient(135deg, var(--brand-bronze), var(--brand-bronze-deep))",
-              fontSize: "0.65rem",
+              fontSize: "0.75rem",
               color: "#fff",
             }}
           >
@@ -154,7 +154,7 @@ export function Sidebar({ items, active, rol, nombre, onNavigate, onLogout, open
             >
               {nombre.replace("Prof. ", "").split(" ").slice(0, 2).join(" ")}
             </p>
-            <p style={{ fontSize: "0.65rem", color: MUTED_TEXT, marginTop: "1px" }}>
+            <p style={{ fontSize: "0.75rem", color: MUTED_TEXT, marginTop: "1px" }}>
               {ROL_LABELS[rol]}
             </p>
           </div>
