@@ -407,8 +407,8 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
               {/* Spinner de carga durante el estado de espera */}
               {loading && <Loader2 size={16} className="animate-spin" />}
 
-              {/* Texto dependiente del estado de la petición */}
-              {loading ? "Verificando..." : "Ingresar"}
+              {/* Texto dentro de <span>: si el navegador traduce la página, React no pierde la referencia del nodo */}
+              <span>{loading ? "Verificando..." : "Ingresar"}</span>
             </button>
           </form>
         </div>
