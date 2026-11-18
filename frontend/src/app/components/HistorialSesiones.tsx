@@ -13,6 +13,7 @@ import {
   Loader2,
   AlertCircle,
   AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 
 // Funciones y tipos de la capa de datos (API)
@@ -26,6 +27,16 @@ import {
 } from "../lib/sesiones";
 
 import { ApiError } from "../lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 
 import {
   listarHorariosDelTutor,
@@ -611,6 +622,9 @@ export function HistorialSesiones({ idTutor }: Props) {
   const [sesionACancelar, setSesionACancelar] = useState<Sesion | null>(null);
   const [cancelando, setCancelando] = useState(false);
   const [errorCancelacion, setErrorCancelacion] = useState<string | null>(null);
+  const [confirmarCancelacion, setConfirmarCancelacion] =
+    useState<Sesion | null>(null);
+  const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
   // --- SECCIÓN 2: CARGA DE DATOS ---
   const cargar = useCallback(() => {
@@ -633,19 +647,33 @@ export function HistorialSesiones({ idTutor }: Props) {
     cargar();
   }, [cargar]);
 
+  useEffect(() => {
+    if (!mensajeExito) return;
+
+    const timeout = window.setTimeout(() => setMensajeExito(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [mensajeExito]);
+
   const cancelarDetalle = async () => {
-    if (!sesionACancelar || cancelando) return;
+    const sesion = confirmarCancelacion;
+    if (!sesion || cancelando) return;
 
     setCancelando(true);
     setErrorCancelacion(null);
+    setMensajeExito(null);
 
     try {
-      await cancelarSesion(sesionACancelar.id);
+      await cancelarSesion(sesion.id);
       setSesionACancelar(null);
       setDetalle(null);
+      setConfirmarCancelacion(null);
       setErrorCancelacion(null);
+      setMensajeExito(
+        `La tutoría de ${sesion.asignaturaNombre} se canceló correctamente.`,
+      );
       cargar();
     } catch (err: unknown) {
+      setConfirmarCancelacion(null);
       setErrorCancelacion(
         err instanceof ApiError
           ? err.message
@@ -695,6 +723,17 @@ export function HistorialSesiones({ idTutor }: Props) {
       <h2 className="text-2xl font-semibold tracking-tight text-[#F1F5F9]">
         Consulta y gestiona tus sesiones
       </h2>
+
+      {mensajeExito && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-300"
+        >
+          <CheckCircle2 size={18} className="shrink-0" />
+          <p className="text-sm">{mensajeExito}</p>
+        </div>
+      )}
 
       <section className="overflow-hidden rounded-2xl border border-[#30465C] bg-[#192B3B]">
         <div className="flex flex-col gap-4 border-b border-[#30465C] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
@@ -932,8 +971,7 @@ export function HistorialSesiones({ idTutor }: Props) {
             setReprogramar(sesion);
           }}
           onCancelar={() => {
-            setSesionACancelar(detalle);
-            setErrorCancelacion(null);
+            setConfirmarCancelacion(detalle);
           }}
           cancelando={cancelando}
           errorCancelacion={errorCancelacion}
@@ -966,6 +1004,53 @@ export function HistorialSesiones({ idTutor }: Props) {
           }}
         />
       )}
+
+      <AlertDialog
+        open={confirmarCancelacion !== null}
+        onOpenChange={(open) => {
+          if (!open && !cancelando) setConfirmarCancelacion(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <AlertTriangle size={22} aria-hidden="true" />
+            </div>
+            <AlertDialogTitle>¿Cancelar esta tutoría?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmarCancelacion
+                ? `La tutoría de ${confirmarCancelacion.asignaturaNombre} se cancelará y se notificará al estudiante. Esta acción no se puede deshacer.`
+                : "Esta acción no se puede deshacer."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={cancelando}
+              className="border-[#118AB2]/40 bg-[#118AB2]/5 text-[#0B6685] transition-colors hover:border-[#118AB2] hover:bg-[#118AB2]/15 hover:text-[#084C63] focus-visible:ring-[#118AB2]/40 dark:text-[#67D3EA] dark:hover:text-[#9BE5F4]"
+            >
+              Volver
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelando}
+              onClick={(event) => {
+                event.preventDefault();
+                void cancelarDetalle();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelando ? (
+                <>
+                  <Loader2 size={15} className="mr-2 animate-spin" />
+                  Cancelando...
+                </>
+              ) : (
+                "Sí, cancelar tutoría"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
