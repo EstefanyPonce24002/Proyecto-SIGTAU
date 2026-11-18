@@ -823,8 +823,47 @@ export function SolicitudesPendientes({ idTutor }: Props) {
             )}
           </div>
         ) : (
-          // Tabla con resultados (con scroll horizontal en pantallas pequeñas)
-          <div className="w-full overflow-x-auto">
+          <>
+            {/* Celular y tableta: cada solicitud como tarjeta */}
+            <ul className="divide-y divide-[#30465C] lg:hidden" aria-label="Solicitudes pendientes">
+              {solicitudesVisibles.map((sesion) => (
+                <li key={sesion.id} className="space-y-3 bg-[#1F2937] px-4 py-4 text-[#F1F5F9]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{sesion.asignaturaNombre}</p>
+                      <p className="text-xs text-[#D5DEE8]">
+                        {formatFecha(sesion.fechaSesion)} · {formatHora(sesion.horaInicio)}
+                      </p>
+                    </div>
+                    <span
+                      className="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium"
+                      style={estiloEstado(sesion.estado)}
+                    >
+                      {nombreEstado(sesion.estado)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0E7799] text-xs font-semibold text-white"
+                      aria-hidden="true"
+                    >
+                      {iniciales(sesion.estudianteNombre)}
+                    </div>
+                    <span className="text-sm">{sesion.estudianteNombre}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDetalleAbierto(sesion)}
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#30465C] text-sm font-medium transition-colors hover:bg-[#24394D]"
+                  >
+                    <Eye size={15} aria-hidden="true" /> Ver detalle y responder
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Tabla: pantallas de 1024 px o más */}
+            <div className="hidden w-full overflow-x-auto lg:block">
             <table className="w-full min-w-[780px] border-collapse text-left">
               {/* Cabecera de la tabla */}
               <thead>
@@ -907,6 +946,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
                       <button
                         type="button"
                         onClick={() => setDetalleAbierto(sesion)}
+                        aria-label={`Ver detalle de la solicitud de ${sesion.estudianteNombre}`}
                         className="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                       >
                         <Eye size={14} />
@@ -917,6 +957,7 @@ export function SolicitudesPendientes({ idTutor }: Props) {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* Pie con conteo de registros */}

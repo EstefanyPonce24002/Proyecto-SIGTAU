@@ -882,8 +882,52 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
               </div>
             </div>
 
-            {/* Contenedor con scroll horizontal para pantallas pequeñas */}
-            <div className="overflow-x-auto">
+            {/* Celular y tableta: cada tutoría como tarjeta */}
+            <ul className="divide-y divide-border lg:hidden dark:divide-[#2A4158]" aria-label="Mis tutorías">
+              {filtradas.length === 0 ? (
+                <li className="py-10 text-center text-sm text-muted-foreground">No se encontraron tutorías</li>
+              ) : (
+                filtradas.map((session) => (
+                  <li key={session.id} className="space-y-3 bg-card px-4 py-4 dark:bg-[#1F2937]">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">
+                          {session.asignaturaNombre}{" "}
+                          <span className="text-xs font-normal text-muted-foreground">#{session.id}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatFecha(session.fechaSesion)} · {formatHora(session.horaInicio)} · {session.tutorNombre}
+                        </p>
+                      </div>
+                      <EstadoBadge estado={session.estado} />
+                    </div>
+                    <div className="flex gap-2 [&>button]:flex-1">
+                      <button
+                        type="button"
+                        onClick={() => setDetalle(session)}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm text-foreground hover:bg-secondary"
+                      >
+                        <Eye size={15} aria-hidden="true" /> Ver detalle
+                      </button>
+                      {/* Solo se ofrece Cancelar si la sesión todavía se puede cancelar */}
+                      {(session.estado === "PENDIENTE" || session.estado === "APROBADA") && (
+                        <button
+                          type="button"
+                          onClick={() => solicitarCancelacion(session)}
+                          aria-label={`Cancelar ${session.asignaturaNombre}`}
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm text-foreground hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 size={15} aria-hidden="true" /> Cancelar
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+
+            {/* Tabla: pantallas de 1024 px o más */}
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full min-w-[760px]">
                 {/* ----- Encabezados de la tabla ----- */}
                 <thead>
@@ -922,7 +966,7 @@ export function HistorialTutorias({ idEstudiante, onNavigate }: Props) {
                     filtradas.map((session) => (
                       <tr
                         key={session.id}
-                        className="bg-[#1F2937] text-xs transition-colors hover:bg-[#24394D] [&>td]:text-xs [&_p]:text-xs"
+                        className="bg-card text-xs transition-colors hover:bg-secondary dark:bg-[#1F2937] dark:hover:bg-[#24394D] [&>td]:text-xs [&_p]:text-xs"
                       >
                         {/* Columna: Fecha */}
                         <td className="px-5 py-3.5">

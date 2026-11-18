@@ -760,7 +760,47 @@ export function HistorialSesiones({ idTutor }: Props) {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
+        {/* Celular y tableta: cada sesión como tarjeta */}
+        <ul className="divide-y divide-[#30465C] lg:hidden" aria-label="Historial de sesiones">
+          {filtradas.length === 0 ? (
+            <li className="py-10 text-center text-sm text-[#A8B7C8]">No se encontraron sesiones</li>
+          ) : (
+            filtradas.map((s) => (
+              <li key={s.id} className="space-y-2 bg-[#1F2937] px-4 py-4 text-[#F1F5F9]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{s.asignaturaNombre}</p>
+                    <p className="text-xs text-[#D5DEE8]">
+                      {formatFecha(s.fechaSesion)} · {formatHora(s.horaInicio)}
+                    </p>
+                  </div>
+                  <EstadoBadge estado={s.estado} />
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="truncate">{s.estudianteNombre}</span>
+                  <span className="shrink-0 text-xs text-[#D5DEE8]">
+                    Calificación:{" "}
+                    <strong className="font-mono text-sm text-[#F1F5F9]">
+                      {s.calificacionProgreso !== null && s.calificacionProgreso !== undefined
+                        ? s.calificacionProgreso.toFixed(1)
+                        : "—"}
+                    </strong>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDetalle(s)}
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#30465C] text-sm transition-colors hover:bg-[#24394D]"
+                >
+                  <Eye size={15} aria-hidden="true" /> Ver detalle
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+
+        {/* Tabla: pantallas de 1024 px o más */}
+        <div className="hidden w-full overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] border-collapse text-left">
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
@@ -853,10 +893,10 @@ export function HistorialSesiones({ idTutor }: Props) {
 
                             color:
                               s.calificacionProgreso >= 7
-                                ? "#10B981"
+                                ? "#34D399"
                                 : s.calificacionProgreso >= 5
-                                  ? "#F59E0B"
-                                  : "#EF4444",
+                                  ? "#FBBF24"
+                                  : "#F87171",
                           }}
                         >
                           {s.calificacionProgreso.toFixed(1)}
