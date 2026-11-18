@@ -385,8 +385,47 @@ export function DashboardCoord() {
             No hay actividad registrada.
           </div>
         ) : (
-          // Scroll horizontal en pantallas estrechas para no romper la tabla
-          <div className="overflow-x-auto">
+          <>
+            {/* Celular: lista compacta en lugar de la tabla de 840 px */}
+            <ul className="divide-y divide-border lg:hidden dark:divide-[#30465C]">
+              {data.actividadReciente.slice(0, 6).map((actividad) => (
+                <li
+                  key={actividad.idSesion}
+                  className="flex items-center gap-3 bg-card px-4 py-3 dark:bg-[#1F2937]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-card-foreground">
+                      Tutoría #{actividad.idSesion} · {actividad.asignatura}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {actividad.estudiante} · {actividad.fecha} · {formatHour(actividad.hora)}
+                    </p>
+                    <span
+                      className="mt-1.5 inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={statusStyle(actividad.estado)}
+                    >
+                      {statusLabels[actividad.estado] ?? actividad.estado}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={`Ver detalle de la sesión ${actividad.idSesion}`}
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    onClick={() => {
+                      const detalle = sesiones.find(
+                        (sesion) => sesion.id === actividad.idSesion,
+                      );
+                      if (detalle) setSesionDetalle(detalle);
+                    }}
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Tabla: pantallas de 1024 px o más */}
+            <div className="hidden overflow-x-auto lg:block">
             <table className="w-full min-w-[840px] border-collapse bg-card text-left dark:bg-[#1D3043]">
               <thead className="border-b border-border bg-card dark:border-[#30465C] dark:bg-[#192B3B]">
                 <tr className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -458,6 +497,7 @@ export function DashboardCoord() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </section>
 

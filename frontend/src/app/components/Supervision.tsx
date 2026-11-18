@@ -525,7 +525,66 @@ export function Supervision() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="overflow-x-auto">
+        {/* Celular: cada sesión como tarjeta con sus acciones a la vista */}
+        <ul className="divide-y divide-border lg:hidden" aria-label="Sesiones supervisadas">
+          {filtradas.length === 0 ? (
+            <li className="px-4 py-10 text-center text-sm text-muted-foreground">
+              No se encontraron sesiones con los filtros aplicados
+            </li>
+          ) : (
+            filtradas.map((s) => (
+              <li key={s.id} className="space-y-3 px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">{s.asignatura}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {s.fecha} · {s.hora}
+                    </p>
+                  </div>
+                  <EstadoBadge estado={s.estado} />
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <dt className="text-muted-foreground">Estudiante</dt>
+                    <dd className="text-foreground">{s.estudiante}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Tutor</dt>
+                    <dd className="text-foreground">{s.tutor.replace("Prof. ", "")}</dd>
+                  </div>
+                </dl>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDetalle(s)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm text-foreground transition-colors hover:bg-secondary"
+                    aria-label={`Ver detalle de la sesión de ${s.estudiante}`}
+                  >
+                    <Eye size={15} aria-hidden="true" /> Ver detalle
+                  </button>
+                  {(s.estado === "PENDIENTE" || s.estado === "APROBADA") && (
+                    <button
+                      type="button"
+                      onClick={() => setCancelando(s)}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm transition-colors hover:opacity-90"
+                      style={{
+                        color: "var(--text-danger)",
+                        background: "rgba(239,68,68,0.08)",
+                        border: "1px solid rgba(239,68,68,0.25)",
+                      }}
+                      aria-label={`Cancelar la sesión de ${s.estudiante}`}
+                    >
+                      <Trash2 size={14} aria-hidden="true" /> Cancelar
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))
+          )}
+        </ul>
+
+        {/* Tabla: pantallas de 1024 px o más */}
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full" style={{ minWidth: "760px" }}>
             <thead>
               <tr
