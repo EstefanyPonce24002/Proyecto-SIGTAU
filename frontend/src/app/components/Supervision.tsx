@@ -438,7 +438,7 @@ export function Supervision() {
               style={
                 {
                   fontSize: "0.82rem",
-                  "--tw-ring-color": "#10B981",
+                  "--tw-ring-color": "#118AB2",
                 } as React.CSSProperties
               }
             >
@@ -461,7 +461,7 @@ export function Supervision() {
               style={
                 {
                   fontSize: "0.82rem",
-                  "--tw-ring-color": "#10B981",
+                  "--tw-ring-color": "#118AB2",
                 } as React.CSSProperties
               }
             >
@@ -492,7 +492,7 @@ export function Supervision() {
               style={
                 {
                   fontSize: "0.82rem",
-                  "--tw-ring-color": "#10B981",
+                  "--tw-ring-color": "#118AB2",
                 } as React.CSSProperties
               }
             />
@@ -515,7 +515,7 @@ export function Supervision() {
               style={
                 {
                   fontSize: "0.82rem",
-                  "--tw-ring-color": "#10B981",
+                  "--tw-ring-color": "#118AB2",
                 } as React.CSSProperties
               }
             />

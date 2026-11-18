@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Loader2,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 // Funciones y tipos de la capa de datos (API)
@@ -49,41 +50,27 @@ const ESTADO_CONFIG: Record<
 > = {
   PENDIENTE: {
     label: "Pendiente",
-
     color: "var(--text-warning)",
-
     bg: "rgba(245,158,11,0.12)",
   },
-
   APROBADA: {
     label: "Aprobada",
-
     color: "var(--text-link)",
-
     bg: "rgba(59,130,246,0.12)",
   },
-
   COMPLETADA: {
     label: "Completada",
-
     color: "var(--text-success)",
-
     bg: "rgba(16,185,129,0.12)",
   },
-
   CANCELADA: {
     label: "Cancelada",
-
     color: "var(--muted-foreground)",
-
     bg: "rgba(122,144,184,0.12)",
   },
-
   RECHAZADA: {
     label: "Rechazada",
-
     color: "var(--text-danger)",
-
     bg: "rgba(239,68,68,0.12)",
   },
 };
@@ -94,31 +81,7 @@ function formatFecha(fechaISO: string): string {
   const [y, m, d] = fechaISO.split("-");
 
   const meses = [
-    "",
-
-    "ene",
-
-    "feb",
-
-    "mar",
-
-    "abr",
-
-    "may",
-
-    "jun",
-
-    "jul",
-
-    "ago",
-
-    "sep",
-
-    "oct",
-
-    "nov",
-
-    "dic",
+    "", "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic",
   ];
 
   return `${d} ${meses[Number(m)]} ${y}`;
@@ -126,17 +89,11 @@ function formatFecha(fechaISO: string): string {
 
 function iniciales(nombre: string): string {
   return nombre
-
     .split(" ")
-
     .filter(Boolean)
-
     .slice(0, 2)
-
     .map((palabra) => palabra[0])
-
     .join("")
-
     .toUpperCase();
 }
 
@@ -156,6 +113,76 @@ function EstadoBadge({ estado }: { estado: EstadoSesion }) {
     >
       {cfg.label}
     </span>
+  );
+}
+
+// SUBCOMPONENTE: Modal de Confirmación de Cancelación (Diseño oscuro)
+
+function ConfirmarCancelacionModal({
+  sesion,
+  onConfirm,
+  onClose,
+  cancelando,
+}: {
+  sesion: Sesion;
+  onConfirm: () => void;
+  onClose: () => void;
+  cancelando: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <button
+        type="button"
+        aria-label="Cerrar confirmación"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      <div className="relative w-full max-w-[420px] overflow-hidden rounded-2xl border border-[#2A3B4F] bg-[#1C2938] shadow-2xl">
+        <div className="px-6 pb-5 pt-6">
+          
+          {/* Icono de advertencia */}
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/15">
+            <AlertTriangle size={22} className="text-amber-500" />
+          </div>
+
+          {/* Título y descripción */}
+          <div className="mb-5 space-y-2">
+            <h2 className="text-[#E2E8F0] font-semibold text-lg">
+              ¿Cancelar esta tutoría?
+            </h2>
+            <p className="text-[#94A3B8] text-sm leading-relaxed">
+              La tutoría de <span className="text-[#E2E8F0] font-medium">{sesion.asignaturaNombre}</span> se cancelará y se notificará al estudiante. Esta acción no se puede deshacer.
+            </p>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            
+            {/* Botón Volver con color #118AB2 en texto y borde */}
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={cancelando}
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-[#118AB2] bg-[#118AB2]/5 px-4 text-sm font-medium text-[#118AB2] transition-all hover:bg-[#118AB2]/15 active:scale-[0.98] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]/50"
+            >
+              Volver
+            </button>
+            
+            {/* Botón Confirmar: Tono rojo suavizado */}
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={cancelando}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#E55858] px-5 text-sm font-medium text-white transition-all hover:bg-[#D94646] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E55858]/50"
+            >
+              {cancelando && <Loader2 size={14} className="animate-spin" />}
+              Sí, cancelar tutoría
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -404,33 +431,23 @@ function DetalleModal({
 
 function ReprogramarModal({
   sesion,
-
   onClose,
-
   onSaved,
 }: {
   sesion: Sesion;
-
   onClose: () => void;
-
   onSaved: (sesion: Sesion) => void;
 }) {
   const [fecha, setFecha] = useState(sesion.fechaSesion);
-
   const [horarios, setHorarios] = useState<HorarioOption[]>([]);
-
   const [idHorario, setIdHorario] = useState(String(sesion.idHorario ?? ""));
-
   const [cargando, setCargando] = useState(true);
-
   const [guardando, setGuardando] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     listarHorariosDelTutor(sesion.idTutor)
       .then(setHorarios)
-
       .catch((err) =>
         setError(
           err instanceof ApiError
@@ -438,23 +455,14 @@ function ReprogramarModal({
             : "No se pudieron cargar los horarios.",
         ),
       )
-
       .finally(() => setCargando(false));
   }, [sesion.idTutor]);
 
   const dia = (() => {
     if (!fecha) return null;
-
     const day = new Date(`${fecha}T12:00:00`).getDay();
-
     return [
-      "DOMINGO",
-      "LUNES",
-      "MARTES",
-      "MIERCOLES",
-      "JUEVES",
-      "VIERNES",
-      "SABADO",
+      "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO",
     ][day];
   })();
 
@@ -467,22 +475,17 @@ function ReprogramarModal({
   async function guardar() {
     if (!seleccionado) {
       setError("Selecciona un horario disponible para la nueva fecha.");
-
       return;
     }
 
     setGuardando(true);
-
     setError(null);
 
     try {
       const actualizada = await reprogramarSesion(sesion.id, {
         idHorario: seleccionado.id,
-
         fecha,
-
         horaInicio: seleccionado.horaInicio,
-
         horaFin: seleccionado.horaFin,
       });
 
@@ -596,33 +599,26 @@ function ReprogramarModal({
 
 export function HistorialSesiones({ idTutor }: Props) {
   // --- SECCIÓN 1: ESTADOS ---
-
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
-
   const [cargando, setCargando] = useState(true);
-
   const [loadError, setLoadError] = useState<string | null>(null);
-
   const [busqueda, setBusqueda] = useState("");
-
   const [filtroEstado, setFiltroEstado] = useState("Todos");
-
   const [detalle, setDetalle] = useState<Sesion | null>(null);
-
   const [reprogramar, setReprogramar] = useState<Sesion | null>(null);
+  
+  // Estados para manejar la cancelación
+  const [sesionACancelar, setSesionACancelar] = useState<Sesion | null>(null);
   const [cancelando, setCancelando] = useState(false);
   const [errorCancelacion, setErrorCancelacion] = useState<string | null>(null);
 
   // --- SECCIÓN 2: CARGA DE DATOS ---
-
   const cargar = useCallback(() => {
     setCargando(true);
-
     setLoadError(null);
 
     historialTutor(idTutor)
       .then(setSesiones)
-
       .catch((err) =>
         setLoadError(
           err instanceof ApiError
@@ -630,7 +626,6 @@ export function HistorialSesiones({ idTutor }: Props) {
             : "No se pudo cargar el historial.",
         ),
       )
-
       .finally(() => setCargando(false));
   }, [idTutor]);
 
@@ -638,14 +633,15 @@ export function HistorialSesiones({ idTutor }: Props) {
     cargar();
   }, [cargar]);
 
-  const cancelarDetalle = async (sesion: Sesion) => {
-    if (cancelando) return;
+  const cancelarDetalle = async () => {
+    if (!sesionACancelar || cancelando) return;
 
     setCancelando(true);
     setErrorCancelacion(null);
 
     try {
-      await cancelarSesion(sesion.id);
+      await cancelarSesion(sesionACancelar.id);
+      setSesionACancelar(null);
       setDetalle(null);
       setErrorCancelacion(null);
       cargar();
@@ -655,13 +651,13 @@ export function HistorialSesiones({ idTutor }: Props) {
           ? err.message
           : "No se pudo cancelar la tutoría. Inténtalo nuevamente.",
       );
+      // Dejamos el modal de confirmación abierto si hay error para mostrar el mensaje
     } finally {
       setCancelando(false);
     }
   };
 
   // --- SECCIÓN 3: DATOS DERIVADOS ---
-
   const filtradas = sesiones.filter((s) => {
     const matchB =
       s.estudianteNombre.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -674,7 +670,6 @@ export function HistorialSesiones({ idTutor }: Props) {
   });
 
   // --- SECCIÓN 4: RENDERIZADO CONDICIONAL (LOADING / ERROR) ---
-
   if (cargando) {
     return (
       <div className="w-full flex items-center justify-center py-20">
@@ -687,7 +682,6 @@ export function HistorialSesiones({ idTutor }: Props) {
     return (
       <div className="w-full rounded-2xl border border-border bg-card p-8 text-center dark:border-[#2A4158]">
         <AlertCircle size={24} className="mx-auto mb-2 text-destructive" />
-
         <p className="text-destructive" style={{ fontSize: "0.9rem" }}>
           {loadError}
         </p>
@@ -696,7 +690,6 @@ export function HistorialSesiones({ idTutor }: Props) {
   }
 
   // --- SECCIÓN 5: RENDERIZADO PRINCIPAL ---
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-3 text-[#F1F5F9]">
       <h2 className="text-2xl font-semibold tracking-tight text-[#F1F5F9]">
@@ -721,9 +714,7 @@ export function HistorialSesiones({ idTutor }: Props) {
                 style={
                   {
                     fontSize: "0.8rem",
-
                     borderColor: "#118AB2",
-
                     "--tw-ring-color": "#118AB2",
                   } as React.CSSProperties
                 }
@@ -805,19 +796,7 @@ export function HistorialSesiones({ idTutor }: Props) {
             <thead>
               <tr className="border-b border-[#30465C] bg-[#192B3B]">
                 {[
-                  "Fecha",
-
-                  "Hora",
-
-                  "Asignatura",
-
-                  "Estudiante",
-
-                  "Calificación",
-
-                  "Estado",
-
-                  "Acciones",
+                  "Fecha", "Hora", "Asignatura", "Estudiante", "Calificación", "Estado", "Acciones",
                 ].map((h) => (
                   <th
                     key={h}
@@ -853,7 +832,6 @@ export function HistorialSesiones({ idTutor }: Props) {
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-[#D5DEE8]">
                       <span className="inline-flex items-center gap-1.5">
                         <Clock size={13} className="text-[#A8B7C8]" />
-
                         {formatHora(s.horaInicio)}
                       </span>
                     </td>
@@ -888,9 +866,7 @@ export function HistorialSesiones({ idTutor }: Props) {
                         <span
                           style={{
                             fontFamily: "var(--font-mono)",
-
                             fontSize: "0.9rem",
-
                             color:
                               s.calificacionProgreso >= 7
                                 ? "#34D399"
@@ -922,7 +898,6 @@ export function HistorialSesiones({ idTutor }: Props) {
                         title="Ver detalle"
                         onClick={(e) => {
                           e.stopPropagation();
-
                           setDetalle(s);
                         }}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[#F1F5F9] transition-colors hover:bg-[#118AB2]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C5E8]"
@@ -957,10 +932,23 @@ export function HistorialSesiones({ idTutor }: Props) {
             setReprogramar(sesion);
           }}
           onCancelar={() => {
-            void cancelarDetalle(detalle);
+            setSesionACancelar(detalle);
+            setErrorCancelacion(null);
           }}
           cancelando={cancelando}
           errorCancelacion={errorCancelacion}
+        />
+      )}
+
+      {sesionACancelar && (
+        <ConfirmarCancelacionModal
+          sesion={sesionACancelar}
+          cancelando={cancelando}
+          onConfirm={cancelarDetalle}
+          onClose={() => {
+            setSesionACancelar(null);
+            setErrorCancelacion(null);
+          }}
         />
       )}
 
@@ -974,7 +962,6 @@ export function HistorialSesiones({ idTutor }: Props) {
                 s.id === sesionActualizada.id ? sesionActualizada : s,
               ),
             );
-
             setReprogramar(null);
           }}
         />

@@ -10,8 +10,8 @@
   --brand-blue: #118AB2;
   --brand-blue-dark: #0B6685;
   --brand-blue-text: #0B6685;
-  --brand-teal: #10B981;
-  --brand-teal-soft: rgba(16, 185, 129, 0.12);
+  --brand-teal: #118AB2;
+  --brand-teal-soft: rgba(17, 138, 178, 0.12);
   --brand-bronze: #F59E0B;
   --brand-bronze-deep: #D97706;
   --brand-danger: #EF4444;
@@ -161,7 +161,7 @@
   }
 
   .info-card:focus-visible {
-    outline: 2px solid #11caa0;
+    outline: 2px solid #118AB2;
     outline-offset: 2px;
   }
 
@@ -183,7 +183,7 @@
 }
 
 .sigtau-focus-ring:focus-visible {
-  outline: 2px solid var(--brand-teal);
+  outline: 2px solid #118AB2;
   outline-offset: 2px;
 }
 
