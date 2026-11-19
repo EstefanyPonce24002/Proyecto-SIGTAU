@@ -11,8 +11,19 @@ import {
   User,
   BookOpen,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { VoiceSearchInput } from "./VoiceSearchInput";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 
 type Estado =
   | "PENDIENTE"
@@ -220,66 +231,59 @@ function ConfirmCancelModal({
   sesion,
   onConfirm,
   onClose,
+  enviando,
 }: {
   sesion: Sesion;
   onConfirm: () => void;
   onClose: () => void;
+  enviando: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative w-full max-w-sm bg-card rounded-2xl border border-border shadow-xl p-6 text-center space-y-4">
-        <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
-          style={{ background: "rgba(239,68,68,0.1)" }}
-        >
-          <AlertTriangle size={26} style={{ color: "var(--text-danger)" }} />
-        </div>
-        <div>
-          <h3
-            className="text-card-foreground mb-1"
-            style={{ fontSize: "1rem" }}
-          >
-            ¿Cancelar esta sesión?
-          </h3>
-          <p
-            className="text-muted-foreground"
-            style={{ fontSize: "0.85rem", lineHeight: 1.6 }}
-          >
-            La sesión{" "}
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                color: "var(--foreground)",
-              }}
-            >
-              {sesion.id}
-            </span>{" "}
-            de <strong className="text-foreground">{sesion.estudiante}</strong>{" "}
-            cambiará a <strong style={{ color: "var(--muted-foreground)" }}>CANCELADA</strong>.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-border py-2.5 text-foreground hover:bg-secondary transition-all"
-            style={{ fontSize: "0.875rem" }}
+    <AlertDialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !enviando) onClose();
+      }}
+    >
+      <AlertDialogContent className="max-w-md rounded-2xl border-border bg-card shadow-2xl">
+        <AlertDialogHeader>
+          <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <AlertTriangle size={22} aria-hidden="true" />
+          </div>
+          <AlertDialogTitle>¿Cancelar esta sesión?</AlertDialogTitle>
+          <AlertDialogDescription>
+            La tutoría de {sesion.asignatura} de {sesion.estudiante}, con el
+            tutor {sesion.tutor}, se cancelará y se notificará al tutor. Esta
+            acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            disabled={enviando}
+            className="border-[#118AB2]/40 bg-[#118AB2]/5 text-[#0B6685] transition-colors hover:border-[#118AB2] hover:bg-[#118AB2]/15 hover:text-[#084C63] focus-visible:ring-[#118AB2]/40 dark:text-[#67D3EA] dark:hover:text-[#9BE5F4]"
           >
             Mantener
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 rounded-xl py-2.5 text-white hover:opacity-90 transition-all"
-            style={{ background: "#EF4444", fontSize: "0.875rem" }}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            disabled={enviando}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm();
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Cancelar sesión
-          </button>
-        </div>
-      </div>
-    </div>
+            {enviando ? (
+              <>
+                <Loader2 size={15} className="mr-2 animate-spin" />
+                Cancelando...
+              </>
+            ) : (
+              "Sí, cancelar sesión"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -317,17 +321,20 @@ export function Supervision() {
   const [fechaFin, setFechaFin] = useState("");
   const [detalle, setDetalle] = useState<Sesion | null>(null);
   const [cancelando, setCancelando] = useState<Sesion | null>(null);
+  const [procesandoCancelacion, setProcesandoCancelacion] = useState(false);
 
   const tutores = useMemo(() => ["Todos los tutores", ...Array.from(new Set(sesiones.map(s => s.tutor)))], [sesiones]);
   const asignaturas = useMemo(() => ["Todas las asignaturas", ...Array.from(new Set(sesiones.map(s => s.asignatura)))], [sesiones]);
 
   const cancelarSesion = async (id: string) => {
+    setProcesandoCancelacion(true);
     try {
       await apiFetch("/sesiones/" + id + "/cancelar", { method: "PATCH" });
       setSesiones(prev => prev.map(s => s.id === id ? { ...s, estado: "CANCELADA" } : s));
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo cancelar la sesión");
     } finally {
+      setProcesandoCancelacion(false);
       setCancelando(null);
     }
   };
@@ -553,7 +560,13 @@ export function Supervision() {
                     <dd className="text-foreground">{s.tutor.replace("Prof. ", "")}</dd>
                   </div>
                 </dl>
-                <div className="grid grid-cols-2 gap-2">
+                <div
+                  className={`grid gap-2 ${
+                    s.estado === "PENDIENTE" || s.estado === "APROBADA"
+                      ? "grid-cols-2"
+                      : "grid-cols-1"
+                  }`}
+                >
                   <button
                     type="button"
                     onClick={() => setDetalle(s)}
@@ -745,6 +758,7 @@ export function Supervision() {
       {cancelando && (
         <ConfirmCancelModal
           sesion={cancelando}
+          enviando={procesandoCancelacion}
           onConfirm={() => cancelarSesion(cancelando.id)}
           onClose={() => setCancelando(null)}
         />
