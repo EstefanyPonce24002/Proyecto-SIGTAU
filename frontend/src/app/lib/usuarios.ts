@@ -58,9 +58,16 @@ export async function listarUsuarios(): Promise<UsuarioAdmin[]> {
   return datos.map(normalizarUsuarioAdmin);
 }
 
-export function cambiarEstadoUsuario(id: number, activo: boolean): Promise<UsuarioAdmin> {
+export function cambiarEstadoUsuario(
+  id: number,
+  activo: boolean,
+  contrasenaActual?: string,
+): Promise<UsuarioAdmin> {
   return apiFetch<UsuarioAdmin>(`/usuarios/${id}/estado?activo=${activo}`, {
     method: "PATCH",
+    ...(contrasenaActual === undefined
+      ? {}
+      : { body: JSON.stringify({ contrasenaActual }) }),
   });
 }
 

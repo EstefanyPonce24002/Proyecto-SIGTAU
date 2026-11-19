@@ -9,6 +9,7 @@ import {
   Pencil,
   BookOpen,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 
 import {
@@ -33,6 +34,16 @@ import {
 import type { Rol } from "../lib/auth";
 import { ApiError } from "../lib/api";
 import { VoiceSearchInput } from "./VoiceSearchInput";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 
 const ROL_LABEL: Record<Rol, string> = {
   ESTUDIANTE: "Estudiante",
@@ -668,9 +679,87 @@ function NuevoUsuarioModal({
    Gestión de usuarios
    ───────────────────────────────────────────────────────────── */
 
+function ConfirmarDesactivacionUsuario({
+  usuario,
+  enviando,
+  error,
+  onConfirm,
+  onClose,
+}: {
+  usuario: UsuarioAdmin;
+  enviando: boolean;
+  error: string | null;
+  onConfirm: (contrasenaActual: string) => void;
+  onClose: () => void;
+}) {
+  const [contrasenaActual, setContrasenaActual] = useState("");
+
+  return (
+    <AlertDialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !enviando) onClose();
+      }}
+    >
+      <AlertDialogContent className="max-w-md rounded-2xl border-border bg-card shadow-2xl">
+        <AlertDialogHeader>
+          <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-red-500/10 text-red-600 dark:text-red-400">
+            <AlertTriangle size={22} aria-hidden="true" />
+          </div>
+          <AlertDialogTitle>¿Desactivar esta cuenta?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se desactivará la cuenta de {usuario.nombres} {usuario.apellidos}.
+            Confirma la acción con la contraseña de tu cuenta de coordinación.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        )}
+
+        <label className="space-y-1.5 text-sm font-medium" htmlFor="contrasena-coordinacion">
+          Contraseña de coordinación
+          <input
+            id="contrasena-coordinacion"
+            type="password"
+            autoComplete="current-password"
+            value={contrasenaActual}
+            onChange={(event) => setContrasenaActual(event.target.value)}
+            disabled={enviando}
+            className="w-full rounded-xl border border-border bg-input-background px-3 py-2.5 font-normal outline-none transition focus:border-[#118AB2] focus:ring-2 focus:ring-[#118AB2]"
+          />
+        </label>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={enviando}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={enviando || !contrasenaActual.trim()}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm(contrasenaActual);
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {enviando ? "Desactivando..." : "Desactivar cuenta"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 type FiltroEstado = "Todos" | "ACTIVO" | "INACTIVO";
 
-export function GestionUsuarios() {
+export function GestionUsuarios({
+  idUsuarioActual,
+}: {
+  idUsuarioActual: number;
+}) {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([]);
   const [cargando, setCargando] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -684,6 +773,11 @@ export function GestionUsuarios() {
   );
   const [cambiando, setCambiando] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [usuarioDesactivando, setUsuarioDesactivando] =
+    useState<UsuarioAdmin | null>(null);
+  const [errorDesactivacion, setErrorDesactivacion] = useState<string | null>(
+    null,
+  );
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -723,6 +817,40 @@ export function GestionUsuarios() {
     } finally {
       setCambiando(null);
     }
+  };
+
+  const confirmarDesactivacion = async (contrasenaActual: string) => {
+    if (!usuarioDesactivando) return;
+    setCambiando(usuarioDesactivando.id);
+    setErrorDesactivacion(null);
+
+    try {
+      await cambiarEstadoUsuario(
+        usuarioDesactivando.id,
+        false,
+        contrasenaActual,
+      );
+      setUsuarioDesactivando(null);
+      await cargar();
+    } catch (err) {
+      setErrorDesactivacion(
+        err instanceof ApiError
+          ? err.message
+          : "No se pudo desactivar el usuario.",
+      );
+    } finally {
+      setCambiando(null);
+    }
+  };
+
+  const solicitarCambioEstado = (usuario: UsuarioAdmin) => {
+    setActionError(null);
+    if (usuario.activo) {
+      setErrorDesactivacion(null);
+      setUsuarioDesactivando(usuario);
+      return;
+    }
+    void toggleEstado(usuario);
   };
 
   const filtrados = usuarios.filter((usuario) => {
@@ -973,9 +1101,17 @@ export function GestionUsuarios() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => void toggleEstado(usuario)}
-                      disabled={cambiando === usuario.id}
-                      aria-label={`${usuario.activo ? "Desactivar" : "Activar"} a ${usuario.nombres} ${usuario.apellidos}`}
+                      onClick={() => solicitarCambioEstado(usuario)}
+                      disabled={
+                        cambiando === usuario.id ||
+                        (usuario.activo && usuario.id === idUsuarioActual)
+                      }
+                      title={
+                        usuario.activo && usuario.id === idUsuarioActual
+                          ? "No puedes desactivar la cuenta que estás usando"
+                          : undefined
+                      }
+                      aria-label={`${usuario.activo ? (usuario.id === idUsuarioActual ? "Cuenta actual, no se puede desactivar" : "Desactivar") : "Activar"} a ${usuario.nombres} ${usuario.apellidos}`}
                       className="inline-flex min-h-11 items-center justify-center rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
                       style={{
                         color: usuario.activo ? "#F87171" : "#34D399",
@@ -991,7 +1127,9 @@ export function GestionUsuarios() {
                           aria-label="Procesando"
                         />
                       ) : usuario.activo ? (
-                        "Desactivar"
+                        usuario.id === idUsuarioActual
+                          ? "Cuenta actual"
+                          : "Desactivar"
                       ) : (
                         "Activar"
                       )}
@@ -1152,8 +1290,17 @@ export function GestionUsuarios() {
 
                         <button
                           type="button"
-                          onClick={() => void toggleEstado(usuario)}
-                          disabled={cambiando === usuario.id}
+                          onClick={() => solicitarCambioEstado(usuario)}
+                          disabled={
+                            cambiando === usuario.id ||
+                            (usuario.activo && usuario.id === idUsuarioActual)
+                          }
+                          title={
+                            usuario.activo && usuario.id === idUsuarioActual
+                              ? "No puedes desactivar la cuenta que estás usando"
+                              : undefined
+                          }
+                          aria-label={`${usuario.activo ? (usuario.id === idUsuarioActual ? "Cuenta actual, no se puede desactivar" : "Desactivar") : "Activar"} a ${usuario.nombres} ${usuario.apellidos}`}
                           className={`rounded-lg px-3 py-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 ${
                             usuario.activo
                               ? "hover:bg-red-500/25 active:bg-red-500/40 focus-visible:ring-red-500"
@@ -1170,7 +1317,9 @@ export function GestionUsuarios() {
                           {cambiando === usuario.id ? (
                             <Loader2 size={13} className="animate-spin" />
                           ) : usuario.activo ? (
-                            "Desactivar"
+                            usuario.id === idUsuarioActual
+                              ? "Cuenta actual"
+                              : "Desactivar"
                           ) : (
                             "Activar"
                           )}
@@ -1210,6 +1359,21 @@ export function GestionUsuarios() {
             void cargar();
           }}
           onClose={() => setUsuarioEditando(null)}
+        />
+      )}
+
+      {usuarioDesactivando && (
+        <ConfirmarDesactivacionUsuario
+          usuario={usuarioDesactivando}
+          enviando={cambiando === usuarioDesactivando.id}
+          error={errorDesactivacion}
+          onConfirm={(contrasenaActual) =>
+            void confirmarDesactivacion(contrasenaActual)
+          }
+          onClose={() => {
+            setUsuarioDesactivando(null);
+            setErrorDesactivacion(null);
+          }}
         />
       )}
     </div>

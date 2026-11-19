@@ -761,7 +761,9 @@ export default function App() {
 
             {/* VISTAS DE COORDINADOR */}
             {activeTab === "dashboard-coord" && <DashboardCoord />}
-            {activeTab === "usuarios" && <GestionUsuarios />}
+            {activeTab === "usuarios" && (
+              <GestionUsuarios idUsuarioActual={idUsuario} />
+            )}
             {activeTab === "reportes" && <DashboardReportes />}
             {activeTab === "asignaturas" && <Asignaturas />}
             {activeTab === "supervision" && <Supervision />}
