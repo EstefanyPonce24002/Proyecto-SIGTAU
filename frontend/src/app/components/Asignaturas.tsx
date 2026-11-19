@@ -3,7 +3,7 @@ import {
   Plus,
   X,
   Loader2,
-  AlertCircle,
+  AlertTriangle,
   BookOpen,
   Check,
   Search,
@@ -23,6 +23,16 @@ import {
   type TutorOption,
 } from "../lib/catalogo";
 import { ApiError } from "../lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 
 function NuevaAsignaturaModal({
   onCreated,
@@ -703,67 +713,45 @@ export function Asignaturas() {
         />
       )}
       {confirmandoDesactivacion && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setConfirmandoDesactivacion(null)}
-          />
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="confirmar-desactivacion-titulo"
-            className="relative w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-foreground shadow-xl"
-          >
-            <div className="mb-4 flex items-start gap-3">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                style={{
-                  background: "rgba(239,68,68,0.12)",
-                  color: "var(--text-danger)",
-                }}
-              >
-                <AlertCircle size={18} />
+        <AlertDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setConfirmandoDesactivacion(null);
+          }}
+        >
+          <AlertDialogContent className="max-w-md rounded-2xl border-border bg-card shadow-2xl">
+            <AlertDialogHeader>
+              <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-red-500/10 text-red-600 dark:text-red-400">
+                <AlertTriangle size={22} aria-hidden="true" />
               </div>
-              <div>
-                <h3
-                  id="confirmar-desactivacion-titulo"
-                  className="font-semibold text-card-foreground"
-                  style={{ fontSize: "0.95rem" }}
-                >
-                  ¿Desactivar asignatura?
-                </h3>
-                <p
-                  className="mt-1 text-muted-foreground"
-                  style={{ fontSize: "0.82rem" }}
-                >
-                  ¿Confirmas que deseas desactivar “
-                  {confirmandoDesactivacion.nombre}”?
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
+              <AlertDialogTitle>¿Desactivar asignatura?</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Confirmas que deseas desactivar “
+                {confirmandoDesactivacion.nombre}”? Esta acción puede revertirse
+                activando la asignatura nuevamente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
                 onClick={() => setConfirmandoDesactivacion(null)}
-                className="rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="border-border"
               >
                 Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(event) => {
+                  event.preventDefault();
                   const asignatura = confirmandoDesactivacion;
                   setConfirmandoDesactivacion(null);
-                  toggleActiva(asignatura);
+                  void toggleActiva(asignatura);
                 }}
-                className="rounded-xl px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 active:bg-red-700"
-                style={{ background: "#EF4444" }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Desactivar
-              </button>
-            </div>
-          </div>
-        </div>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
