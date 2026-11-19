@@ -74,7 +74,25 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioAdminResponse cambiarEstado(Integer id, boolean activo) {
+    public UsuarioAdminResponse cambiarEstado(
+            Integer id,
+            boolean activo,
+            Usuario actor,
+            String contrasenaActual) {
+        if (actor == null || actor.getRolUsuario() != RolUsuario.COORDINADOR) {
+            throw new IllegalArgumentException("Solo un coordinador puede cambiar el estado de usuarios");
+        }
+
+        if (!activo) {
+            if (id.equals(actor.getId())) {
+                throw new IllegalArgumentException("No puedes desactivar la cuenta que estás usando");
+            }
+            if (contrasenaActual == null || contrasenaActual.isBlank()
+                    || !passwordEncoder.matches(contrasenaActual, actor.getContrasena())) {
+                throw new IllegalArgumentException("La contraseña de coordinación es incorrecta");
+            }
+        }
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
