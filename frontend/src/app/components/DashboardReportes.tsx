@@ -32,16 +32,15 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
+const TIPO_OPCIONES: {
+  valor: TipoReporte;
+  label: string;
+  info: string;
+}[] = [
   {
     valor: "ASISTENCIA",
     label: "Asistencia",
     info: "Sesiones por estado e índice de asistencia por asignatura.",
-  },
-  {
-    valor: "RENDIMIENTO",
-    label: "Rendimiento Académico",
-    info: "Promedios de calificaciones por asignatura.",
   },
   {
     valor: "ESTADISTICAS",
@@ -49,19 +48,24 @@ const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
     info: "Totales del período: sesiones, estudiantes, tutores y asistencia.",
   },
   {
-    valor: "TUTORIAS_POR_CARRERA",
-    label: "Tutorías por carrera",
-    info: "Cantidad de tutorías, estudiantes, sesiones completadas y asistencia por carrera.",
-  },
-  {
     valor: "ESTUDIANTES_ATENDIDOS",
     label: "Estudiantes atendidos",
     info: "Estudiantes con tutorías completadas y asistencia confirmada.",
   },
   {
+    valor: "RENDIMIENTO",
+    label: "Rendimiento Académico",
+    info: "Promedios de calificaciones por asignatura.",
+  },
+  {
     valor: "TUTORIAS_MAS_SOLICITADAS",
     label: "Tutorías más solicitadas",
     info: "Demanda de tutorías agrupada por asignatura.",
+  },
+  {
+    valor: "TUTORIAS_POR_CARRERA",
+    label: "Tutorías por carrera",
+    info: "Cantidad de tutorías, estudiantes, sesiones completadas y asistencia por carrera.",
   },
 ];
 
@@ -363,43 +367,6 @@ export function DashboardReportes() {
           </h2>
         </div>
 
-        {reporte && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() =>
-                downloadPDF(
-                  reporte,
-                  tipoInfo.label,
-                  fechaInicio,
-                  fechaFin,
-                  carrera,
-                )
-              }
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:border-[#FF5C65] hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C65]"
-              style={{ fontSize: "0.82rem" }}
-            >
-              <FileText size={14} className="text-[#FF5C65]" />
-              <span className="text-foreground">Exportar PDF</span>
-            </button>
-
-            <button
-              onClick={() =>
-                downloadExcel(
-                  reporte,
-                  tipoInfo.label,
-                  fechaInicio,
-                  fechaFin,
-                  carrera,
-                )
-              }
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:border-[#118AB2] hover:bg-secondary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]"
-              style={{ fontSize: "0.82rem" }}
-            >
-              <FileSpreadsheet size={14} className="text-[#118AB2]" />
-              <span className="text-foreground">Exportar Excel</span>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Filtros */}
@@ -593,8 +560,7 @@ export function DashboardReportes() {
                   color: sinDatos ? "#F59E0B" : "#118AB2",
                 }}
               >
-                {sinDatos ? "Reporte sin resultados" : "Reporte generado"} —{" "}
-                <strong>{tipoInfo.label}</strong>
+                {sinDatos ? "Reporte sin resultados" : "Reporte generado"}
               </p>
 
               <p
@@ -603,51 +569,9 @@ export function DashboardReportes() {
               >
                 {sinDatos
                   ? mensajeSinDatos
-                  : `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)} · ${carrera || "Todas las carreras"} · ${reporte.totalRegistros} registros`}
+                  : `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}`}
               </p>
             </div>
-          </div>
-
-          {/* Indicadores KPI */}
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {reporte.kpis.map((k, i) => {
-              const Icon = KPI_ICONS[i % KPI_ICONS.length];
-              const color = KPI_COLORS[i % KPI_COLORS.length];
-
-              return (
-                <div
-                  key={k.label}
-                  className="rounded-2xl border border-border bg-card p-4 shadow-sm"
-                >
-                  <div
-                    className="mb-3 flex h-8 w-8 items-center justify-center rounded-xl"
-                    style={{
-                      background: `${color}18`,
-                    }}
-                  >
-                    <Icon size={15} style={{ color }} />
-                  </div>
-
-                  <p
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "1.3rem",
-                      color: "var(--foreground)",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {k.value}
-                  </p>
-
-                  <p
-                    className="mt-1 text-muted-foreground"
-                    style={{ fontSize: "0.75rem" }}
-                  >
-                    {k.label}
-                  </p>
-                </div>
-              );
-            })}
           </div>
 
           {/* Gráfica */}
@@ -695,6 +619,7 @@ export function DashboardReportes() {
                   />
 
                   <Tooltip
+                    cursor={false}
                     contentStyle={{
                       background: "var(--card)",
                       border: "1px solid var(--border)",
@@ -719,7 +644,7 @@ export function DashboardReportes() {
                   className="text-card-foreground"
                   style={{ fontSize: "0.95rem" }}
                 >
-                  Tabla de datos — {tipoInfo.label}
+                  Tabla de datos: {tipoInfo.label}
                 </h3>
               </div>
 
@@ -805,7 +730,7 @@ export function DashboardReportes() {
                 className="text-muted-foreground"
                 style={{ fontSize: "0.75rem" }}
               >
-                {reporte.rows.length} registros · generado{" "}
+                Reporte generado{" "}
                 {new Date(reporte.fechaGeneracion).toLocaleString("es-SV")}
               </p>
 
@@ -820,10 +745,10 @@ export function DashboardReportes() {
                       carrera,
                     )
                   }
-                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground transition-all hover:border-[#FF5C65] hover:bg-secondary hover:text-foreground"
-                  style={{ fontSize: "0.75rem" }}
+                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-muted-foreground transition-all hover:border-[#FF5C65] hover:bg-secondary hover:text-foreground"
+                  style={{ fontSize: "0.85rem" }}
                 >
-                  <FileText size={12} className="text-[#FF5C65]" />
+                  <FileText size={14} className="text-[#FF5C65]" />
                   Exportar PDF
                 </button>
 
@@ -837,10 +762,10 @@ export function DashboardReportes() {
                       carrera,
                     )
                   }
-                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground transition-all hover:border-[#118AB2] hover:bg-secondary hover:text-foreground"
-                  style={{ fontSize: "0.75rem" }}
+                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-muted-foreground transition-all hover:border-[#118AB2] hover:bg-secondary hover:text-foreground"
+                  style={{ fontSize: "0.8rem" }}
                 >
-                  <FileSpreadsheet size={12} className="text-[#118AB2]" />
+                  <FileSpreadsheet size={14} className="text-[#118AB2]" />
                   Exportar Excel
                 </button>
               </div>
