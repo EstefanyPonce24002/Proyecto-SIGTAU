@@ -111,7 +111,7 @@ public class SesionService {
                 notificacionRepository.save(Notificacion.builder()
                                 .usuario(tutor.getUsuario())
                                 .sesion(sesion)
-                                .tipo(TipoNotificacion.APROBACION)
+                                .tipo(TipoNotificacion.NUEVA_SOLICITUD)
                                 .mensaje("Nueva solicitud de tutoría de " + estudiante.getUsuario().getNombres()
                                                 + " para " + asignatura.getNombre())
                                 .build());

@@ -6,5 +6,6 @@ public enum TipoNotificacion {
     RECHAZO,
     CAMBIO_HORARIO,
     RECORDATORIO,
-    OBSERVACION
+    OBSERVACION,
+    NUEVA_SOLICITUD
 }

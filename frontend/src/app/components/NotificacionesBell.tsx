@@ -31,6 +31,11 @@ const TIPO_CONFIG: Record<
     color: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-500/10",
   },
+  NUEVA_SOLICITUD: {
+    icon: Clock,
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-500/10",
+  },
   CANCELACION: {
     icon: AlertCircle,
     color: "text-red-600 dark:text-red-400",
@@ -227,17 +232,22 @@ export function NotificacionesBell() {
                 const Icon = cfg.icon;
 
                 const titulo =
-                  n.tipo === "APROBACION"
-                    ? "Solicitud aprobada"
-                    : n.tipo === "RECHAZO"
-                      ? "Solicitud rechazada"
-                      : n.tipo === "CANCELACION"
-                        ? "Solicitud cancelada"
-                        : n.tipo === "OBSERVACION"
-                          ? "Seguimiento registrado"
-                          : n.tipo === "CAMBIO_HORARIO"
-                            ? "Cambio de horario"
-                            : "Recordatorio";
+                  n.tipo === "NUEVA_SOLICITUD" ||
+                  (n.tipo === "APROBACION" &&
+                  n.mensaje.startsWith("Nueva solicitud de tutoría de ")
+                  )
+                    ? "Nueva solicitud"
+                    : n.tipo === "APROBACION"
+                      ? "Solicitud aprobada"
+                      : n.tipo === "RECHAZO"
+                        ? "Solicitud rechazada"
+                        : n.tipo === "CANCELACION"
+                          ? "Solicitud cancelada"
+                          : n.tipo === "OBSERVACION"
+                            ? "Seguimiento registrado"
+                            : n.tipo === "CAMBIO_HORARIO"
+                              ? "Cambio de horario"
+                              : "Recordatorio";
 
                 return (
                   <button

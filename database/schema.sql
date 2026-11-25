@@ -27,7 +27,8 @@ CREATE TYPE tipo_notificacion_enum AS ENUM (
     'CANCELACION',
     'CAMBIO_HORARIO',
     'RECORDATORIO',
-    'OBSERVACION'
+    'OBSERVACION',
+    'NUEVA_SOLICITUD'
 );
 CREATE TYPE tipo_reporte_enum AS ENUM (
     'ASISTENCIA',

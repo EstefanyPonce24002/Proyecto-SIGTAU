@@ -1,6 +1,6 @@
 import { apiFetch } from "./api";
 
-export type TipoNotificacion = "APROBACION" | "RECHAZO" | "CANCELACION" | "CAMBIO_HORARIO" | "RECORDATORIO" | "OBSERVACION";
+export type TipoNotificacion = "APROBACION" | "RECHAZO" | "CANCELACION" | "CAMBIO_HORARIO" | "RECORDATORIO" | "OBSERVACION" | "NUEVA_SOLICITUD";
 
 export interface Notificacion {
   id: number;
