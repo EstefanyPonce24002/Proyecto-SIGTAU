@@ -11,14 +11,12 @@ import {
 import {
   FileSpreadsheet,
   FileText,
-  Filter,
   Loader2,
   TrendingUp,
   Users,
   BookOpen,
   Award,
   CheckCircle2,
-  ChevronDown,
   BarChart3,
   Play,
   AlertCircle,
@@ -67,17 +65,18 @@ const TIPO_OPCIONES: { valor: TipoReporte; label: string; info: string }[] = [
   },
 ];
 
-/** Convierte "2026-01-31" en "31/01/2026" (formato DD/MM/AAAA, RNF 10.4.2). */
+/** Convierte "2026-01-31" en "31/01/2026". */
 function fmtFecha(iso: string): string {
   const [a, m, d] = iso.split("-");
   return d && m && a ? `${d}/${m}/${a}` : iso;
 }
 
 const KPI_ICONS = [TrendingUp, Award, BookOpen, Users];
-const KPI_COLORS = ["#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
 
-/* ── Exportación real de lo que devolvió el backend ──────────────────── */
-/** Convierte "12" o "8.5" en número para que Excel pueda sumar y ordenar. */
+const KPI_COLORS = ["#118AB2", "#118AB2", "#FF5C65", "#7B91A8"];
+
+/* ── Exportación Excel ───────────────────────────── */
+
 function celdaExcel(valor: string): string | number {
   return /^-?\d+(\.\d+)?$/.test(valor.trim()) ? Number(valor) : valor;
 }
@@ -92,7 +91,6 @@ function downloadExcel(
   const columnas = Math.max(reporte.headers.length, 2);
   const filaVacia: string[] = [];
 
-  // Encabezado institucional, filtros aplicados e indicadores (KPIs)
   const encabezado: (string | number)[][] = [
     ["Universidad de El Salvador · SIGTAU"],
     [`Reporte: ${label}`],
@@ -104,6 +102,7 @@ function downloadExcel(
     ...reporte.kpis.map((k) => [k.label, celdaExcel(k.value)]),
     filaVacia,
   ];
+
   const cuerpo =
     reporte.rows.length > 0
       ? reporte.rows.map((r) => r.map(celdaExcel))
@@ -115,27 +114,36 @@ function downloadExcel(
     ...cuerpo,
   ]);
 
-  // Títulos combinados a lo ancho de la tabla
   worksheet["!merges"] = [0, 1, 2, 3, 4, 6].map((fila) => ({
     s: { r: fila, c: 0 },
     e: { r: fila, c: columnas - 1 },
   }));
 
-  // Ancho de cada columna según su contenido más largo (entre 12 y 45 caracteres)
   const filasTabla = [reporte.headers, ...reporte.rows];
+
   worksheet["!cols"] = Array.from({ length: columnas }, (_, c) => {
     const largos = filasTabla.map((f) => String(f[c] ?? "").length);
-    if (c === 0) largos.push(...reporte.kpis.map((k) => k.label.length));
-    return { wch: Math.min(45, Math.max(12, ...largos) + 2) };
+
+    if (c === 0) {
+      largos.push(...reporte.kpis.map((k) => k.label.length));
+    }
+
+    return {
+      wch: Math.min(45, Math.max(12, ...largos) + 2),
+    };
   });
 
   const workbook = XLSX.utils.book_new();
+
   XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+
   XLSX.writeFile(
     workbook,
     `SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.xlsx`,
   );
 }
+
+/* ── Exportación PDF ─────────────────────────────── */
 
 function downloadPDF(
   reporte: ReporteGenerado,
@@ -145,120 +153,180 @@ function downloadPDF(
   carrera: string,
 ) {
   const doc = new jsPDF({ orientation: "landscape" });
+
   const ancho = doc.internal.pageSize.getWidth();
   const alto = doc.internal.pageSize.getHeight();
   const margen = 14;
-  const azul: [number, number, number] = [30, 58, 138]; // #1E3A8A, color institucional
-  const turquesa: [number, number, number] = [17, 138, 178]; // #118AB2
 
-  // Encabezado institucional (banda azul)
+  // Paleta institucional SIGTAU
+  const azul: [number, number, number] = [37, 43, 58];
+  const turquesa: [number, number, number] = [17, 138, 178];
+
+  // Encabezado institucional
   doc.setFillColor(...azul);
   doc.rect(0, 0, ancho, 24, "F");
+
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(15);
   doc.text("SIGTAU", margen, 11);
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("Sistema Integral de Gestión de Tutorías Académicas", margen, 17);
-  doc.text("Universidad de El Salvador · Coordinación académica", ancho - margen, 11, { align: "right" });
-  doc.text(`Generado: ${new Date().toLocaleString("es-SV")}`, ancho - margen, 17, { align: "right" });
 
-  // Título y filtros aplicados
+  doc.text("Sistema Integral de Gestión de Tutorías Académicas", margen, 17);
+
+  doc.text(
+    "Universidad de El Salvador · Coordinación académica",
+    ancho - margen,
+    11,
+    { align: "right" },
+  );
+
+  doc.text(
+    `Generado: ${new Date().toLocaleString("es-SV")}`,
+    ancho - margen,
+    17,
+    { align: "right" },
+  );
+
+  // Título y filtros
   doc.setTextColor(17, 24, 39);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
   doc.text(`Reporte: ${label}`, margen, 34);
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(75, 85, 99);
+
   doc.text(
     `Período: ${fmtFecha(fechaInicio)} al ${fmtFecha(fechaFin)}   ·   Carrera: ${carrera || "Todas las carreras"}   ·   Registros: ${reporte.rows.length}`,
     margen,
     41,
   );
 
-  // Indicadores (KPIs) en tarjetas
+  // Indicadores KPI
   let y = 48;
+
   if (reporte.kpis.length > 0) {
     const sep = 4;
     const n = reporte.kpis.length;
     const anchoKpi = (ancho - margen * 2 - sep * (n - 1)) / n;
+
     reporte.kpis.forEach((k, i) => {
       const x = margen + i * (anchoKpi + sep);
+
       doc.setDrawColor(209, 213, 219);
       doc.setFillColor(243, 246, 251);
       doc.roundedRect(x, y, anchoKpi, 18, 2, 2, "FD");
-      doc.setTextColor(...azul);
+
+      doc.setTextColor(...turquesa);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.text(k.value, x + 4, y + 8);
+
       doc.setTextColor(75, 85, 99);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.text(k.label, x + 4, y + 14);
     });
+
     y += 24;
   }
 
-  // Tabla de datos (o aviso si está vacía)
+  // Tabla de datos
   if (reporte.rows.length === 0) {
     doc.setTextColor(180, 83, 9);
     doc.setFontSize(10);
-    doc.text("Sin datos para el período y la carrera seleccionados.", margen, y + 6);
+    doc.text(
+      "Sin datos para el período y la carrera seleccionados.",
+      margen,
+      y + 6,
+    );
   } else {
     autoTable(doc, {
       head: [reporte.headers],
       body: reporte.rows,
       startY: y,
-      margin: { left: margen, right: margen, bottom: 16 },
-      styles: { fontSize: 8.5, cellPadding: 2.5, textColor: [31, 41, 55] },
-      headStyles: { fillColor: turquesa, textColor: 255, fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [245, 247, 250] },
+      margin: {
+        left: margen,
+        right: margen,
+        bottom: 16,
+      },
+      styles: {
+        fontSize: 8.5,
+        cellPadding: 2.5,
+        textColor: [31, 41, 55],
+      },
+      headStyles: {
+        fillColor: turquesa,
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 250],
+      },
     });
   }
 
-  // Pie de página en todas las páginas
+  // Pie de página
   const paginas = doc.getNumberOfPages();
+
   for (let p = 1; p <= paginas; p++) {
     doc.setPage(p);
+
     doc.setDrawColor(209, 213, 219);
     doc.line(margen, alto - 11, ancho - margen, alto - 11);
+
     doc.setFontSize(8);
     doc.setTextColor(107, 114, 128);
+
     doc.text("Documento generado por SIGTAU · Uso académico", margen, alto - 6);
-    doc.text(`Página ${p} de ${paginas}`, ancho - margen, alto - 6, { align: "right" });
+
+    doc.text(`Página ${p} de ${paginas}`, ancho - margen, alto - 6, {
+      align: "right",
+    });
   }
 
   doc.save(`SIGTAU_${label.replace(/ /g, "_")}_${Date.now()}.pdf`);
 }
 
+/* ── Dashboard de reportes ───────────────────────── */
+
 export function DashboardReportes() {
   const [tipo, setTipo] = useState<TipoReporte>("ASISTENCIA");
+
   const [fechaInicio, setFechaInicio] = useState("2026-01-01");
+
   const [fechaFin, setFechaFin] = useState(
     new Date().toISOString().split("T")[0],
   );
+
   const [carrera, setCarrera] = useState("");
   const [carreras, setCarreras] = useState<string[]>([]);
   const [carrerasError, setCarrerasError] = useState(false);
+
   const [generando, setGenerando] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+
   const [reporte, setReporte] = useState<ReporteGenerado | null>(null);
 
   const tipoInfo = TIPO_OPCIONES.find((t) => t.valor === tipo)!;
 
-  // Carga las carreras reales para el selector (evita errores al escribir el nombre)
+  // Cargar carreras
   useEffect(() => {
     listarCarreras()
       .then(setCarreras)
       .catch(() => setCarrerasError(true));
   }, []);
 
+  // Generar reporte
   const handleGenerar = async () => {
     setGenerando(true);
     setGenError(null);
     setReporte(null);
+
     try {
       const resultado = await generarReporte({
         tipoReporte: tipo,
@@ -266,6 +334,7 @@ export function DashboardReportes() {
         fechaFin,
         filtroCarrera: carrera.trim() || undefined,
       });
+
       setReporte(resultado);
     } catch (err) {
       setGenError(
@@ -278,24 +347,22 @@ export function DashboardReportes() {
     }
   };
 
-  // Mensaje claro cuando el reporte no trae filas (indica período y carrera usados)
   const sinDatos = !!reporte && reporte.rows.length === 0;
+
   const mensajeSinDatos = carrera
     ? `No hay sesiones de estudiantes de ${carrera} entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con otro período o con «Todas las carreras».`
     : `No hay sesiones registradas entre el ${fmtFecha(fechaInicio)} y el ${fmtFecha(fechaFin)}. Prueba con un período más amplio.`;
 
   return (
-     <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
-      {/* Encabezado de Reportes */}
+    <div className="mx-auto w-full max-w-[1180px] space-y-5 text-foreground">
+      {/* Encabezado */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[25px]">
-            Reportes
+            Genera y consulta reportes académicos
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            RF-11 · Coordinación académica
-          </p>
         </div>
+
         {reporte && (
           <div className="flex flex-wrap gap-2">
             <button
@@ -308,12 +375,13 @@ export function DashboardReportes() {
                   carrera,
                 )
               }
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:border-[#FF5C65] hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C65]"
               style={{ fontSize: "0.82rem" }}
             >
-              <FileText size={14} style={{ color: "var(--text-danger)" }} />
+              <FileText size={14} className="text-[#FF5C65]" />
               <span className="text-foreground">Exportar PDF</span>
             </button>
+
             <button
               onClick={() =>
                 downloadExcel(
@@ -324,10 +392,10 @@ export function DashboardReportes() {
                   carrera,
                 )
               }
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:bg-secondary active:scale-95"
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 transition-all hover:border-[#118AB2] hover:bg-secondary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]"
               style={{ fontSize: "0.82rem" }}
             >
-              <FileSpreadsheet size={14} style={{ color: "var(--text-success)" }} />
+              <FileSpreadsheet size={14} className="text-[#118AB2]" />
               <span className="text-foreground">Exportar Excel</span>
             </button>
           </div>
@@ -336,8 +404,7 @@ export function DashboardReportes() {
 
       {/* Filtros */}
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter size={14} style={{ color: "var(--text-success)" }} />
+        <div className="mb-4 flex items-center gap-2">
           <p
             className="text-muted-foreground"
             style={{
@@ -350,6 +417,7 @@ export function DashboardReportes() {
           </p>
         </div>
 
+        {/* Tipos de reporte */}
         <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {TIPO_OPCIONES.map((t) => (
             <button
@@ -358,36 +426,41 @@ export function DashboardReportes() {
                 setTipo(t.valor);
                 setReporte(null);
               }}
-              className="rounded-xl border p-3.5 text-left transition-all hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-xl border p-3.5 text-left transition-all hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#118AB2]"
               style={{
-                borderColor: tipo === t.valor ? "#10B981" : "var(--border)",
+                borderColor: tipo === t.valor ? "#118AB2" : "var(--border)",
                 background:
                   tipo === t.valor
-                    ? "rgba(16,185,129,0.06)"
+                    ? "rgba(17,138,178,0.10)"
                     : "var(--input-background)",
               }}
             >
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="mb-1.5 flex items-center gap-2">
                 <BarChart3
                   size={13}
                   style={{
                     color:
-                      tipo === t.valor ? "#10B981" : "var(--muted-foreground)",
+                      tipo === t.valor ? "#118AB2" : "var(--muted-foreground)",
                   }}
                 />
               </div>
+
               <p
                 className="text-foreground"
                 style={{
                   fontSize: "0.8rem",
-                  fontWeight: tipo === t.valor ? 500 : 400,
+                  fontWeight: tipo === t.valor ? 600 : 400,
                 }}
               >
                 {t.label}
               </p>
+
               <p
-                className="text-muted-foreground mt-0.5"
-                style={{ fontSize: "0.75rem", lineHeight: 1.4 }}
+                className="mt-0.5 text-muted-foreground"
+                style={{
+                  fontSize: "0.75rem",
+                  lineHeight: 1.4,
+                }}
               >
                 {t.info}
               </p>
@@ -395,25 +468,28 @@ export function DashboardReportes() {
           ))}
         </div>
 
-          <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Fechas y filtros */}
+        <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
             Fecha inicio
             <input
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-[#118AB2] dark:[color-scheme:dark]"
             />
           </label>
+
           <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
             Fecha fin
             <input
               type="date"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
-              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-[#118AB2] dark:[color-scheme:dark]"
             />
           </label>
+
           <label className="grid min-w-0 gap-1.5 text-xs font-medium text-muted-foreground">
             Filtro por carrera
             <select
@@ -427,9 +503,10 @@ export function DashboardReportes() {
                   ? "No se pudieron cargar las carreras; se usará Todas las carreras."
                   : undefined
               }
-              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
+              className="h-11 w-full min-w-0 rounded-xl border border-border bg-input-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-[#118AB2] dark:[color-scheme:dark]"
             >
               <option value="">Todas las carreras</option>
+
               {carreras.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -437,34 +514,39 @@ export function DashboardReportes() {
               ))}
             </select>
           </label>
+
           <button
             type="button"
             onClick={handleGenerar}
             disabled={generando}
-            className="sigtau-accent-button flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-emerald-950 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#118AB2] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0F789A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#118AB2] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {generando ? (
               <>
-                <Loader2 size={15} className="animate-spin" /> Generando...
+                <Loader2 size={15} className="animate-spin" />
+                Generando...
               </>
             ) : (
               <>
-                <Play size={14} /> Generar reporte
+                <Play size={14} />
+                Generar reporte
               </>
             )}
           </button>
         </div>
 
+        {/* Error */}
         {genError && (
           <div
-            className="flex items-center gap-2.5 rounded-xl px-4 py-3"
+            className="mt-4 flex items-center gap-2.5 rounded-xl px-4 py-3"
             style={{
-              background: "rgba(239,68,68,0.08)",
-              border: "1px solid rgba(239,68,68,0.2)",
+              background: "rgba(255,92,101,0.08)",
+              border: "1px solid rgba(255,92,101,0.25)",
             }}
           >
-            <AlertCircle size={14} className="text-destructive shrink-0" />
-            <p className="text-destructive" style={{ fontSize: "0.82rem" }}>
+            <AlertCircle size={14} className="shrink-0 text-[#FF5C65]" />
+
+            <p className="text-[#FF5C65]" style={{ fontSize: "0.82rem" }}>
               {genError}
             </p>
           </div>
@@ -474,39 +556,47 @@ export function DashboardReportes() {
       {/* Resultados */}
       {reporte && (
         <>
-          {/* Aviso: verde si hay datos, ámbar si el reporte salió vacío */}
+          {/* Estado del reporte */}
           <div
             className="flex items-center gap-3 rounded-xl px-4 py-3"
             style={{
               background: sinDatos
                 ? "rgba(245,158,11,0.08)"
-                : "rgba(16,185,129,0.08)",
+                : "rgba(17,138,178,0.08)",
               border: sinDatos
                 ? "1px solid rgba(245,158,11,0.3)"
-                : "1px solid rgba(16,185,129,0.25)",
+                : "1px solid rgba(17,138,178,0.25)",
             }}
           >
             {sinDatos ? (
               <AlertCircle
                 size={16}
-                style={{ color: "var(--text-warning)", flexShrink: 0 }}
+                style={{
+                  color: "#F59E0B",
+                  flexShrink: 0,
+                }}
               />
             ) : (
               <CheckCircle2
                 size={16}
-                style={{ color: "var(--text-success)", flexShrink: 0 }}
+                style={{
+                  color: "#118AB2",
+                  flexShrink: 0,
+                }}
               />
             )}
+
             <div className="flex-1">
               <p
                 style={{
                   fontSize: "0.85rem",
-                  color: sinDatos ? "#F59E0B" : "#10B981",
+                  color: sinDatos ? "#F59E0B" : "#118AB2",
                 }}
               >
                 {sinDatos ? "Reporte sin resultados" : "Reporte generado"} —{" "}
                 <strong>{tipoInfo.label}</strong>
               </p>
+
               <p
                 className="text-muted-foreground"
                 style={{ fontSize: "0.75rem" }}
@@ -518,22 +608,26 @@ export function DashboardReportes() {
             </div>
           </div>
 
-          {/* KPIs */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Indicadores KPI */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {reporte.kpis.map((k, i) => {
               const Icon = KPI_ICONS[i % KPI_ICONS.length];
               const color = KPI_COLORS[i % KPI_COLORS.length];
+
               return (
                 <div
                   key={k.label}
                   className="rounded-2xl border border-border bg-card p-4 shadow-sm"
                 >
                   <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: `${color}18` }}
+                    className="mb-3 flex h-8 w-8 items-center justify-center rounded-xl"
+                    style={{
+                      background: `${color}18`,
+                    }}
                   >
                     <Icon size={15} style={{ color }} />
                   </div>
+
                   <p
                     style={{
                       fontFamily: "var(--font-mono)",
@@ -544,8 +638,9 @@ export function DashboardReportes() {
                   >
                     {k.value}
                   </p>
+
                   <p
-                    className="text-muted-foreground mt-1"
+                    className="mt-1 text-muted-foreground"
                     style={{ fontSize: "0.75rem" }}
                   >
                     {k.label}
@@ -557,37 +652,48 @@ export function DashboardReportes() {
 
           {/* Gráfica */}
           {reporte.chart.length > 0 && (
-            <div className="bg-card rounded-2xl border border-border p-5">
+            <div className="rounded-2xl border border-border bg-card p-5">
               <h3
-                className="text-card-foreground mb-1"
+                className="mb-1 text-card-foreground"
                 style={{ fontSize: "0.95rem" }}
               >
                 Visualización — {tipoInfo.label}
               </h3>
+
               <p
-                className="text-muted-foreground mb-4"
+                className="mb-4 text-muted-foreground"
                 style={{ fontSize: "0.78rem" }}
               >
                 Período {fmtFecha(fechaInicio)} al {fmtFecha(fechaFin)}
               </p>
+
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={reporte.chart} barSize={32}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(30,58,138,0.07)"
+                    stroke="rgba(17,138,178,0.10)"
                     vertical={false}
                   />
+
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                    tick={{
+                      fontSize: 11,
+                      fill: "var(--muted-foreground)",
+                    }}
                     axisLine={false}
                     tickLine={false}
                   />
+
                   <YAxis
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                    tick={{
+                      fontSize: 11,
+                      fill: "var(--muted-foreground)",
+                    }}
                     axisLine={false}
                     tickLine={false}
                   />
+
                   <Tooltip
                     contentStyle={{
                       background: "var(--card)",
@@ -596,17 +702,19 @@ export function DashboardReportes() {
                       fontSize: 12,
                     }}
                   />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#10B981" />
+
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#118AB2" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
 
           {/* Tabla */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2.5">
-                <FileText size={14} style={{ color: "var(--text-success)" }} />
+                <FileText size={14} className="text-[#118AB2]" />
+
                 <h3
                   className="text-card-foreground"
                   style={{ fontSize: "0.95rem" }}
@@ -614,6 +722,7 @@ export function DashboardReportes() {
                   Tabla de datos — {tipoInfo.label}
                 </h3>
               </div>
+
               <span
                 className="text-muted-foreground"
                 style={{ fontSize: "0.75rem" }}
@@ -621,17 +730,20 @@ export function DashboardReportes() {
                 {reporte.rows.length} registros
               </span>
             </div>
+
             <div className="overflow-x-auto">
               <table
                 className="w-full"
-                style={{ minWidth: `${reporte.headers.length * 130}px` }}
+                style={{
+                  minWidth: `${reporte.headers.length * 130}px`,
+                }}
               >
                 <thead>
                   <tr className="border-b border-border bg-secondary">
                     {reporte.headers.map((h) => (
                       <th
                         key={h}
-                        className="text-left px-5 py-3 text-muted-foreground whitespace-nowrap"
+                        className="whitespace-nowrap px-5 py-3 text-left text-muted-foreground"
                         style={{
                           fontSize: "0.75rem",
                           textTransform: "uppercase",
@@ -644,12 +756,13 @@ export function DashboardReportes() {
                     ))}
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-border">
                   {reporte.rows.length === 0 ? (
                     <tr>
                       <td
                         colSpan={reporte.headers.length}
-                        className="text-center py-10 text-muted-foreground"
+                        className="py-10 text-center text-muted-foreground"
                         style={{ fontSize: "0.875rem" }}
                       >
                         {mensajeSinDatos}
@@ -659,12 +772,12 @@ export function DashboardReportes() {
                     reporte.rows.map((row, ri) => (
                       <tr
                         key={ri}
-                        className="hover:bg-secondary/40 transition-colors"
+                        className="transition-colors hover:bg-secondary/40"
                       >
                         {row.map((cell, ci) => (
                           <td
                             key={ci}
-                            className="px-5 py-3 whitespace-nowrap"
+                            className="whitespace-nowrap px-5 py-3"
                             style={{
                               fontSize: "0.82rem",
                               color:
@@ -685,7 +798,9 @@ export function DashboardReportes() {
                 </tbody>
               </table>
             </div>
-            <div className="px-5 py-3.5 border-t border-border flex items-center justify-between">
+
+            {/* Pie de tabla */}
+            <div className="flex items-center justify-between border-t border-border px-5 py-3.5">
               <p
                 className="text-muted-foreground"
                 style={{ fontSize: "0.75rem" }}
@@ -693,37 +808,39 @@ export function DashboardReportes() {
                 {reporte.rows.length} registros · generado{" "}
                 {new Date(reporte.fechaGeneracion).toLocaleString("es-SV")}
               </p>
+
               <div className="flex gap-2">
                 <button
                   onClick={() =>
                     downloadPDF(
-                  reporte,
-                  tipoInfo.label,
-                  fechaInicio,
-                  fechaFin,
-                  carrera,
-                )
+                      reporte,
+                      tipoInfo.label,
+                      fechaInicio,
+                      fechaFin,
+                      carrera,
+                    )
                   }
-                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground transition-all hover:border-[#FF5C65] hover:bg-secondary hover:text-foreground"
                   style={{ fontSize: "0.75rem" }}
                 >
-                  <FileText size={12} style={{ color: "var(--text-danger)" }} /> Exportar
-                  PDF
+                  <FileText size={12} className="text-[#FF5C65]" />
+                  Exportar PDF
                 </button>
+
                 <button
                   onClick={() =>
                     downloadExcel(
-                  reporte,
-                  tipoInfo.label,
-                  fechaInicio,
-                  fechaFin,
-                  carrera,
-                )
+                      reporte,
+                      tipoInfo.label,
+                      fechaInicio,
+                      fechaFin,
+                      carrera,
+                    )
                   }
-                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-muted-foreground transition-all hover:border-[#118AB2] hover:bg-secondary hover:text-foreground"
                   style={{ fontSize: "0.75rem" }}
                 >
-                  <FileSpreadsheet size={12} style={{ color: "var(--text-success)" }} />{" "}
+                  <FileSpreadsheet size={12} className="text-[#118AB2]" />
                   Exportar Excel
                 </button>
               </div>
@@ -732,21 +849,24 @@ export function DashboardReportes() {
         </>
       )}
 
+      {/* Estado inicial */}
       {!reporte && !generando && (
-        <div className="bg-card rounded-2xl border border-dashed border-border py-16 text-center">
+        <div className="rounded-2xl border border-dashed border-border bg-card py-16 text-center">
           <BarChart3
             size={36}
-            className="mx-auto mb-3 text-muted-foreground opacity-40"
+            className="mx-auto mb-3 text-[#118AB2] opacity-60"
           />
+
           <p className="text-foreground" style={{ fontSize: "0.95rem" }}>
             Configura y genera un reporte
           </p>
+
           <p
-            className="text-muted-foreground mt-1"
+            className="mt-1 text-muted-foreground"
             style={{ fontSize: "0.82rem" }}
           >
             Selecciona el tipo, define el período y haz clic en «Generar
-            reporte»
+            reporte».
           </p>
         </div>
       )}
