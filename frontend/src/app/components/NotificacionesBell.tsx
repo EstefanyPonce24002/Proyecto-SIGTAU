@@ -234,7 +234,8 @@ export function NotificacionesBell() {
                 const titulo =
                   n.tipo === "NUEVA_SOLICITUD" ||
                   (n.tipo === "APROBACION" &&
-                    n.mensaje.startsWith("Nueva solicitud de tutoría de "))
+                  n.mensaje.startsWith("Nueva solicitud de tutoría de ")
+                  )
                     ? "Nueva solicitud"
                     : n.tipo === "APROBACION"
                       ? "Solicitud aprobada"
