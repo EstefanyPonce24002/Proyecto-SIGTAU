@@ -56,9 +56,7 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
 
     // Validación básica: comprobar que ambos campos contengan datos
     if (!normalizedEmail || !password) {
-      setError(
-        "Debe ingresar su correo electrónico y contraseña para continuar.",
-      );
+      setError("Complete todos los campos requeridos.");
       return;
     }
 
@@ -77,7 +75,9 @@ export function LoginScreen({ dark, onToggleDark, onLogin, onForgot }: Props) {
       // Discrimina entre un error controlado de la API o un error general de red
       const msg =
         err instanceof ApiError
-          ? err.message
+          ? [400, 401, 403].includes(err.status)
+            ? "Correo electrónico o contraseña incorrectos."
+            : err.message
           : "No se pudo conectar con el servidor";
 
       setError(msg);

@@ -651,7 +651,7 @@ function NuevoUsuarioModal({
               type="button"
               onClick={onClose}
               disabled={saving}
-              className="rounded-xl border border-border px-4 py-2.5 text-sm transition-colors hover:border-[#118AB2] hover:text-[#118AB2] hover:bg-secondary disabled:opacity-50"
+              className="rounded-xl border border-[#65323F] bg-[#252B3A] px-5 py-2.5 text-sm font-medium text-[#FF5C65] transition-colors hover:border-[#FF5C65] hover:bg-[#2D3040] disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -663,7 +663,7 @@ function NuevoUsuarioModal({
                 (form.rol === "TUTOR" &&
                   (cargandoAsignaturas || Boolean(errorAsignaturas)))
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#118AB2] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0F789A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#118AB2] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving && <Loader2 size={15} className="animate-spin" />}
               {editando ? "Guardar cambios" : "Crear usuario"}
@@ -1221,14 +1221,10 @@ export function GestionUsuarios({
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs text-white"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, #1E3A8A, #3B82F6)",
-                          }}
-                        >
-                          {iniciales(usuario.nombres, usuario.apellidos)}
-                        </div>
+  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#118AB2] text-xs text-white"
+>
+  {iniciales(usuario.nombres, usuario.apellidos)}
+</div>
 
                         <div className="min-w-0">
                           <p className="truncate text-sm text-[#F1F5F9]">
