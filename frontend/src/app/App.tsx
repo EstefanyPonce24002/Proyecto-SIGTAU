@@ -15,7 +15,6 @@ import {
   ClipboardList,
   History,
   BookOpen,
-  Shield,
   LogOut,
   Settings,
   MessageCircle,
@@ -42,7 +41,6 @@ import { GestionUsuarios } from "./components/GestionUsuarios";
 import { NotificacionesBell } from "./components/NotificacionesBell";
 import { DashboardCoord } from "./components/DashboardCoord";
 import { Asignaturas } from "./components/Asignaturas";
-import { Supervision } from "./components/Supervision";
 import { ProximosEventos } from "./components/ProximosEventos";
 import { VoiceSearchInput } from "./components/VoiceSearchInput";
 import { Mensajes } from "./components/Mensajes";
@@ -145,13 +143,6 @@ const NAV_ITEMS: NavItem[] = [
     path: "asignaturas",
     label: "Asignaturas",
     icon: BookOpen,
-    roles: ["coordinador"],
-  },
-  {
-    id: "supervision",
-    path: "supervision",
-    label: "Supervisión",
-    icon: Shield,
     roles: ["coordinador"],
   },
   {
@@ -764,7 +755,6 @@ export default function App() {
             {activeTab === "usuarios" && <GestionUsuarios />}
             {activeTab === "reportes" && <DashboardReportes />}
             {activeTab === "asignaturas" && <Asignaturas />}
-            {activeTab === "supervision" && <Supervision />}
 
             {activeTab === "mensajes" && (
               <Mensajes idUsuario={idUsuario} rol={rol} />

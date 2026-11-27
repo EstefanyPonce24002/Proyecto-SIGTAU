@@ -304,6 +304,8 @@ VALUES (
 		5,
 		3,
 		'OBSERVACION',
+
+		
 		'Tu tutor registró observaciones sobre tu progreso.',
 		true
 	),

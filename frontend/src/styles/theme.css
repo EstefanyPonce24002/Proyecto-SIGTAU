@@ -24,7 +24,7 @@
   --card-foreground: #1F2937;
   --popover: #FFFFFF;
   --popover-foreground: #1F2937;
-  --primary: var(--brand-blue-dark);  
+  --primary: var(--brand-blue);
   --primary-foreground: #FFFFFF;
   --secondary: #EFF6FF;
   --secondary-foreground: #1E3A8A;
@@ -210,7 +210,7 @@
   --card-foreground: #F9FAFB;
   --popover: #1F2937;
   --popover-foreground: #F9FAFB;
-  --primary: #60A5FA;
+  --primary: var(--brand-blue);
   --primary-foreground: #111827;
   --secondary: #374151;
   --secondary-foreground: #F9FAFB;
