@@ -58,7 +58,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(
-                    "{\"mensaje\":\"La sesión ha expirado o el token no es válido. Inicia sesión nuevamente.\"}");
+                    "{\"mensaje\":\"Tu sesión ha expirado. Inicia sesión nuevamente.\"}");
             return;
         }
 
